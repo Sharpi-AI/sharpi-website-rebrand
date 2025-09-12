@@ -1,0 +1,67 @@
+<div class="relative size-10 mx-auto" id="logo-container">
+  <canvas class="w-full h-full block" id="logo-canvas"></canvas>
+</div>
+
+<script>
+  import { ParticleSystem } from "./particleSystem.js";
+
+  function initLogoParticles() {
+    const canvas = document.getElementById("logo-canvas");
+    if (!canvas) return;
+
+    // Default configuration matching the React version
+    const config = {
+      // Particle configuration
+      radius: 1,
+      particleSize: 0.12,
+
+      // Animation settings (disabled by default)
+      continuousAnimation: false,
+      animationType: "none",
+      animationSpeed: 1.0,
+      animationIntensity: 0.3,
+      animationDirection: "clockwise",
+      animationPhase: 0.2,
+      animationAmplitude: 1.0,
+
+      // Auto-rotation settings
+      autoRotate: true,
+      autoRotateSpeedX: 0.0,
+      autoRotateSpeedY: 0.25,
+      autoRotateSpeedZ: 0.0,
+      rotationX: 0,
+      rotationY: 0,
+      rotationZ: 0,
+
+      // Camera settings
+      cameraPosition: [0, 0, 5],
+      cameraTarget: [0, 0, 0],
+
+      // Visual settings
+      backgroundColor: "transparent",
+    };
+
+    // Initialize the particle system
+    const particleSystem = new ParticleSystem(canvas, config);
+
+    // Store reference for potential cleanup
+    // @ts-ignore
+    window.logoParticleSystem = particleSystem;
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initLogoParticles);
+  } else {
+    initLogoParticles();
+  }
+
+  // Cleanup on page unload
+  window.addEventListener("beforeunload", () => {
+    // @ts-ignore
+    if (window.logoParticleSystem) {
+      // @ts-ignore
+      window.logoParticleSystem.dispose();
+    }
+  });
+</script>

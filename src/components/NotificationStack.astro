@@ -55,16 +55,14 @@ const notifications = [
           data-index={index}
           data-id={notification.id}
         >
-          <div id={`notification-card-${index}`}>
-            <NotificationCard
-              title={notification.title}
-              message={notification.message}
-              avatar={notification.avatar}
-              time={notification.time}
-              type={notification.type}
-              index={index}
-            />
-          </div>
+          <NotificationCard
+            title={notification.title}
+            message={notification.message}
+            avatar={notification.avatar}
+            time={notification.time}
+            type={notification.type}
+            index={index}
+          />
         </div>
       ))
     }
@@ -114,6 +112,14 @@ const notifications = [
           // Set z-index for proper stacking (newest on top) - higher index = higher z-index
           currentWrapper.style.zIndex = (i + 1).toString();
 
+          // Set full opacity for the current (top) notification
+          const currentCard = currentWrapper.querySelector(
+            '[id^="notification-card-"]'
+          ) as HTMLElement;
+          if (currentCard) {
+            currentCard.style.backgroundColor = "#FFFFFF";
+          }
+
           // Animate current notification sliding up from bottom
           await animate(
             currentWrapper,
@@ -136,6 +142,27 @@ const notifications = [
                 const stackLevel = i - prevIndex; // How many levels up
                 const stackOffset = -stackLevel * 15; // Reduced from 60px to 25px for subtlety
                 const stackScale = Math.max(0.85, 1 - stackLevel * 0.04); // Reduced scaling for subtlety
+                const stackOpacity =
+                  stackLevel >= 4 ? 0 : Math.max(0, 1 - stackLevel * 0.25); // 5th card (index 4) becomes invisible
+
+                // Set background color with absolute hex opacity
+                const element = wrapper as HTMLElement;
+                const card = element.querySelector(
+                  '[id^="notification-card-"]'
+                ) as HTMLElement;
+                if (card) {
+                  let hexColor = "#FFFFFF00"; // Default transparent
+                  if (stackOpacity >= 1) {
+                    hexColor = "#FFFFFF";
+                  } else if (stackOpacity >= 0.75) {
+                    hexColor = "#FFFFFFBF";
+                  } else if (stackOpacity >= 0.5) {
+                    hexColor = "#FFFFFF80";
+                  } else if (stackOpacity >= 0.25) {
+                    hexColor = "#FFFFFF40";
+                  }
+                  card.style.backgroundColor = hexColor;
+                }
 
                 return animate(
                   wrapper,
@@ -180,53 +207,6 @@ const notifications = [
         return false;
       }
     }
-
-    // Add hover interactions for stacked notifications
-    cards.forEach((card: Element, cardIndex: number) => {
-      const cardElement = card as HTMLElement;
-
-      cardElement.addEventListener("mouseenter", () => {
-        animate(
-          cardElement,
-          {
-            scale: 1.02,
-            y: -5,
-          },
-          {
-            duration: 0.2,
-            easing: "ease-out",
-          }
-        );
-      });
-
-      cardElement.addEventListener("mouseleave", () => {
-        // Return to stacked position based on current stack level
-        const wrapper = cardElement.closest(
-          '[id^="notification-wrapper-"]'
-        ) as HTMLElement;
-        const index = parseInt(wrapper.dataset.index || "0");
-
-        // Calculate current position in stack (higher index = newer = on top)
-        const currentStackLevel = index;
-        const stackOffset = currentStackLevel > 0 ? -currentStackLevel * 25 : 0;
-        const stackScale =
-          currentStackLevel > 0
-            ? Math.max(0.85, 1 - currentStackLevel * 0.04)
-            : 1;
-
-        animate(
-          wrapper,
-          {
-            scale: stackScale,
-            y: stackOffset,
-          },
-          {
-            duration: 0.2,
-            easing: "ease-out",
-          }
-        );
-      });
-    });
 
     // Continuous looping animation
     let isAnimating = false;

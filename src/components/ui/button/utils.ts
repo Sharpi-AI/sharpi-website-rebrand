@@ -15,6 +15,7 @@ export function buttonVariants({
 }: ButtonVariants = {}): string {
   const baseClasses = [
     "w-fit",
+    "tracking-tight",
     "inline-flex",
     "items-center",
     "justify-center",

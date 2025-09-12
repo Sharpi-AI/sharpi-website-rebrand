@@ -1,8 +1,9 @@
 ---
 import { cn } from "@/utils/cn";
 import { buttonVariants, type ButtonVariants } from "./utils";
+import type { HTMLAttributes } from "astro/types";
 
-export interface Props extends ButtonVariants {
+export interface Props extends ButtonVariants, HTMLAttributes<"button" | "a"> {
   class?: string;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
