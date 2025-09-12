@@ -1,0 +1,337 @@
+---
+import NotificationCard from "./NotificationCard.astro";
+
+const notifications = [
+  {
+    id: 1,
+    title: "Nova mensagem",
+    message: "Você recebeu uma nova proposta de orçamento para análise",
+    avatar: "JD",
+    time: "agora",
+    type: "message" as const,
+  },
+  {
+    id: 2,
+    title: "Pedido aprovado",
+    message: "Pedido #1247 foi aprovado e está sendo processado",
+    time: "2min",
+    type: "update" as const,
+  },
+  {
+    id: 3,
+    title: "Estoque baixo",
+    message: "Produto XYZ-123 está com estoque abaixo do limite mínimo",
+    time: "5min",
+    type: "alert" as const,
+  },
+  {
+    id: 4,
+    title: "Cliente atualizado",
+    message: "Dados do cliente foram atualizados com sucesso",
+    avatar: "AC",
+    time: "10min",
+    type: "update" as const,
+  },
+  {
+    id: 5,
+    title: "Nova cotação",
+    message: "Recebida nova solicitação de cotação para revisão",
+    time: "15min",
+    type: "message" as const,
+  },
+];
+---
+
+<div
+  id="notification-stack"
+  class="relative w-full h-full overflow-hidden px-4 py-6"
+>
+  <div id="notifications-container" class="relative flex flex-col-reverse">
+    {
+      notifications.map((notification, index) => (
+        <div
+          id={`notification-wrapper-${index}`}
+          class="absolute bottom-0 inset-x-0"
+          data-index={index}
+          data-id={notification.id}
+        >
+          <div id={`notification-card-${index}`}>
+            <NotificationCard
+              title={notification.title}
+              message={notification.message}
+              avatar={notification.avatar}
+              time={notification.time}
+              type={notification.type}
+              index={index}
+            />
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  // @ts-nocheck
+  import { animate, stagger } from "motion";
+
+  function initNotificationAnimation() {
+    const container = document.getElementById("notification-stack");
+    if (!container) return;
+
+    const wrappers = container.querySelectorAll(
+      '[id^="notification-wrapper-"]'
+    );
+    const cards = container.querySelectorAll('[id^="notification-card-"]');
+
+    // Set initial positions (bottom-to-top approach)
+    wrappers.forEach((wrapper: Element, index: number) => {
+      const element = wrapper as HTMLElement;
+      element.style.transform = `translateY(100px)`; // Start from below
+      element.style.opacity = "0";
+      element.style.scale = "1";
+      element.style.zIndex = "0"; // Will be set during animation
+    });
+
+    // Animation sequence functions - bottom-to-top stacking
+    async function playNotificationSequence() {
+      try {
+        // Reset all cards to initial position (below screen)
+        await animate(
+          wrappers,
+          {
+            opacity: 0,
+            y: 100,
+            scale: 1,
+          },
+          { duration: 0 }
+        );
+
+        // Animate each notification one by one
+        for (let i = 0; i < wrappers.length; i++) {
+          const currentWrapper = wrappers[i] as HTMLElement;
+
+          // Set z-index for proper stacking (newest on top) - higher index = higher z-index
+          currentWrapper.style.zIndex = (i + 1).toString();
+
+          // Animate current notification sliding up from bottom
+          await animate(
+            currentWrapper,
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+            },
+            {
+              duration: 0.5,
+              easing: [0.23, 1, 0.32, 1],
+            }
+          );
+
+          // Push previous notifications up and scale them down
+          if (i > 0) {
+            const previousNotifications = Array.from(wrappers).slice(0, i);
+            await Promise.all(
+              previousNotifications.map((wrapper, prevIndex) => {
+                const stackLevel = i - prevIndex; // How many levels up
+                const stackOffset = -stackLevel * 15; // Reduced from 60px to 25px for subtlety
+                const stackScale = Math.max(0.85, 1 - stackLevel * 0.04); // Reduced scaling for subtlety
+
+                return animate(
+                  wrapper,
+                  {
+                    y: stackOffset,
+                    scale: stackScale,
+                  },
+                  {
+                    duration: 0.3,
+                    easing: "ease-out",
+                  }
+                );
+              })
+            );
+          }
+
+          // Pause between notifications
+          await new Promise((resolve) => setTimeout(resolve, 800));
+        }
+
+        // Hold final position for viewing
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // Fade out all cards (bottom to top)
+        await animate(
+          wrappers,
+          {
+            opacity: 0,
+            y: -50,
+            scale: 0.8,
+          },
+          {
+            duration: 0.4,
+            delay: stagger(0.1, { from: "first" }), // Start from bottom (first in array)
+            easing: "ease-in",
+          }
+        );
+
+        return true;
+      } catch (error) {
+        console.error("Animation error:", error);
+        return false;
+      }
+    }
+
+    // Add hover interactions for stacked notifications
+    cards.forEach((card: Element, cardIndex: number) => {
+      const cardElement = card as HTMLElement;
+
+      cardElement.addEventListener("mouseenter", () => {
+        animate(
+          cardElement,
+          {
+            scale: 1.02,
+            y: -5,
+          },
+          {
+            duration: 0.2,
+            easing: "ease-out",
+          }
+        );
+      });
+
+      cardElement.addEventListener("mouseleave", () => {
+        // Return to stacked position based on current stack level
+        const wrapper = cardElement.closest(
+          '[id^="notification-wrapper-"]'
+        ) as HTMLElement;
+        const index = parseInt(wrapper.dataset.index || "0");
+
+        // Calculate current position in stack (higher index = newer = on top)
+        const currentStackLevel = index;
+        const stackOffset = currentStackLevel > 0 ? -currentStackLevel * 25 : 0;
+        const stackScale =
+          currentStackLevel > 0
+            ? Math.max(0.85, 1 - currentStackLevel * 0.04)
+            : 1;
+
+        animate(
+          wrapper,
+          {
+            scale: stackScale,
+            y: stackOffset,
+          },
+          {
+            duration: 0.2,
+            easing: "ease-out",
+          }
+        );
+      });
+    });
+
+    // Continuous looping animation
+    let isAnimating = false;
+    let shouldContinue = true;
+
+    async function startContinuousLoop() {
+      while (shouldContinue && document.contains(container)) {
+        if (!isAnimating) {
+          isAnimating = true;
+
+          const success = await playNotificationSequence();
+
+          if (success && shouldContinue) {
+            // Short pause between cycles
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
+
+          isAnimating = false;
+        } else {
+          // Wait a bit if animation is already running
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+      }
+    }
+
+    function stopLoop() {
+      shouldContinue = false;
+    }
+
+    // Intersection Observer to start/stop animation based on visibility
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isAnimating) {
+            shouldContinue = true;
+            startContinuousLoop();
+          } else if (!entry.isIntersecting) {
+            stopLoop();
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(container);
+
+    // Cleanup function
+    return () => {
+      observer.disconnect();
+      stopLoop();
+    };
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initNotificationAnimation);
+  } else {
+    initNotificationAnimation();
+  }
+</script>
+
+<style>
+  #notification-stack {
+    will-change: transform;
+  }
+
+  [id^="notification-wrapper-"] {
+    will-change: transform, opacity;
+    transform-origin: center bottom; /* Scale from bottom */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  #notifications-container {
+    height: 200px; /* Approximate height for 5 stacked cards */
+    overflow: visible;
+    transform: translateZ(0); /* Force hardware acceleration */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Align to bottom */
+  }
+
+  .notification-card {
+    transform: translateZ(0); /* Force hardware acceleration */
+    backface-visibility: hidden; /* Optimize for animations */
+  }
+
+  /* Responsive optimizations */
+  @media (max-width: 768px) {
+    #notifications-container {
+      height: 350px;
+    }
+
+    [id^="notification-card-"] {
+      padding: 12px;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    [id^="notification-wrapper-"] {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

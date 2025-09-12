@@ -1,0 +1,40 @@
+---
+import { cn } from "@/utils/cn";
+import { buttonVariants, type ButtonVariants } from "./utils";
+
+export interface Props extends ButtonVariants {
+  class?: string;
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
+  href?: string;
+  target?: string;
+  rel?: string;
+}
+
+const {
+  variant = "default",
+  size = "default",
+  class: className,
+  type = "button",
+  disabled = false,
+  href,
+  target,
+  rel,
+  ...rest
+} = Astro.props;
+
+const Element = href ? "a" : "button";
+const classes = cn(buttonVariants({ variant, size }), className);
+---
+
+<Element
+  class={classes}
+  type={Element === "button" ? type : undefined}
+  disabled={Element === "button" ? disabled : undefined}
+  href={Element === "a" ? href : undefined}
+  target={Element === "a" ? target : undefined}
+  rel={Element === "a" ? rel : undefined}
+  {...rest}
+>
+  <slot />
+</Element>

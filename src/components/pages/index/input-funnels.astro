@@ -1,0 +1,408 @@
+---
+
+---
+
+<canvas id="three-funnel-canvas" class="absolute inset-0 w-full h-full"
+></canvas>
+
+<script>
+  // @ts-nocheck
+  import * as THREE from "three";
+  import { createNoise2D } from "simplex-noise";
+
+  const noise = createNoise2D();
+
+  const X_DISTANCE = 8;
+  const Y_DISTANCE = 4;
+
+  // Texture data with custom width (height calculated from aspect ratio)
+  interface TextureData {
+    path: string;
+    width: number;
+  }
+
+  const textureDefinitions: TextureData[] = [
+    { path: "/assets/medias/index/hero/image-01.png", width: 1.0 },
+    { path: "/assets/medias/index/hero/image-02.png", width: 0.8 },
+    { path: "/assets/medias/index/hero/image-03.png", width: 1.2 },
+    { path: "/assets/medias/index/hero/image-04.png", width: 0.9 },
+    { path: "/assets/medias/index/hero/image-05.png", width: 1.1 },
+    { path: "/assets/medias/index/hero/image-06.png", width: 0.7 },
+    { path: "/assets/medias/index/hero/image-07.png", width: 1.3 },
+    { path: "/assets/medias/index/hero/image-08.png", width: 0.8 },
+    { path: "/assets/medias/index/hero/image-09.png", width: 1.0 },
+    { path: "/assets/medias/index/hero/image-10.png", width: 0.9 },
+    { path: "/assets/medias/index/hero/image-11.png", width: 1.1 },
+    { path: "/assets/medias/index/hero/image-12.png", width: 0.6 },
+    { path: "/assets/medias/index/hero/image-13.png", width: 1.2 },
+    { path: "/assets/medias/index/hero/image-14.png", width: 0.8 },
+    { path: "/assets/medias/index/hero/image-15.png", width: 1.0 },
+    { path: "/assets/medias/index/hero/image-16.png", width: 0.9 },
+    { path: "/assets/medias/index/hero/image-17.png", width: 1.1 },
+  ];
+
+  // Seeded random function for deterministic positioning
+  function seededRandom(seed: number): number {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }
+
+  // Create base material for objects
+  function createBaseMaterial(texture: THREE.Texture): THREE.MeshBasicMaterial {
+    return new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 1,
+      color: new THREE.Color(0xffffff),
+    });
+  }
+
+  // Create funnel object
+  function createFunnelObject(
+    texture: THREE.Texture,
+    geometry: THREE.PlaneGeometry,
+    direction: "left-to-right" | "right-to-left",
+    index: number,
+    scene: THREE.Scene
+  ): {
+    mesh: THREE.Mesh;
+    startPosition: { x: number; y: number; z: number };
+    offset: number;
+    direction: "left-to-right" | "right-to-left";
+  } {
+    const material = createBaseMaterial(texture);
+    const mesh = new THREE.Mesh(geometry, material);
+
+    // Configure positions based on direction
+    const x = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
+    const y = THREE.MathUtils.mapLinear(
+      seededRandom(index * (direction === "left-to-right" ? 123 : 789)),
+      0,
+      1,
+      -Y_DISTANCE,
+      Y_DISTANCE
+    );
+    const z =
+      direction === "left-to-right" ? 0.0001 * index : 0.0001 * (index + 100);
+
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
+
+    return {
+      mesh,
+      startPosition: { x, y, z },
+      offset: seededRandom(index * (direction === "left-to-right" ? 456 : 987)),
+      direction,
+    };
+  }
+
+  // Calculate X position based on direction and progress
+  function calculateXPosition(
+    direction: "left-to-right" | "right-to-left",
+    progress: number
+  ): number {
+    if (direction === "left-to-right") {
+      return THREE.MathUtils.mapLinear(progress, 0, 1, -X_DISTANCE, 0);
+    } else {
+      return THREE.MathUtils.mapLinear(progress, 0, 1, X_DISTANCE, 0);
+    }
+  }
+
+  // Calculate Y position with convergence and noise
+  function calculateYPosition(
+    direction: "left-to-right" | "right-to-left",
+    x: number,
+    startY: number,
+    noiseOffset: number
+  ): number {
+    const baseY =
+      direction === "left-to-right"
+        ? THREE.MathUtils.mapLinear(x, -X_DISTANCE, 0, startY, 0)
+        : THREE.MathUtils.mapLinear(x, X_DISTANCE, 0, startY, 0);
+
+    return baseY + noiseOffset;
+  }
+
+  // Calculate scale based on position
+  function calculateScale(
+    direction: "left-to-right" | "right-to-left",
+    x: number
+  ): number {
+    if (direction === "left-to-right") {
+      return THREE.MathUtils.mapLinear(x, -X_DISTANCE, 0, 1, 0.2);
+    } else {
+      return THREE.MathUtils.mapLinear(x, X_DISTANCE, 0, 1, 0.2);
+    }
+  }
+
+  // Animate individual object
+  function updateObject(
+    object: {
+      mesh: THREE.Mesh;
+      startPosition: { x: number; y: number; z: number };
+      offset: number;
+      direction: "left-to-right" | "right-to-left";
+    },
+    index: number,
+    progress: number
+  ): void {
+    const { mesh, offset, direction, startPosition } = object;
+    const uniqueProgress = (progress + offset) % 1;
+
+    // Calculate position X
+    const x = calculateXPosition(direction, uniqueProgress);
+
+    // Calculate periodic noise for Y variation
+    const noiseInput = uniqueProgress * Math.PI * 2;
+    const yOffset =
+      noise(Math.cos(noiseInput) + index, Math.sin(noiseInput)) * 0.0001;
+
+    // Calculate position Y with convergence
+    const y = calculateYPosition(direction, x, startPosition.y, yOffset);
+
+    // Calculate scale
+    const scale = calculateScale(direction, x);
+    const opacity = THREE.MathUtils.mapLinear(Math.abs(x), 1.5, 0, 1, 0.01);
+
+    if (opacity < 1) {
+      (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
+    } else {
+      (mesh.material as THREE.MeshBasicMaterial).opacity = 1;
+    }
+    (mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
+
+    mesh.position.x = x;
+    mesh.position.y = y;
+    mesh.scale.set(scale, scale, 1);
+  }
+
+  // Utility functions for resize handling
+  function throttle(func: Function, wait: number) {
+    let timeout: NodeJS.Timeout | null = null;
+    return function executedFunction(...args: any[]) {
+      const later = () => {
+        timeout = null;
+        func(...args);
+      };
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  function getCanvasDimensions(canvas: HTMLCanvasElement): { width: number; height: number } {
+    const rect = canvas.getBoundingClientRect();
+    const parentRect = canvas.parentElement?.getBoundingClientRect();
+    
+    // Use parent dimensions as fallback
+    const fallbackWidth = parentRect?.width || window.innerWidth;
+    const fallbackHeight = parentRect?.height || window.innerHeight;
+    
+    // Ensure minimum dimensions
+    const width = Math.max(rect.width || fallbackWidth, 100);
+    const height = Math.max(rect.height || fallbackHeight, 100);
+    
+    return { width, height };
+  }
+
+  // Main initialization function
+  async function initThreeFunnel() {
+    const canvas = document.getElementById(
+      "three-funnel-canvas"
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Get canvas dimensions with fallbacks
+    const { width, height } = getCanvasDimensions(canvas);
+
+    // Setup renderer
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor(0x000000, 0); // Transparent background
+    renderer.sortObjects = true;
+
+    // Setup camera
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+    camera.position.set(0, 0, 8);
+    camera.lookAt(0, 0, 0);
+
+    // Setup scene
+    const scene = new THREE.Scene();
+
+    const textureLoader = new THREE.TextureLoader();
+    const LOOP_DURATION = 20000; // 20 seconds
+
+    interface LoadedTextureData {
+      texture: THREE.Texture;
+      width: number;
+      height: number;
+      index: number;
+    }
+
+    const objects: {
+      mesh: THREE.Mesh;
+      startPosition: { x: number; y: number; z: number };
+      offset: number;
+      direction: "left-to-right" | "right-to-left";
+    }[] = [];
+
+    // Create geometry with custom dimensions
+    const createGeometry = (
+      width: number,
+      height: number
+    ): THREE.PlaneGeometry => {
+      return new THREE.PlaneGeometry(width, height);
+    };
+
+    // Load textures asynchronously and calculate height from aspect ratio
+    const loadTexturePromises = textureDefinitions.map(
+      (textureDefinition, i) => {
+        return new Promise<LoadedTextureData | null>((resolve) => {
+          const texture = textureLoader.load(
+            textureDefinition.path,
+            // onLoad
+            () => {
+              // Calculate height based on image aspect ratio to maintain proportions
+              const aspectRatio = texture.image.width / texture.image.height;
+              const height = textureDefinition.width / aspectRatio;
+
+              resolve({
+                texture,
+                width: textureDefinition.width,
+                height: height,
+                index: i,
+              });
+            },
+            // onProgress
+            undefined,
+            // onError
+            (error: unknown) => {
+              console.error(
+                `Error loading texture ${i + 1}:`,
+                textureDefinition.path,
+                error
+              );
+              resolve(null);
+            }
+          );
+        });
+      }
+    );
+
+    const loadedTextureData = await Promise.all(loadTexturePromises);
+    const validTextureData = loadedTextureData.filter(
+      (data): data is NonNullable<typeof data> => data !== null
+    );
+
+    // Create objects with custom dimensions
+    for (const { texture, width, height, index: i } of validTextureData) {
+      const geometry = createGeometry(width, height);
+
+      // Left to right object
+      const leftObject = createFunnelObject(
+        texture,
+        geometry,
+        "left-to-right",
+        i,
+        scene
+      );
+      objects.push(leftObject);
+
+      // Right to left object
+      const rightObject = createFunnelObject(
+        texture,
+        geometry.clone(),
+        "right-to-left",
+        i,
+        scene
+      );
+      objects.push(rightObject);
+    }
+
+    // Animation loop
+    let startTime = Date.now();
+
+    function animate() {
+      const currentTime = Date.now();
+      const elapsed = currentTime - startTime;
+      const progress = (elapsed / LOOP_DURATION) % 1;
+
+      objects.forEach((object, index) => {
+        updateObject(object, index, progress);
+      });
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // Store current dimensions to detect actual changes
+    let currentWidth = width;
+    let currentHeight = height;
+
+    // Handle resize with improved logic
+    function onWindowResize() {
+      try {
+        const { width: newWidth, height: newHeight } = getCanvasDimensions(canvas);
+        
+        // Only update if dimensions actually changed
+        if (newWidth === currentWidth && newHeight === currentHeight) {
+          return;
+        }
+        
+        // Validate dimensions
+        if (newWidth <= 0 || newHeight <= 0) {
+          console.warn('Invalid canvas dimensions during resize:', { newWidth, newHeight });
+          return;
+        }
+        
+        console.log('Resizing canvas:', { from: { width: currentWidth, height: currentHeight }, to: { width: newWidth, height: newHeight } });
+        
+        // Update stored dimensions
+        currentWidth = newWidth;
+        currentHeight = newHeight;
+        
+        // Update camera and renderer
+        camera.aspect = newWidth / newHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(newWidth, newHeight, false); // false prevents style updates
+        
+        // Force a render
+        renderer.render(scene, camera);
+      } catch (error) {
+        console.error('Error during resize:', error);
+      }
+    }
+
+    // Throttled resize handler to prevent excessive calls
+    const throttledResize = throttle(onWindowResize, 16); // ~60fps
+    
+    // Use both resize and orientationchange for better mobile support
+    window.addEventListener("resize", throttledResize);
+    window.addEventListener("orientationchange", () => {
+      // Add small delay for orientation change to complete
+      setTimeout(throttledResize, 100);
+    });
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener("resize", throttledResize);
+      window.removeEventListener("orientationchange", throttledResize);
+      renderer.dispose();
+      scene.clear();
+    };
+  }
+
+  // Initialize when page loads
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initThreeFunnel);
+  } else {
+    initThreeFunnel();
+  }
+</script>
