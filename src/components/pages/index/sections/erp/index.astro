@@ -32,11 +32,11 @@ const erps = [
   class="px-10 flex items-center justify-between max-w-5xl mx-auto py-28"
 >
   <div class="space-y-10">
-    <h2 class="font-normal tracking-[-1.5px] text-5xl text-[##573DFF]">
+    <h2 class="font-normal tracking-[-1.5px] text-5xl text-[#573DFF]">
       Seu ERP, nosso desafio.
     </h2>
     <p
-      class="text-base leading-none font-normal text-[##3D3939] tracking-tight text-balance"
+      class="text-base leading-snug font-normal text-[##3D3939] tracking-tight text-balance"
     >
       Nossos especialistas fazem de tudo para se conectar ao seu ERP—seja ele
       qual for—garantindo um fluxo de dados perfeito desde o primeiro dia.
@@ -45,8 +45,13 @@ const erps = [
   <div class="grid grid-cols-3 gap-8">
     {
       erps.map((erp) => (
-        <div class="flex max-w-30  items-center justify-center grayscale hover:grayscale-0 transition-all duration-300">
-          <img src={erp.logo} alt={erp.name} />
+        <div class="flex max-w-30 items-center justify-center transition-all duration-300">
+          <img
+            src={erp.logo}
+            alt={erp.name}
+            class="brightness-0 saturate-100 "
+            style="filter: brightness(0) saturate(100%) invert(34%) sepia(75%) saturate(3558%) hue-rotate(239deg) brightness(96%) contrast(105%);"
+          />
         </div>
       ))
     }

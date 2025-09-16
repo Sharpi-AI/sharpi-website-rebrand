@@ -2,8 +2,10 @@
 
 ---
 
-<canvas id="three-funnel-canvas" class="absolute inset-0 w-full h-full"
-></canvas>
+<canvas
+  id="three-funnel-canvas"
+  class="absolute inset-0 w-full h-full block"
+  style="width: 100%; height: 100%; display: block;"></canvas>
 
 <script>
   // @ts-nocheck
@@ -177,32 +179,80 @@
     mesh.scale.set(scale, scale, 1);
   }
 
-  // Utility functions for resize handling
-  function throttle(func: Function, wait: number) {
-    let timeout: NodeJS.Timeout | null = null;
-    return function executedFunction(...args: any[]) {
-      const later = () => {
-        timeout = null;
-        func(...args);
-      };
-      if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
+  // Force canvas to recalculate its size
+  function forceCanvasResize(canvas: HTMLCanvasElement): void {
+    // Force reflow by reading layout properties
+    canvas.offsetHeight;
+    canvas.offsetWidth;
+
+    // Temporarily remove and re-add size styles to trigger recalculation
+    const originalWidth = canvas.style.width;
+    const originalHeight = canvas.style.height;
+
+    canvas.style.width = "";
+    canvas.style.height = "";
+
+    // Force reflow
+    canvas.offsetHeight;
+
+    canvas.style.width = originalWidth || "100%";
+    canvas.style.height = originalHeight || "100%";
   }
 
-  function getCanvasDimensions(canvas: HTMLCanvasElement): { width: number; height: number } {
+  function getCanvasDimensions(
+    canvas: HTMLCanvasElement,
+    forceResize: boolean = false
+  ): {
+    width: number;
+    height: number;
+  } {
+    if (forceResize) {
+      forceCanvasResize(canvas);
+    }
+
+    // Use the actual canvas element dimensions from its container
     const rect = canvas.getBoundingClientRect();
-    const parentRect = canvas.parentElement?.getBoundingClientRect();
-    
-    // Use parent dimensions as fallback
-    const fallbackWidth = parentRect?.width || window.innerWidth;
-    const fallbackHeight = parentRect?.height || window.innerHeight;
-    
-    // Ensure minimum dimensions
-    const width = Math.max(rect.width || fallbackWidth, 100);
-    const height = Math.max(rect.height || fallbackHeight, 100);
-    
-    return { width, height };
+    let width = rect.width || canvas.clientWidth;
+    let height = rect.height || canvas.clientHeight;
+
+    console.log("🔍 Canvas dimensions check:", {
+      "rect.width": rect.width,
+      "rect.height": rect.height,
+      "canvas.clientWidth": canvas.clientWidth,
+      "canvas.clientHeight": canvas.clientHeight,
+      "canvas.offsetWidth": canvas.offsetWidth,
+      "canvas.offsetHeight": canvas.offsetHeight,
+      "computed width": width,
+      "computed height": height,
+      forceResize: forceResize,
+    });
+
+    // Fallback to parent container dimensions if canvas is still 0
+    if (width <= 0 || height <= 0) {
+      const parent = canvas.parentElement;
+      if (parent) {
+        const parentRect = parent.getBoundingClientRect();
+        // Account for padding in the parent (p-4 = 16px padding)
+        const paddingOffset = 32; // 16px * 2 (left + right, top + bottom)
+        width = Math.max(parentRect.width - paddingOffset, 1);
+        height = Math.max(parentRect.height - paddingOffset, 1);
+
+        console.log("📦 Parent container fallback:", {
+          "parent.tagName": parent.tagName,
+          "parent.className": parent.className,
+          "parentRect.width": parentRect.width,
+          "parentRect.height": parentRect.height,
+          "adjusted width": width,
+          "adjusted height": height,
+          paddingOffset: paddingOffset,
+        });
+      }
+    }
+
+    return {
+      width: width || 1,
+      height: height || 1,
+    };
   }
 
   // Main initialization function
@@ -212,8 +262,27 @@
     ) as HTMLCanvasElement;
     if (!canvas) return;
 
-    // Get canvas dimensions with fallbacks
-    const { width, height } = getCanvasDimensions(canvas);
+    // Wait for canvas to have proper dimensions
+    let retries = 0;
+    const maxRetries = 10;
+    let dimensions = getCanvasDimensions(canvas);
+
+    while (
+      (dimensions.width <= 1 || dimensions.height <= 1) &&
+      retries < maxRetries
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      dimensions = getCanvasDimensions(canvas);
+      retries++;
+    }
+
+    const { width, height } = dimensions;
+
+    console.log("Canvas initialized with dimensions:", { width, height });
+
+    // Set canvas element dimensions
+    canvas.width = width;
+    canvas.height = height;
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer({
@@ -346,54 +415,135 @@
     let currentWidth = width;
     let currentHeight = height;
 
-    // Handle resize with improved logic
+    // Handle resize with improved responsiveness
     function onWindowResize() {
+      console.log("🚨 Resize event triggered!");
       try {
-        const { width: newWidth, height: newHeight } = getCanvasDimensions(canvas);
-        
-        // Only update if dimensions actually changed
-        if (newWidth === currentWidth && newHeight === currentHeight) {
+        const { width: newWidth, height: newHeight } = getCanvasDimensions(
+          canvas,
+          true
+        );
+
+        console.log("📏 Current vs New dimensions:", {
+          current: { width: currentWidth, height: currentHeight },
+          new: { width: newWidth, height: newHeight },
+          difference: {
+            width: Math.abs(newWidth - currentWidth),
+            height: Math.abs(newHeight - currentHeight),
+          },
+        });
+
+        // Only update if dimensions actually changed (with small tolerance for floating point)
+        const tolerance = 1;
+        if (
+          Math.abs(newWidth - currentWidth) < tolerance &&
+          Math.abs(newHeight - currentHeight) < tolerance
+        ) {
+          console.log(
+            "⏭️ Skipping resize - dimensions unchanged (within tolerance)"
+          );
           return;
         }
-        
+
         // Validate dimensions
         if (newWidth <= 0 || newHeight <= 0) {
-          console.warn('Invalid canvas dimensions during resize:', { newWidth, newHeight });
+          console.warn("❌ Invalid canvas dimensions during resize:", {
+            newWidth,
+            newHeight,
+          });
           return;
         }
-        
-        console.log('Resizing canvas:', { from: { width: currentWidth, height: currentHeight }, to: { width: newWidth, height: newHeight } });
-        
+
+        console.log("✅ Applying resize:", {
+          from: { width: currentWidth, height: currentHeight },
+          to: { width: newWidth, height: newHeight },
+        });
+
         // Update stored dimensions
         currentWidth = newWidth;
         currentHeight = newHeight;
-        
-        // Update camera and renderer
+
+        // Update canvas element dimensions
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        console.log("🖼️ Canvas element dimensions updated:", {
+          width: canvas.width,
+          height: canvas.height,
+        });
+
+        // Update camera aspect ratio and projection matrix
         camera.aspect = newWidth / newHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(newWidth, newHeight, false); // false prevents style updates
-        
-        // Force a render
+
+        console.log("📷 Camera updated:", {
+          aspect: camera.aspect,
+          newAspect: newWidth / newHeight,
+        });
+
+        // Update renderer size (false parameter prevents CSS style updates)
+        renderer.setSize(newWidth, newHeight, false);
+        console.log("🎨 Renderer size updated");
+
+        // Update pixel ratio in case of device changes
+        renderer.setPixelRatio(window.devicePixelRatio);
+        console.log("🖥️ Pixel ratio updated to:", window.devicePixelRatio);
+
+        // Force a render to immediately show changes
         renderer.render(scene, camera);
+        console.log("🎬 Forced render complete");
       } catch (error) {
-        console.error('Error during resize:', error);
+        console.error("💥 Error during resize:", error);
       }
     }
 
-    // Throttled resize handler to prevent excessive calls
-    const throttledResize = throttle(onWindowResize, 16); // ~60fps
-    
-    // Use both resize and orientationchange for better mobile support
-    window.addEventListener("resize", throttledResize);
+    // Use ResizeObserver for more accurate canvas size changes
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      console.log("🔍 Setting up ResizeObserver");
+      resizeObserver = new ResizeObserver((entries) => {
+        console.log(
+          "🎯 ResizeObserver triggered with entries:",
+          entries.length
+        );
+        for (const entry of entries) {
+          if (entry.target === canvas) {
+            console.log("📐 ResizeObserver detected canvas resize:", {
+              contentRect: entry.contentRect,
+              borderBoxSize: entry.borderBoxSize,
+              contentBoxSize: entry.contentBoxSize,
+            });
+            onWindowResize();
+          }
+        }
+      });
+      resizeObserver.observe(canvas);
+      console.log("👀 ResizeObserver is now observing canvas");
+    } else {
+      console.log("❌ ResizeObserver not supported, using fallback");
+    }
+
+    // Fallback resize handlers for browsers that don't support ResizeObserver
+    window.addEventListener("resize", () => {
+      console.log("🌐 Window resize event triggered");
+      onWindowResize();
+    });
     window.addEventListener("orientationchange", () => {
-      // Add small delay for orientation change to complete
-      setTimeout(throttledResize, 100);
+      console.log("📱 Orientation change event triggered");
+      // Small delay for orientation change to complete
+      setTimeout(() => {
+        console.log("📱 Orientation change timeout executed");
+        onWindowResize();
+      }, 100);
     });
 
     // Cleanup function
     return () => {
-      window.removeEventListener("resize", throttledResize);
-      window.removeEventListener("orientationchange", throttledResize);
+      if (resizeObserver) {
+        resizeObserver.unobserve(canvas);
+        resizeObserver.disconnect();
+      }
+      window.removeEventListener("resize", onWindowResize);
+      window.removeEventListener("orientationchange", onWindowResize);
       renderer.dispose();
       scene.clear();
     };
