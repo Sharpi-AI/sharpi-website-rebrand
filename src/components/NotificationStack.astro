@@ -6,47 +6,38 @@ const notifications = [
     id: 1,
     title: "Nova mensagem",
     message: "Você recebeu uma nova proposta de orçamento para análise",
-    avatar: "JD",
-    time: "agora",
-    type: "message" as const,
+    media: "/assets/medias/index/hero/analizing.mp4",
+    type: "video"
   },
   {
     id: 2,
     title: "Pedido aprovado",
     message: "Pedido #1247 foi aprovado e está sendo processado",
-    time: "2min",
-    type: "update" as const,
+    media: "/assets/medias/index/hero/notification-01.png",
+    type: "image"
   },
   {
     id: 3,
-    title: "Estoque baixo",
+    title: "Pedido faturado",
     message: "Produto XYZ-123 está com estoque abaixo do limite mínimo",
-    time: "5min",
-    type: "alert" as const,
+    media: "/assets/medias/index/hero/analizing.mp4",
+    type: "video"
   },
   {
     id: 4,
-    title: "Cliente atualizado",
+    title: "Pedido faturado",
     message: "Dados do cliente foram atualizados com sucesso",
-    avatar: "AC",
-    time: "10min",
-    type: "update" as const,
-  },
-  {
-    id: 5,
-    title: "Nova cotação",
-    message: "Recebida nova solicitação de cotação para revisão",
-    time: "15min",
-    type: "message" as const,
+    media: "/assets/medias/index/hero/notification-02.png",
+    type: "image"
   },
 ];
 ---
 
 <div
   id="notification-stack"
-  class="relative w-full h-full overflow-hidden px-4 py-6"
+  class="relative w-full  md:h-full  px-4 py-6 "
 >
-  <div id="notifications-container" class="relative flex flex-col-reverse">
+  <div id="notifications-container" class="h-40 relative flex flex-col-reverse ">
     {
       notifications.map((notification, index) => (
         <div
@@ -58,8 +49,7 @@ const notifications = [
           <NotificationCard
             title={notification.title}
             message={notification.message}
-            avatar={notification.avatar}
-            time={notification.time}
+            media={notification.media}
             type={notification.type}
             index={index}
           />
@@ -267,51 +257,3 @@ const notifications = [
     initNotificationAnimation();
   }
 </script>
-
-<style>
-  #notification-stack {
-    will-change: transform;
-  }
-
-  [id^="notification-wrapper-"] {
-    will-change: transform, opacity;
-    transform-origin: center bottom; /* Scale from bottom */
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
-
-  #notifications-container {
-    height: 200px; /* Approximate height for 5 stacked cards */
-    overflow: visible;
-    transform: translateZ(0); /* Force hardware acceleration */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* Align to bottom */
-  }
-
-  .notification-card {
-    transform: translateZ(0); /* Force hardware acceleration */
-    backface-visibility: hidden; /* Optimize for animations */
-  }
-
-  /* Responsive optimizations */
-  @media (max-width: 768px) {
-    #notifications-container {
-      height: 350px;
-    }
-
-    [id^="notification-card-"] {
-      padding: 12px;
-    }
-  }
-
-  /* Reduced motion support */
-  @media (prefers-reduced-motion: reduce) {
-    [id^="notification-wrapper-"] {
-      transition: none !important;
-      animation: none !important;
-    }
-  }
-</style>

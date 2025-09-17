@@ -2,30 +2,28 @@
 interface Props {
   title: string;
   message: string;
-  avatar?: string;
-  time: string;
-  type?: "message" | "alert" | "update";
+  media?: string;
   index: number;
+  type: "image" | "video";
 }
 
-const { title, message, avatar, time, type = "message", index } = Astro.props;
+const { title, message, media, index, type } = Astro.props;
 ---
 
 <div
   id={`notification-card-${index}`}
-  class="relative z-0 w-full rounded-xl shadow-lg backdrop-blur-xs py-3 px-2.5 mb-2"
+  class="relative z-0 w-full rounded-xl shadow-lg backdrop-blur-lg py-3 px-2.5 mb-2 pointer-events-none"
   data-index={index}
-  data-type={type}
   style="background-color: #FFFFFF40;"
 >
-  <!-- <div class="absolute z-0 top-0 left-0 w-full h-full bg-white/1 backdrop-blur-3xl rounded-xl"/> -->
   <div class="relative z-10 flex items-start gap-3">
-    <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-      {avatar && <span class="text-white text-xs font-medium">{avatar}</span>}
+    <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-zinc-200 rounded overflow-hidden">
+      {media && type === "video" && <video src={media} autoplay loop muted playsinline class="w-full h-full  object-cover"/>}
+      {media && type === "image" && <img src={media} alt={title} class="w-full h-full  object-cover"/>}
     </div>
 
     <div class="flex-1 min-w-0 space-y-1">
-      <h4 class="text-sm leading-none font-normal text-[#90908E] truncate">
+      <h4 class="text-sm leading-none font-light text-[#90908E] truncate">
         {title}
       </h4>
       <p class="text-sm leading-none font-medium text-[##2D2D2D] line-clamp-2">
