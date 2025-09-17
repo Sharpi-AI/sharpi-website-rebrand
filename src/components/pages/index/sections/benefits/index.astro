@@ -1,0 +1,62 @@
+---
+// Import Splide styles
+import '@splidejs/splide/css/core';
+import RecommendationCard from "./recommendation.astro";
+
+import FollowUpCard from "./follow-up.astro";
+import NotificationsCard from "./notifications.astro";
+import ReactivationCard from "./reactivation.astro";
+
+
+
+---
+
+<section id="benefits" class="py-28 w-full flex flex-col items-center justify-center overflow-hidden">
+  <h2
+    class="text-[58px] max-w-[18ch] text-center font-normal leading-none text-[#383838] mb-14 tracking-tight"
+  >
+    Nossa IA vende com você e para você.
+  </h2>
+
+  <div class="splide max-w-4xl w-full" id="benefits-carousel">
+    <div class="splide__track !overflow-visible">
+      <ul class="splide__list">
+        <li class="splide__slide">
+          <RecommendationCard/>
+        </li>
+        <li class="splide__slide">
+          <NotificationsCard/>
+        </li>
+        <li class="splide__slide">
+          <FollowUpCard/>
+        </li>
+        <li class="splide__slide">
+          <ReactivationCard/>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { Splide } from '@splidejs/splide';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const splide = new Splide('#benefits-carousel', {
+      perMove: 1,
+      speed: 800,
+      pagination: false,
+      arrows: false,
+      isNavigation: true,
+      autoWidth: true,
+      gap: 20,
+      breakpoints: {
+        640: {
+          gap: 16,
+        },
+      },
+    });
+
+    splide.mount();
+  });
+</script>

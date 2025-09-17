@@ -1,9 +1,26 @@
 @font-face {
   font-family: 'suisse-intl';
-  src: url('/fonts/suisse-intl/webfont.woff2') format('woff2'),
-       url('/fonts/suisse-intl/webfont.woff') format('woff');
-  font-weight: 300 400 600;
+  src: url('/fonts/suisse-intl/regular.woff2') format('woff2'),
+       url('/fonts/suisse-intl/regular.woff') format('woff');
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'suisse-intl';
+  src: url('/fonts/suisse-intl/medium.woff2') format('woff2'),
+       url('/fonts/suisse-intl/medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'suisse-book';
+  src: url('/fonts/suisse-intl/book.woff2') format('woff2'),
+       url('/fonts/suisse-intl/book.woff') format('woff');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}

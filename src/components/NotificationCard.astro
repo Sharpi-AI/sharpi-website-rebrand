@@ -18,7 +18,8 @@ const { title, message, avatar, time, type = "message", index } = Astro.props;
   data-type={type}
   style="background-color: #FFFFFF40;"
 >
-  <div class="flex items-start gap-3">
+  <!-- <div class="absolute z-0 top-0 left-0 w-full h-full bg-white/1 backdrop-blur-3xl rounded-xl"/> -->
+  <div class="relative z-10 flex items-start gap-3">
     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
       {avatar && <span class="text-white text-xs font-medium">{avatar}</span>}
     </div>

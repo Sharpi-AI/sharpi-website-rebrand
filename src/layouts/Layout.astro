@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import Header from "@/components/shared/header/index.astro";
+import "lenis/dist/lenis.css";
 ---
 
 <!doctype html>
@@ -17,14 +18,47 @@ import Header from "@/components/shared/header/index.astro";
   <body>
     <Header />
     <slot />
+
+    <script>
+      import Lenis from 'lenis';
+
+      const lenis = new Lenis({
+        duration: 1.2,
+        gestureOrientation: "vertical",
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+        touchMultiplier: 2,
+        infinite: false,
+      });
+
+      
+      window.lenis = lenis;
+
+      // Listen for the scroll event and log the event data
+      lenis.on('scroll', (e) => {
+        // Custom scroll event handling can be added here
+      });
+
+      // Use requestAnimationFrame to continuously update the scroll
+      function raf(time: number) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+
+      requestAnimationFrame(raf);
+
+      // Handle anchor links smooth scrolling
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e: Event) {
+          e.preventDefault();
+          
+          // @ts-ignore
+          const target = document.querySelector((this as HTMLAnchorElement).getAttribute('href'));
+          if (target) {
+            lenis.scrollTo(target, { duration: 1.5 });
+          }
+        });
+      });
+    </script>
   </body>
 </html>
-
-<style>
-  html,
-  body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-  }
-</style>
