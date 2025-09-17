@@ -5,20 +5,23 @@ import DeviceSimulation from "./device-simulation.astro";
 ---
 
 <section class="relative z-0 w-full h-screen flex overflow-hidden">
-  <div class="relative z-10 flex items-center flex-1 flex-col pt-64">
-    <Button
-      title="Agende uma demo"
-      href="https://wa.me/5521984401411?text=Ol%C3%A1%2C%20eu%20gostaria%20de%20saber%20mais%20sobre%20o%20sistema%20da%20Sharpi."
-    >
-      Agende uma demo
-    </Button>
+  <div class="relative z-10 flex items-center flex-1 flex-col pt-44 gap-2">
+    <div id="hero-content" class="flex flex-col items-center gap-2 opacity-0 translate-y-[30px]">
+      <Button
+        title="Agende uma demo"
+        href="https://wa.me/5521984401411?text=Ol%C3%A1%2C%20eu%20gostaria%20de%20saber%20mais%20sobre%20o%20sistema%20da%20Sharpi."
+      >
+        Agende uma demo
+      </Button>
 
-    <h1
-      class="text-[58px] max-w-[30ch] text-center text-balance font-normal leading-none text-[#383838] mb-14 tracking-tight"
-    >
-      Máquina de vendas com IA para Indústrias e Distribuidores
-    </h1>
+      <h1
+        class="text-[58px] max-w-[30ch] text-center text-balance font-normal leading-none text-[#383838] tracking-tight mb-14"
+      >
+        Máquina de vendas com IA para Indústrias e Distribuidores
+      </h1>
+    </div>
 
+    
     <DeviceSimulation />
   </div>
 
@@ -33,12 +36,93 @@ import DeviceSimulation from "./device-simulation.astro";
     </div>
   </div>
 
-  <div class="absolute z-5 inset-0 w-full h-full translate-y-1/3 p-4">
+  <div id="hero-funnel" class="absolute z-5 inset-0 w-full h-full translate-y-1/3 p-4 opacity-0">
     <DataSourceFunnel />
   </div>
 
   <div
+    
+    class="absolute z-10 bottom-0 left-0 right-0 bg-gradient-to-b from-transparent to-white h-1/4"
+  >
+  </div>
+  <div
+    id="hero-gradient"
     class="absolute z-10 bottom-0 left-0 right-0 bg-gradient-to-b from-transparent to-white h-1/4"
   >
   </div>
 </section>
+
+<script>
+  import { animate } from 'motion';
+
+  function updateHeroGradient() {
+    const heroSection = document.querySelector('section');
+    const gradient = document.getElementById('hero-gradient');
+    
+    if (!heroSection || !gradient) return;
+    
+    const heroHeight = heroSection.offsetHeight;
+    const scrollY = window.scrollY;
+    
+    const scrollProgress = Math.min(scrollY / (heroHeight * 0.4), 1);
+    
+    
+    const gradientHeight = 25 + (scrollProgress * 75); 
+    const opacity = 0.3 + (scrollProgress * 0.7); 
+    
+    gradient.style.height = `${gradientHeight}%`;
+    gradient.style.opacity = opacity.toString();
+    
+    gradient.style.background = 'linear-gradient(to bottom, transparent, white)';
+  }
+
+  function initHeroAnimations() {
+    const device = document.getElementById('hero-device');
+    const funnel = document.getElementById('hero-funnel');
+    const content = document.getElementById('hero-content');
+
+    if (!device || !funnel || !content) return;
+
+   
+
+    // Animação do device e funnel juntos (delay: 0.2s)
+    animate(
+      [device, funnel],
+      { 
+        opacity: [0, 1], 
+        y: [30, 0] 
+      },
+      { 
+        duration: 0.8, 
+        delay: 0.2, 
+        ease: "easeOut" 
+      }
+    );
+
+    // Animação do conteúdo (título e botões) depois (delay: 0.8s)
+    animate(
+      content,
+      { 
+        opacity: [0, 1], 
+        y: [30, 0] 
+      },
+      { 
+        duration: 0.8, 
+        delay: 0.8, 
+        ease: "backOut" 
+      }
+    );
+  }
+  
+  if (window.lenis) {
+    window.lenis.on('scroll', updateHeroGradient);
+  } else {
+    window.addEventListener('scroll', updateHeroGradient);
+  }
+  
+  updateHeroGradient();
+  
+  // Inicializar animações quando o DOM estiver pronto
+  document.addEventListener('DOMContentLoaded', initHeroAnimations);
+</script>
+

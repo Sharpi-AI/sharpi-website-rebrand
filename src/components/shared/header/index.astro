@@ -8,4 +8,37 @@ import Logo from "../logo/index.astro";
       <Logo />
     </div>
   </header>
+
+  <!-- Fixed overlay that fades out before hero animations -->
+  <div
+    id="page-overlay"
+    class="fixed inset-0 bg-white opacity-100 pointer-events-none z-[9999]"
+  ></div>
 </div>
+
+<script>
+  import { animate } from 'motion';
+
+  function initPageOverlay() {
+    const overlay = document.getElementById('page-overlay');
+    if (!overlay) return;
+
+    // Fade out overlay before hero animations start
+    animate(
+      overlay,
+      { opacity: [1, 0] },
+      {
+        duration: 0.4,
+        delay: 0.2,
+        ease: "easeOut"
+      }
+    );
+  }
+
+  // Initialize overlay animation when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener('DOMContentLoaded', initPageOverlay);
+  } else {
+    initPageOverlay();
+  }
+</script>
