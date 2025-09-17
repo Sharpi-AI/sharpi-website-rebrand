@@ -1,0 +1,68 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  // thumbnail: PrismicImage;
+  // twitterThumbnail: PrismicImage;
+}
+
+const { title, description, canonical } = Astro.props as Props;
+---
+
+<head>
+  <meta name="generator" content={Astro.generator} />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+
+  <title>{title}</title>
+  <meta
+    name="description"
+    content={description ??
+      "Máquina de Vendas com IA para Indústrias e Distribuidores"}
+  />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta name="theme-color" content="#4A2DF6" />
+
+  <!-- Google Search Console -->
+  <meta name="geo.region" content="BR-RJ" />
+  <meta name="geo.placename" content="Rio de Janeiro" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Sharpi" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link
+    rel="preload"
+    href="/fonts/suisse-intl/regular.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
+  <link
+    rel="preload"
+    href="/fonts/suisse-intl/medium.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
+  <link rel="preload" href="/favicon.svg" as="image" type="image/svg+xml" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <!-- <meta property="og:image" content={thumbnail.url} /> -->
+  <meta property="og:type" content="website" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <!-- <meta name="twitter:image" content={twitterThumbnail.url} /> -->
+
+  <meta name="author" content={"Sharpi"} />
+</head>
