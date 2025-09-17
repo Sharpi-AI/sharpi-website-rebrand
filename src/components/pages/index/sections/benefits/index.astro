@@ -22,21 +22,73 @@ import ReactivationCard from "./reactivation.astro";
     <div class="splide__track !overflow-visible">
       <ul class="splide__list">
         <li class="splide__slide">
-          <RecommendationCard/>
+          <div class="shining-border">
+            <RecommendationCard/>
+          </div>
+        </li>
+        <li class="splide__slide">  
+          <div class="shining-border">
+            <NotificationsCard/>
+          </div>
         </li>
         <li class="splide__slide">
-          <NotificationsCard/>
+          <div class="shining-border">
+            <FollowUpCard/>
+          </div>
         </li>
         <li class="splide__slide">
-          <FollowUpCard/>
-        </li>
-        <li class="splide__slide">
-          <ReactivationCard/>
+          <div class="shining-border">
+            <ReactivationCard/>
+          </div>
         </li>
       </ul>
     </div>
   </div>
 </section>
+
+<style>
+  .shining-border {
+    padding: 1px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 21px;
+    transition: all 0.3s ease;
+  }
+
+  .splide__slide.is-active .shining-border::before {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    left: -50%;
+    top: -50%;
+    width: 180%;
+    height: 180%;
+    background-color: #000;
+    background-repeat: no-repeat;
+    background-size: 100% 100%, 50% 50%;
+    background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+    background-image:  linear-gradient(180deg, #3609FF 0%, #F1F1F1 23.56%, #CFD9FF 44.23%, #7EADFF 100%);
+    animation: bgRotate 4s linear infinite;
+  }
+
+  .splide__slide.is-active .shining-border::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: 1px;
+    top: 1px;
+    width: calc(100% - 2px);
+    height: calc(100% - 2px);
+    background: #F0F0F0;
+    border-radius: 20px;
+  }
+
+  @keyframes bgRotate {
+    100% {
+      transform: rotate(1turn);
+    }
+  }
+</style>
 
 <script>
   import { Splide } from '@splidejs/splide';
