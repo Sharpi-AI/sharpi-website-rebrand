@@ -1,0 +1,13 @@
+.splide__slide.is-active #follow-up-text {
+  max-height: 2rem !important;
+  opacity: 1;
+}
+
+.splide__slide.is-active #follow-up-device {
+  transform: translateY(-20px);
+}
+
+
+.splide__slide.is-active #follow-up-card {
+  transform: translateY(-20px);
+}

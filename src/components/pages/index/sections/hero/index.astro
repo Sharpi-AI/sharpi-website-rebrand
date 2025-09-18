@@ -29,10 +29,14 @@ import DeviceSimulation from "./device-simulation.astro";
     <div class="w-full h-full bg-black/10 md:rounded-2xl">
       <video
         src="/assets/medias/index/hero/hero-bg.mp4"
-        class="w-full h-full object-cover rounded-2xl opacity-30"
+        class="w-full h-full  object-cover rounded-2xl opacity-30 pointer-events-none"
         autoplay
         loop
-        muted></video>
+        muted
+        disablepictureinpicture
+        controlslist="nodownload nofullscreen noremoteplayback"
+        preload="metadata"
+        ></video>
     </div>
   </div>
 

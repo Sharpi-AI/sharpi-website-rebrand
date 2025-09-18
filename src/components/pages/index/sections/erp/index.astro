@@ -18,21 +18,21 @@ const erps = [
   },
   {
     name: "Tiny",
-    logo: "/assets/medias/index/erp/tiny.png",
+    logo: "/assets/medias/index/erp/tiny.webp",
   },
-  {
-    name: "TID",
-    logo: "/assets/medias/index/erp/tid.png",
-  },
+  // {
+  //   name: "TID",
+  //   logo: "/assets/medias/index/erp/tid.png",
+  // },
 ];
 ---
 
 <section
   id="erp"
-  class="px-10 flex items-center justify-between max-w-5xl mx-auto py-28"
+  class="px-4 md:px-10 flex flex-col md:flex-row items-center justify-between max-w-5xl mx-auto py-28 gap-10"
 >
-  <div class="space-y-10">
-    <h2 class="font-normal tracking-[-1.5px] text-5xl text-[#573DFF]">
+  <div class="space-y-4 md:space-y-10">
+    <h2 class="font-normal text-balance tracking-[-1.5px] text-[37px] md:text-[58px]  text-[#573DFF]">
       Seu ERP, nosso desafio.
     </h2>
     <p
@@ -42,10 +42,11 @@ const erps = [
       qual for—garantindo um fluxo de dados perfeito desde o primeiro dia.
     </p>
   </div>
-  <div class="grid grid-cols-3 gap-8">
+
+  <div class="grid grid-cols-3 gap-8  w-full md:w-auto ">
     {
       erps.map((erp) => (
-        <div class="flex max-w-30 items-center justify-center transition-all duration-300">
+        <div class="flex place-self-center max-w-20 md:max-w-30  items-center justify-center transition-all duration-300">
           <img
             src={erp.logo}
             alt={erp.name}

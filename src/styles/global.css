@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./fonts.css";
+@import "./vendors/splide.css";
 
 @source inline("inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50");
 
@@ -27,9 +28,15 @@ html {
 body {
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
+  -webkit-antialiased: true;
   font-feature-settings: normal;
   font-variation-settings: normal;
   -webkit-tap-highlight-color: transparent;
+}
+
+video {
+  -webkit-playsinline: true;
+  -webkit-touch-callout: none;
 }
 
 
@@ -37,3 +44,4 @@ body {
   --font-suisse-intl: 'suisse-intl';
   --font-body: var(--font-suisse-intl);
 }
+
