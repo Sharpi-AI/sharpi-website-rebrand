@@ -1,0 +1,159 @@
+---
+interface Props {
+  bigNumber: string;
+  bigNumberTitle: string;
+  description: string;
+}
+
+const { bigNumber, bigNumberTitle, description } = Astro.props;
+---
+
+<article data-mobile-card class="bg-[#f0f0f0] hover:bg-[#e7ebff] [&.active]:bg-[#e7ebff] flex flex-col items-start justify-between p-6 rounded-xl size-full min-h-[200px] aspect-[418/395] transition-all duration-300 ease-in-out group cursor-pointer">
+  <div class="flex flex-col gap-4 items-start w-full text-[#3a3939]">
+    <div class="flex flex-col justify-center w-full">
+      <h3 class="text-[20px] leading-8 tracking-[-0.4px] font-normal group-hover:font-medium group-[.active]:font-medium transition-all duration-300">{bigNumberTitle}</h3>
+    </div>
+
+    <div class="flex flex-col justify-center w-full opacity-0 translate-y-5 group-hover:translate-y-0 group-hover:opacity-100 group-[.active]:translate-y-0 group-[.active]:opacity-100 transition-all ease-in-out duration-300">
+      <p class="text-[16px] leading-[1.4] tracking-[-0.32px] font-normal text-[#3a3939]">{description}</p>
+    </div>
+  </div>
+
+  <div class="flex flex-col justify-center w-full text-[#3d3939] group-hover:text-[#573dff] group-[.active]:text-[#573dff] transition-all duration-300">
+    <p class="text-[76px] group-hover:text-[80px] group-[.active]:text-[80px] leading-[76px] tracking-[-1.2px] group-hover:tracking-[-1.6px] group-[.active]:tracking-[-1.6px] font-medium transition-all duration-300">{bigNumber}</p>
+  </div>
+</article>
+
+<script>
+  // Mobile detection and intersection observer for auto-active state
+  function initMobileCardObserver() {
+    // Only run on mobile devices
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    if (!isMobile) return;
+
+    const cards = document.querySelectorAll('[data-mobile-card]');
+    const cardStates = new Map(); // Track card states and timeouts
+
+    // Scroll state management
+    let isScrolling = false;
+    let scrollTimeout = null;
+    let pendingChanges = new Map(); // Store changes to apply after scroll ends
+
+    // Detect active scrolling
+    function handleScrollStart() {
+      isScrolling = true;
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+    }
+
+    function handleScrollEnd() {
+      scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+        // Apply any pending changes after scroll ends
+        applyPendingChanges();
+      }, 400); // Wait 400ms after last scroll event
+    }
+
+    // Apply changes that were deferred during scrolling
+    function applyPendingChanges() {
+      pendingChanges.forEach((shouldActivate, card) => {
+        if (shouldActivate) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+      pendingChanges.clear();
+    }
+
+    // Add scroll event listeners
+    window.addEventListener('touchmove', handleScrollStart, { passive: true });
+    window.addEventListener('wheel', handleScrollStart, { passive: true });
+    window.addEventListener('touchend', handleScrollEnd, { passive: true });
+    window.addEventListener('touchcancel', handleScrollEnd, { passive: true });
+    window.addEventListener('wheel', handleScrollEnd, { passive: true });
+
+    // Handle state changes with hysteresis and bidirectional debounce
+    function handleStateChange(entry) {
+      const card = entry.target;
+      const isCurrentlyActive = card.classList.contains('active');
+      const visibilityRatio = entry.intersectionRatio;
+
+      // Get or create card state
+      if (!cardStates.has(card)) {
+        cardStates.set(card, {
+          activationTimeout: null,
+          deactivationTimeout: null
+        });
+      }
+      const cardState = cardStates.get(card);
+
+      // Hysteresis thresholds: more conservative for stability
+      const ACTIVATION_THRESHOLD = 0.6;   // Activate when 60% visible
+      const DEACTIVATION_THRESHOLD = 0.3; // Deactivate when less than 30% visible
+
+      // Clear any existing timeouts
+      if (cardState.activationTimeout) {
+        clearTimeout(cardState.activationTimeout);
+        cardState.activationTimeout = null;
+      }
+      if (cardState.deactivationTimeout) {
+        clearTimeout(cardState.deactivationTimeout);
+        cardState.deactivationTimeout = null;
+      }
+
+      // Determine desired state
+      let shouldActivate = false;
+      if (!isCurrentlyActive && entry.isIntersecting && visibilityRatio >= ACTIVATION_THRESHOLD) {
+        shouldActivate = true;
+      } else if (isCurrentlyActive && (!entry.isIntersecting || visibilityRatio < DEACTIVATION_THRESHOLD)) {
+        shouldActivate = false;
+      } else {
+        // No state change needed
+        return;
+      }
+
+      // If scrolling, defer the change
+      if (isScrolling) {
+        pendingChanges.set(card, shouldActivate);
+        return;
+      }
+
+      // Apply change with increased debounce for stability
+      if (shouldActivate) {
+        cardState.activationTimeout = setTimeout(() => {
+          requestAnimationFrame(() => {
+            card.classList.add('active');
+          });
+          cardState.activationTimeout = null;
+        }, 200); // Increased debounce
+      } else {
+        cardState.deactivationTimeout = setTimeout(() => {
+          requestAnimationFrame(() => {
+            card.classList.remove('active');
+          });
+          cardState.deactivationTimeout = null;
+        }, 300); // Increased debounce
+      }
+    }
+
+    // Intersection Observer with ultra-conservative settings
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(handleStateChange);
+    }, {
+      threshold: [0.2, 0.3, 0.6], // Fewer, more spaced thresholds
+      rootMargin: '-30px' // Even larger negative margin for maximum stability
+    });
+
+    // Observe all cards
+    cards.forEach(card => observer.observe(card));
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileCardObserver);
+  } else {
+    initMobileCardObserver();
+  }
+</script>

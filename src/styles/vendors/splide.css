@@ -11,3 +11,7 @@
 .splide__slide.is-active #follow-up-card {
   transform: translateY(-20px);
 }
+
+.splide__slide.is-active article {
+  background-color: #DCDCDC;
+}
