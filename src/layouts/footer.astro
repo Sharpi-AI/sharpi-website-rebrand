@@ -1,0 +1,142 @@
+---
+import Logotype from "@/components/icons/logotype.astro";
+import FooterCircle from "@/components/icons/footer-circle.astro";
+---
+
+<div class="sticky bottom-0 z-0">
+  <footer
+    id="footer-container"
+    class="relative overflow-hidden w-full h-screen bg-[linear-gradient(180deg,_#FFF_10%,_#E7E4FF_65.87%,_#D3CDFF_96.15%)]"
+  >
+    <div
+      class="pointer-events-none absolute z-0 inset h-full w-full flex items-center justify-center p-4"
+    >
+      <div
+        id="footer-circle"
+        class="absolute z-0 inset-0 flex items-center justify-center opacity-0 translate-y-[20px]"
+      >
+        <FooterCircle />
+      </div>
+      <div class="relative z-10">
+        <Logotype />
+      </div>
+    </div>
+
+    <div
+      class="relative z-0 h-full flex flex-col items-center justify-between p-8"
+    >
+      <div
+        id="footer-header"
+        class="flex items-center justify-center gap-2 opacity-0 translate-y-[20px]"
+      >
+        <div
+          class="bg-[#F4F4F4] text-[13px] font-normal px-2.5 h-7 w-fit rounded-lg flex items-center justify-center"
+        >
+          Voltar ao Topo
+        </div>
+        <div
+          class="bg-[#F4F4F4] text-[13px] font-normal px-2.5 h-7 w-fit rounded-lg flex items-center justify-center"
+        >
+          Careers
+        </div>
+      </div>
+
+      <button
+        id="footer-button"
+        class="bg-[#E7E4FF] text-[#573DFF] text-lg font-normal leading-none tracking-[-0.02] p-2.5 rounded-xl flex items-center gap-2.5 opacity-0 scale-75"
+      >
+        <div class="size-10.5 bg-white rounded-md"></div>
+        Agende uma demo
+      </button>
+
+      <div
+        id="footer-footer"
+        class="flex items-center justify-center gap-11 opacity-0 translate-y-[20px]"
+      >
+        <span class="font-mono text-[13px]"> © 2025 Sharpi </span>
+        <span class="font-mono text-[13px] px-2.5 py-1.5">
+          Cookie Preferences
+        </span>
+        <span class="font-mono text-[13px] px-2.5 py-1.5">
+          Privacy Policy
+        </span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  import { animate, stagger } from "motion";
+
+  function initFooterAnimation() {
+    const footerContainer = document.getElementById("footer-container");
+    if (!footerContainer) return;
+
+    // Get all elements that need animation
+    const slideElements = [
+      document.getElementById("footer-circle"),
+      document.getElementById("footer-header"),
+      document.getElementById("footer-footer"),
+    ].filter((el) => el !== null);
+
+    const buttonElement = document.getElementById("footer-button");
+
+    // Create intersection observer with 90% threshold
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
+            // Animate slide elements with stagger
+            if (slideElements.length > 0) {
+              animate(
+                slideElements,
+                {
+                  opacity: [0, 1],
+                  transform: ["translateY(20px)", "translateY(0px)"],
+                },
+                {
+                  duration: 0.6,
+                  delay: stagger(0.1),
+                  ease: "easeOut",
+                }
+              );
+            }
+
+            // Animate button with scale
+            if (buttonElement) {
+              animate(
+                buttonElement,
+                {
+                  opacity: [0, 1],
+                  transform: ["scale(0.75)", "scale(1)"],
+                },
+                {
+                  duration: 0.5,
+                  delay: 0.3,
+                  ease: "easeOut",
+                }
+              );
+            }
+
+            // Stop observing after animation starts
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.9,
+        rootMargin: "0px",
+      }
+    );
+
+    // Start observing the footer container
+    observer.observe(footerContainer);
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initFooterAnimation);
+  } else {
+    initFooterAnimation();
+  }
+</script>

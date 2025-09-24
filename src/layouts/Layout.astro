@@ -1,8 +1,10 @@
 ---
 import "../styles/global.css";
-import Header from "@/components/shared/header/index.astro";
 import "lenis/dist/lenis.css";
+
+import Header from "@/components/shared/header/index.astro";
 import Head from "@/layouts/head.astro";
+import Footer from "@/layouts/footer.astro";
 ---
 
 <!doctype html>
@@ -12,12 +14,24 @@ import Head from "@/layouts/head.astro";
     description="Máquina de vendas com IA para Indústrias e Distribuidores"
     canonical="https://sharpi.com.br"
   />
-  <body>
+  <body class="relative">
     <Header />
-    <slot />
+
+    <div class="relative z-10">
+      <div class="relative bg-white">
+        <slot />
+      </div>
+
+      <div
+        class="relative z-0 h-96 bg-gradient-to-b from-white to-transparent w-full"
+      >
+      </div>
+    </div>
+
+    <Footer />
 
     <script>
-      import Lenis from 'lenis';
+      import Lenis from "lenis";
 
       const lenis = new Lenis({
         duration: 1.2,
@@ -28,11 +42,10 @@ import Head from "@/layouts/head.astro";
         infinite: false,
       });
 
-      
       window.lenis = lenis;
 
       // Listen for the scroll event and log the event data
-      lenis.on('scroll', (e) => {
+      lenis.on("scroll", (e) => {
         // Custom scroll event handling can be added here
       });
 
@@ -45,12 +58,14 @@ import Head from "@/layouts/head.astro";
       requestAnimationFrame(raf);
 
       // Handle anchor links smooth scrolling
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e: Event) {
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e: Event) {
           e.preventDefault();
-          
+
           // @ts-ignore
-          const target = document.querySelector((this as HTMLAnchorElement).getAttribute('href'));
+          const target = document.querySelector(
+            (this as HTMLAnchorElement).getAttribute("href")
+          );
           if (target) {
             lenis.scrollTo(target, { duration: 1.5 });
           }
