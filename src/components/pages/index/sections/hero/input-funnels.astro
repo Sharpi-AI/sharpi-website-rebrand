@@ -15,18 +15,15 @@
   const noise = createNoise2D();
 
   const X_DISTANCE = 8;
-  const Y_DISTANCE = 4;
+  const Y_DISTANCE = 3;
 
-  // Mobile constants
   const MOBILE_BREAKPOINT = 768;
   const MOBILE_Y_DISTANCE = 1;
   const MOBILE_X_VARIANCE = 2;
   const MOBILE_TEXTURE_COUNT = 8;
 
-  // Device detection
   let isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
 
-  // Texture data with custom width (height calculated from aspect ratio)
   interface TextureData {
     path: string;
     width: number;
@@ -69,12 +66,62 @@
     });
   }
 
+  function getImprovedYDistribution(
+    index: number,
+    direction: "left-to-right" | "right-to-left",
+    totalObjects: number,
+    distributionType: "uniform" | "gaussian" | "layered" | "spiral" = "layered"
+  ): number {
+    const seed = index * (direction === "left-to-right" ? 123 : 789);
+    const random = seededRandom(seed);
+
+    switch (distributionType) {
+      case "uniform":
+        // Distribuição uniforme simples (original)
+        return THREE.MathUtils.mapLinear(random, 0, 1, -Y_DISTANCE, Y_DISTANCE);
+
+      case "gaussian":
+        // Distribuição gaussiana (mais objetos no centro)
+        const u1 = seededRandom(seed + 1000);
+        const u2 = seededRandom(seed + 2000);
+        const gaussian =
+          Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+        return THREE.MathUtils.clamp(
+          gaussian * (Y_DISTANCE * 0.5),
+          -Y_DISTANCE,
+          Y_DISTANCE
+        );
+
+      case "layered":
+        // Distribuição em camadas para melhor cobertura
+        const numLayers = Math.ceil(Math.sqrt(totalObjects / 2)); // Layers baseadas no número de objetos
+        const layerHeight = (Y_DISTANCE * 2) / numLayers;
+        const layerIndex = Math.floor(random * numLayers);
+        const layerCenter = -Y_DISTANCE + (layerIndex + 0.5) * layerHeight;
+
+        // Adicionar variação dentro da camada
+        const layerVariation = seededRandom(seed + 3000) * layerHeight * 0.3;
+        return layerCenter + layerVariation;
+
+      case "spiral":
+        // Distribuição em espiral para criar padrão mais orgânico
+        const spiralTurns = 2; // Número de voltas da espiral
+        const angle = (index / totalObjects) * spiralTurns * Math.PI * 2;
+        const spiralRadius = (index / totalObjects) * Y_DISTANCE;
+        return Math.sin(angle + random * Math.PI) * spiralRadius;
+
+      default:
+        return THREE.MathUtils.mapLinear(random, 0, 1, -Y_DISTANCE, Y_DISTANCE);
+    }
+  }
+
   // Create funnel object (desktop mode)
   function createFunnelObject(
     texture: THREE.Texture,
     geometry: THREE.PlaneGeometry,
     direction: "left-to-right" | "right-to-left",
     index: number,
+    totalObjects: number,
     scene: THREE.Scene
   ): {
     mesh: THREE.Mesh;
@@ -86,13 +133,21 @@
     const mesh = new THREE.Mesh(geometry, material);
 
     const x = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
-    const y = THREE.MathUtils.mapLinear(
-      seededRandom(index * (direction === "left-to-right" ? 123 : 789)),
-      0,
-      1,
-      -Y_DISTANCE,
-      Y_DISTANCE
+    // const y = THREE.MathUtils.mapLinear(
+    //   seededRandom(index * (direction === "left-to-right" ? 123 : 789)),
+    //   0,
+    //   1,
+    //   -Y_DISTANCE,
+    //   Y_DISTANCE
+    // );
+
+    const y = getImprovedYDistribution(
+      index,
+      direction,
+      totalObjects,
+      "gaussian"
     );
+
     const z =
       direction === "left-to-right" ? 0.0001 * index : 0.0001 * (index + 100);
 
@@ -162,12 +217,39 @@
     startY: number,
     noiseOffset: number
   ): number {
-    const baseY =
-      direction === "left-to-right"
-        ? THREE.MathUtils.mapLinear(x, -X_DISTANCE, 0, startY, 0)
-        : THREE.MathUtils.mapLinear(x, X_DISTANCE, 0, startY, 0);
+    // const baseY =
+    //   direction === "left-to-right"
+    //     ? THREE.MathUtils.mapLinear(x, -X_DISTANCE, 0, startY, 0)
+    //     : THREE.MathUtils.mapLinear(x, X_DISTANCE, 0, startY, 0);
 
-    return baseY + noiseOffset;
+    // return baseY + noiseOffset;
+
+    let normalizedX: number;
+    if (direction === "left-to-right") {
+      // x vai de -6 para 0, normalizar para 0 a 1
+      normalizedX = THREE.MathUtils.mapLinear(x, -6, 0, 0, 1);
+    } else {
+      // x vai de 6 para 0, normalizar para 0 a 1
+      normalizedX = THREE.MathUtils.mapLinear(x, 6, 0, 0, 1);
+    }
+
+    // Criar curva parabólica: y = ax² + bx + c
+    // Queremos que a curva passe por (0, startY) e (1, 0)
+    // E tenha um ponto de controle que crie a curvatura desejada
+
+    // Fator de curvatura - ajuste este valor para controlar a intensidade da curva
+    const curvatureFactor = 2.0; // Valores maiores = curva mais pronunciada
+
+    // Aplicar transformação parabólica
+    // Esta fórmula cria uma curva suave do startY para 0
+    const curveY = startY * Math.pow(1 - normalizedX, curvatureFactor);
+
+    // Alternativa mais complexa para maior controle:
+    // const midPointHeight = startY * 0.7; // Altura no meio da curva
+    // const t = normalizedX;
+    // const curveY = startY * (1 - t) * (1 - t) + midPointHeight * 2 * (1 - t) * t + 0 * t * t;
+
+    return curveY + noiseOffset;
   }
 
   // Calculate scale based on position (desktop)
@@ -184,11 +266,23 @@
 
   // Mobile-specific calculation functions
   function calculateMobileYPosition(progress: number): number {
-    return THREE.MathUtils.mapLinear(progress, 0, 1, -MOBILE_Y_DISTANCE, MOBILE_Y_DISTANCE);
+    return THREE.MathUtils.mapLinear(
+      progress,
+      0,
+      1,
+      -MOBILE_Y_DISTANCE,
+      MOBILE_Y_DISTANCE
+    );
   }
 
   function calculateMobileScale(y: number): number {
-    return THREE.MathUtils.mapLinear(y, -MOBILE_Y_DISTANCE, MOBILE_Y_DISTANCE, 1, 0.3);
+    return THREE.MathUtils.mapLinear(
+      y,
+      -MOBILE_Y_DISTANCE,
+      MOBILE_Y_DISTANCE,
+      1,
+      0.3
+    );
   }
 
   // Animate individual object (desktop)
@@ -247,10 +341,23 @@
     const noiseInput = uniqueProgress * Math.PI * 2;
     const xOffset =
       noise(Math.cos(noiseInput) + index, Math.sin(noiseInput)) * 0.01;
-    const x =  THREE.MathUtils.mapLinear(y, -MOBILE_Y_DISTANCE, MOBILE_Y_DISTANCE, startPosition.x, 0)+ xOffset
+    const x =
+      THREE.MathUtils.mapLinear(
+        y,
+        -MOBILE_Y_DISTANCE,
+        MOBILE_Y_DISTANCE,
+        startPosition.x,
+        0
+      ) + xOffset;
 
     const scale = calculateMobileScale(y);
-    const opacity = THREE.MathUtils.mapLinear(Math.abs(y), MOBILE_Y_DISTANCE*0.5, MOBILE_Y_DISTANCE, 1, 0);
+    const opacity = THREE.MathUtils.mapLinear(
+      Math.abs(y),
+      MOBILE_Y_DISTANCE * 0.5,
+      MOBILE_Y_DISTANCE,
+      1,
+      0
+    );
 
     (mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(opacity, 0.1);
     (mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
@@ -316,7 +423,9 @@
     });
     renderer.setSize(width, height);
     // Reduce pixel ratio on mobile for better performance
-    renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 2) : window.devicePixelRatio);
+    renderer.setPixelRatio(
+      isMobile ? Math.min(window.devicePixelRatio, 2) : window.devicePixelRatio
+    );
     renderer.setClearColor(0x000000, 0);
     renderer.sortObjects = true;
 
@@ -385,24 +494,26 @@
     );
 
     // Function to create objects based on current mode
-    function createObjectsForMode(mode: 'desktop' | 'mobile') {
+    function createObjectsForMode(mode: "desktop" | "mobile") {
       // Clear existing objects
-      objects.forEach(obj => scene.remove(obj.mesh));
+      objects.forEach((obj) => scene.remove(obj.mesh));
       objects = [];
 
-      const dataToUse = mode === 'mobile'
-        ? validTextureData.slice(0, MOBILE_TEXTURE_COUNT)
-        : validTextureData;
+      const dataToUse =
+        mode === "mobile"
+          ? validTextureData.slice(0, MOBILE_TEXTURE_COUNT)
+          : validTextureData;
 
       for (const { texture, width, height, index: i } of dataToUse) {
         const geometry = createGeometry(width, height);
 
-        if (mode === 'desktop') {
+        if (mode === "desktop") {
           const leftObject = createFunnelObject(
             texture,
             geometry,
             "left-to-right",
             i,
+            validTextureData.length,
             scene
           );
           objects.push(leftObject);
@@ -412,6 +523,7 @@
             geometry.clone(),
             "right-to-left",
             i,
+            validTextureData.length,
             scene
           );
           objects.push(rightObject);
@@ -428,7 +540,7 @@
     }
 
     // Initialize objects for current mode
-    createObjectsForMode(isMobile ? 'mobile' : 'desktop');
+    createObjectsForMode(isMobile ? "mobile" : "desktop");
 
     let startTime = Date.now();
 
@@ -470,7 +582,7 @@
       const newIsMobile = clientWidth <= MOBILE_BREAKPOINT;
       if (newIsMobile !== isMobile) {
         isMobile = newIsMobile;
-        createObjectsForMode(isMobile ? 'mobile' : 'desktop');
+        createObjectsForMode(isMobile ? "mobile" : "desktop");
       }
 
       currentWidth = clientWidth;
@@ -480,9 +592,12 @@
       camera.updateProjectionMatrix();
       renderer.setSize(clientWidth, clientHeight);
       // Adjust pixel ratio based on mode
-      renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 2) : window.devicePixelRatio);
+      renderer.setPixelRatio(
+        isMobile
+          ? Math.min(window.devicePixelRatio, 2)
+          : window.devicePixelRatio
+      );
     }
-
 
     if (typeof ResizeObserver !== "undefined") {
       const resizeObserver = new ResizeObserver(() => {
@@ -497,7 +612,6 @@
       setTimeout(onWindowResize, 100);
     });
 
-    
     return () => {
       window.removeEventListener("resize", onWindowResize);
       window.removeEventListener("orientationchange", onWindowResize);

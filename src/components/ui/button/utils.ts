@@ -35,11 +35,7 @@ export function buttonVariants({
   ];
 
   const variantClasses = {
-    default: [
-      "bg-[#7171711F]",
-      "text-primary-foreground",
-      "hover:bg-primary/90",
-    ],
+    default: ["bg-[#7171711F]", "text-primary-foreground", "hover:opacity-70"],
     destructive: [
       "bg-destructive",
       "text-destructive-foreground",
