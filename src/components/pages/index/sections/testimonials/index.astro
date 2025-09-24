@@ -5,7 +5,7 @@ import Card from "./card.astro";
 
 <section id="testimonials" class="py-28 flex flex-col items-center justify-center">
   <h2
-    class="text-[58px] max-w-[28ch] text-center  font-normal leading-none text-[#383838] mb-14 tracking-tight"
+    class="text-[58px] max-w-[28ch] text-center  font-normal leading-none text-[#383838] mb-8 tracking-tight"
   >
     Os times de venda mais avançados confiam na Sharpi
   </h2>
@@ -13,7 +13,7 @@ import Card from "./card.astro";
 
   <div class="relative z-0 aspect-[1356/740] w-full max-w-6xl mx-auto">
     <video
-      class="absolute z-0 w-full h-full inset-0 rounded-2xl  opacity-20 object-cover"
+      class="absolute -z-10 w-full h-full inset-0 rounded-2xl  opacity-20 object-cover"
       src="/assets/medias/index/testimonials/background.mp4"
       autoplay
       loop
@@ -24,31 +24,30 @@ import Card from "./card.astro";
 
     <div class="absolute top-[7%] left-[44%] z-10 w-[24%] aspect-[326/403] rounded-2xl bg-white overflow-hidden">
       <img src="/assets/medias/index/testimonials/img-04.png" alt="Avatar" class="w-full h-full object-cover"/>
-
     </div>
 
-    <div class="absolute top-[32%] left-[21%] z-10 w-[22%] aspect-[308/224] rounded-[14px] bg-zinc-200">
-      <Card/>
+    <div class="absolute top-[32%] left-[21%] z-10 ">
+      <Card targetScale="0.82" cardId="testimonials-card-1"/>
     </div>
-    
+
     <div class="absolute top-[63.5%] left-[31%] z-10 w-[12%] aspect-[165/203] rounded-2xl bg-white overflow-hidden">
       <img src="/assets/medias/index/testimonials/img-02.png" alt="Avatar" class="w-full h-full object-cover"/>
     </div>
-    
-    <div class="absolute top-[63.5%] left-[16.75%] z-10 w-[13%] aspect-[178/104] rounded-[14px] bg-zinc-200">
-      <Card/>
+
+    <div class="absolute top-[63.5%] left-[16.75%] z-10  ">
+      <Card targetScale="0.48" cardId="testimonials-card-2"/>
     </div>
-    
-    <div class="absolute top-[63.5%] left-[44%] z-10 w-[22%] aspect-[308/203] rounded-[14px] bg-zinc-200">
-      <Card/>
+
+    <div class="absolute top-[63.5%] left-[44%] z-10 ">
+      <Card targetScale="0.82" cardId="testimonials-card-3"/>
     </div>
-    
-    <div class="absolute top-[54%] left-[69%] z-10 w-[16.5%] aspect-[224/150] rounded-[14px] bg-zinc-200">
-      <Card/>
+
+    <div class="absolute top-[54%] left-[69%] z-10 ">
+      <Card targetScale="0.58" cardId="testimonials-card-4"/>
     </div>
-    
-    <div class="absolute top-[35%] left-[60%] z-10 w-[13%] aspect-[178/104] rounded-[14px] bg-zinc-200">
-      <Card/>
+
+    <div class="absolute top-[35%] left-[60%] z-10 ">
+      <Card targetScale="0.48" cardId="testimonials-card-5"/>
     </div>
     
     <div class="absolute top-[42%] left-[74%] z-10 w-[5%] aspect-[72/72] rounded bg-white overflow-hidden">
@@ -61,3 +60,43 @@ import Card from "./card.astro";
 
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const testimonialCards = document.querySelectorAll<HTMLElement>('.testimonials-card');
+
+    testimonialCards.forEach(card => {
+      const targetScale = card.getAttribute('data-target-scale') || '1';
+      const cardContainer = card.parentElement;
+
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'scale(1)';
+        if (cardContainer) {
+          cardContainer.style.zIndex = '50';
+        }
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = `scale(${targetScale})`;
+        if (cardContainer) {
+          cardContainer.style.zIndex = '10';
+        }
+      });
+
+      // Add focus support for accessibility
+      card.addEventListener('focus', () => {
+        card.style.transform = 'scale(1)';
+        if (cardContainer) {
+          cardContainer.style.zIndex = '50';
+        }
+      });
+
+      card.addEventListener('blur', () => {
+        card.style.transform = `scale(${targetScale})`;
+        if (cardContainer) {
+          cardContainer.style.zIndex = '10';
+        }
+      });
+    });
+  });
+</script>

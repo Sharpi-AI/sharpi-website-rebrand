@@ -1,5 +1,20 @@
-<article class="w-full h-fit bg-white rounded-xl">
-  <div class="flex flex-col gap-8 p-4">
+---
+interface Props {
+  targetScale?: string;
+  cardId?: string;
+}
+
+const { targetScale = 1, cardId = "testimonials-card" } = Astro.props;
+---
+
+
+<article
+  id={cardId}
+  class="testimonials-card origin-top-left transition-all duration-300 ease-in-out w-[308px] aspect-[308/224]  bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)]"
+  style={`transform: scale(${targetScale}); `}
+  data-target-scale={targetScale}
+>
+  <div class="flex flex-col gap-8 p-4 justify-between flex-1">
     <div class="flex gap-1 items-center">
       <div class="size-6.5 shrink-0 bg-gray-200 rounded-full"></div>
       <div class="flex flex-col gap-0.5">
@@ -11,8 +26,9 @@
       </div>  
     </div>
 
-    <p class="text-sm tracking-[-0.02em] leading-snug">
+    <p class="text-sm tracking-[-0.02em] leading-snug mt-auto text-balance">
       We needed a partner that understands what Accardi Foods needs today and in the future — Sharpi’s technology, including their AI, checked all the boxes and delivered a solution we can rely on every day.
     </p>
   </div>
 </article>
+
