@@ -1,1 +1,34 @@
-<section id="how-to"></section>
+---
+import HorizontalSelector from "./horizontal-selector.astro";
+---
+
+<section id="how-to" class="py-28 flex flex-col items-center justify-center gap-8 px-4">
+  <div class="space-y-5">
+    <h2
+      class="text-[37px] md:text-[58px] max-w-[28ch] text-center  font-normal leading-none text-[#383838] mb-8 tracking-tight"
+      >
+      Chega de lançar pedidos manualmente
+    </h2>
+    
+    <p class="text-sm md:text-[17px] text-center leading-snug tracking-[-0.02em] max-w-[66ch] mx-auto " >
+      A Sharpi captura cada pedido — por WhatsApp ou e-mail — e registra tudo direto no seu ERP, drasticamente reduzindo o tempo de digitação, retrabalho e erros.
+    </p>
+  </div>
+
+
+  <div class="space-y-3 flex items-center justify-center flex-col w-full">
+    <HorizontalSelector />
+    
+    <div class="relative flex w-full max-w-7xl aspect-[1354/744] rounded-3xl bg-[#F5F5F5]">
+      <video
+        class="absolute z-0 w-full h-full inset-0 rounded-[20px]  opacity-15 object-cover"
+        src="/assets/medias/index/hero/hero-bg.mp4"
+        autoplay
+        loop
+        muted
+        playsinline
+      >
+      </video>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,203 @@
+---
+import ChatIcon from "@/components/icons/chat.astro";
+import AudioIcon from "@/components/icons/audio.astro";
+import FileIcon from "@/components/icons/file.astro";
+---
+
+<div class="hidden md:flex gap-3 items-center w-full max-w-6xl mx-auto mb-8" data-component="horizontal-selector">
+  <!-- Conversa Button (Active by default) -->
+  <div
+    class="flex-1 bg-[#f8f8f8] flex flex-col gap-2.5 h-[62px] items-start px-2.5 py-2.5 rounded-xl shadow-[0px_0px_12px_0px_rgba(0,0,0,0.08)] cursor-pointer transition-all duration-200 hover:bg-gray-50"
+    data-selector-button="conversa"
+    data-active="true"
+  >
+    <div class="flex gap-3 items-center w-full">
+      <div class="bg-[#e7e4ff] flex items-center justify-center rounded-md size-[42px] shrink-0">
+        <ChatIcon class="size-6 text-[#573dff]" />
+      </div>
+
+      <div class="flex flex-col justify-center font-normal text-[19px] text-[#573dff] tracking-[-0.38px] leading-[0.9]">
+        Conversa
+      </div>
+
+      <!-- Arrow Icon -->
+      <svg class="size-2 text-[#573dff] shrink-0" viewBox="0 0 8 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 1L7 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+
+      <div class="flex gap-2.5 items-center justify-center">
+        <div class="font-normal text-[19px] text-[#573dff] tracking-[-0.38px] leading-[0.9]">
+          Pedido
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Áudio Button -->
+  <div
+    class="flex-1 bg-[#f8f8f8] flex flex-col gap-2.5 h-[62px] items-start px-2.5 py-2.5 rounded-xl shadow-[0px_0px_12px_0px_rgba(0,0,0,0.08)] cursor-pointer transition-all duration-200 hover:bg-gray-50"
+    data-selector-button="audio"
+    data-active="false"
+  >
+    <div class="flex gap-3 items-center w-full">
+      <div class="bg-[#e7e7e7] flex items-center justify-center rounded-md size-[42px] shrink-0">
+        <AudioIcon class="size-6 text-neutral-600" />
+      </div>
+
+      <div class="flex flex-col justify-center font-normal text-[19px] text-neutral-600 tracking-[-0.38px] leading-[0.9]">
+        Áudio
+      </div>
+
+      <!-- Arrow Icon -->
+      <svg class="size-2 text-neutral-600 shrink-0" viewBox="0 0 8 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 1L7 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+
+      <div class="flex gap-2.5 items-center justify-center opacity-0">
+        <div class="font-normal text-[22px] text-[#573dff] tracking-[-0.44px] leading-[0.9]">
+          Pedido
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arquivos Complexos Button -->
+  <div
+    class="flex-1 bg-[#f8f8f8] flex flex-col gap-2.5 h-[62px] items-start px-2.5 py-2.5 rounded-xl shadow-[0px_0px_12px_0px_rgba(0,0,0,0.08)] cursor-pointer transition-all duration-200 hover:bg-gray-50"
+    data-selector-button="files"
+    data-active="false"
+  >
+    <div class="flex gap-3 items-center w-full">
+      <div class="bg-[#e7e7e7] flex items-center justify-center rounded-md size-[42px] shrink-0">
+        <FileIcon class="size-6 text-neutral-600" />
+      </div>
+
+      <div class="flex flex-col justify-center font-normal text-[19px] text-neutral-600 tracking-[-0.38px] leading-[0.9] whitespace-nowrap">
+        Arquivos Complexos
+      </div>
+
+      <!-- Arrow Icon -->
+      <svg class="size-2 text-neutral-600 shrink-0" viewBox="0 0 8 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 1L7 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+
+      <div class="flex gap-2.5 items-center justify-center opacity-0">
+        <div class="font-normal text-[22px] text-[#573dff] tracking-[-0.44px] leading-[0.9]">
+          Pedido
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('Horizontal selector script loading...');
+
+    const selectorButtons = document.querySelectorAll<HTMLElement>('[data-selector-button]');
+    console.log('Found selector buttons:', selectorButtons.length);
+
+    const updateButtonState = (button: HTMLElement, isActive: boolean) => {
+      console.log(`Updating button ${button.getAttribute('data-selector-button')} to ${isActive ? 'active' : 'inactive'}`);
+
+      // Find elements using the DOM structure - first div child, then its children
+      const container = button.querySelector('div') as HTMLElement; // The flex container
+      if (!container) {
+        console.error('Container not found for button', button);
+        return;
+      }
+
+      const iconContainer = container.children[0] as HTMLElement; // First child - icon container
+      const label = container.children[1] as HTMLElement; // Second child - label
+      const arrow = container.children[2] as HTMLElement; // Third child - arrow SVG
+      const pedidoSection = container.children[3] as HTMLElement; // Fourth child - pedido section
+
+      // Find the actual icon SVG within the icon container
+      const iconSvg = iconContainer.querySelector('svg') as HTMLElement;
+
+      if (isActive) {
+        // Active state - purple theme
+        if (iconContainer) {
+          iconContainer.className = 'bg-[#e7e4ff] flex items-center justify-center rounded-md size-[42px] shrink-0';
+        }
+        if (iconSvg) {
+          iconSvg.className = 'size-6 text-[#573dff]';
+        }
+        if (label) {
+          label.className = 'flex flex-col justify-center font-normal text-[19px] text-[#573dff] tracking-[-0.38px] leading-[0.9] whitespace-nowrap';
+        }
+        if (arrow) {
+          arrow.className = 'size-2 text-[#573dff] shrink-0';
+        }
+        if (pedidoSection) {
+          pedidoSection.className = 'flex gap-2.5 items-center justify-center';
+        }
+
+        button.setAttribute('data-active', 'true');
+        button.setAttribute('aria-pressed', 'true');
+      } else {
+        // Inactive state - gray theme
+        if (iconContainer) {
+          iconContainer.className = 'bg-[#e7e7e7] flex items-center justify-center rounded-md size-[42px] shrink-0';
+        }
+        if (iconSvg) {
+          iconSvg.className = 'size-6 text-neutral-600';
+        }
+        if (label) {
+          label.className = 'flex flex-col justify-center font-normal text-[19px] text-neutral-600 tracking-[-0.38px] leading-[0.9] whitespace-nowrap';
+        }
+        if (arrow) {
+          arrow.className = 'size-2 text-neutral-600 shrink-0';
+        }
+        if (pedidoSection) {
+          pedidoSection.className = 'flex gap-2.5 items-center justify-center opacity-0';
+        }
+
+        button.setAttribute('data-active', 'false');
+        button.setAttribute('aria-pressed', 'false');
+      }
+    };
+
+    selectorButtons.forEach((button, index) => {
+      console.log(`Setting up button ${index}:`, button.getAttribute('data-selector-button'));
+
+      button.addEventListener('click', (e) => {
+        console.log('Button clicked:', button.getAttribute('data-selector-button'));
+        e.preventDefault();
+
+        // Deactivate all buttons
+        selectorButtons.forEach(btn => updateButtonState(btn, false));
+
+        // Activate clicked button
+        updateButtonState(button, true);
+
+        // Emit custom event for potential content switching
+        const buttonType = button.getAttribute('data-selector-button');
+        document.dispatchEvent(new CustomEvent('selectorChanged', {
+          detail: { activeSelector: buttonType }
+        }));
+      });
+
+      // Set keyboard support
+      button.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          button.click();
+        }
+      });
+
+      // Make focusable
+      button.setAttribute('tabindex', '0');
+      button.setAttribute('role', 'button');
+
+      // Set initial aria-pressed state
+      const isActive = button.getAttribute('data-active') === 'true';
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+
+      // Initialize the visual state to make sure it matches the data attribute
+      updateButtonState(button, isActive);
+    });
+
+    console.log('Horizontal selector setup complete');
+  });
+</script>
