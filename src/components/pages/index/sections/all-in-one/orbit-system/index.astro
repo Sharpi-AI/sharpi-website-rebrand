@@ -1,0 +1,388 @@
+---
+
+---
+
+<div id="orbit-system-container" class="absolute inset-0">
+  <canvas id="orbit-system-canvas" class="w-full h-full"></canvas>
+  <div id="orbit-texts-container" class="absolute inset-0 pointer-events-none"></div>
+</div>
+
+
+
+<script>
+  import * as THREE from 'three';
+  
+  import { LensParticleSystem } from './utils/lens-particle-system';
+  import { OrbitingSpheres } from './utils/orbiting-spheres';
+  import { DEFAULT_SETTINGS } from './utils/config';
+  import type { AnimationStage } from './utils/lens-particle-system';
+
+
+  // Wait for DOM to be ready
+  function initOrbitSystem() {
+    console.log('🔄 Initializing Orbit System');
+
+    // Get DOM elements
+    const container = document.getElementById('orbit-system-container') as HTMLElement;
+    const canvas = document.getElementById('orbit-system-canvas') as HTMLCanvasElement;
+
+    console.log('Container:', container);
+    console.log('Canvas:', canvas);
+
+    if (!container || !canvas) {
+      console.error('Required DOM elements not found');
+      return;
+    }
+
+    // Setup dimensions
+    const width = container.clientWidth;
+    const height = container.clientHeight; // 604px as per the container
+    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+
+    console.log('📐 Dimensions:', { width, height, pixelRatio });
+
+    // Initialize WebGL Renderer
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(pixelRatio);
+    renderer.setClearColor(0xffffff, 1);
+    renderer.toneMapping = THREE.NoToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    console.log('🎨 WebGL Renderer initialized');
+
+
+    const referenceHeight = 604;
+    const referenceWidth = width; // Mantém a largura atual
+    const referenceFOV = 50; // FOV original
+    const referenceAspect = referenceWidth / referenceHeight;
+    const currentAspect = width / height;
+    
+    // Ajusta o FOV verticalmente para compensar a mudança de altura
+    const vFOV = 2 * Math.atan(Math.tan(referenceFOV * Math.PI / 360) * (referenceHeight / height)) * 180 / Math.PI;
+    const cameraZAdjustment = 8 * (height / referenceHeight);
+
+    // Initialize Camera
+    const camera = new THREE.PerspectiveCamera(vFOV, width / height, 0.1, 1000);
+    camera.position.set(0, 0, cameraZAdjustment);
+    camera.lookAt(0, 0, 0);
+    console.log('📷 Camera initialized');
+
+    // Initialize Scene
+    const scene = new THREE.Scene();
+    console.log('🎬 Scene initialized');
+
+
+
+  
+
+    // Create animated particle system with lens cursor
+    const animatedParticleSystem = new LensParticleSystem({
+    // Animation timing with smoother durations
+    stage1Duration: 3,
+    stage2Duration: 3,
+    stage3Duration: 3,
+    stage4Duration: 3,
+    stage1Scale: 0.7,
+    stage2Scale: 1.1,
+    stage3Scale: 1.4,
+    stage4Scale: 1.7,
+    finalScale: 1.7,
+    initialScale: 0.7,
+    returnDelay: 3000,
+    returnDuration: 1.2,
+    autoLoop: true,
+
+    // Lens cursor configuration
+    lensCursorSize: DEFAULT_SETTINGS.lensCursorSize,
+    lensCursorIor: DEFAULT_SETTINGS.lensCursorIor,
+    lensCursorThickness: DEFAULT_SETTINGS.lensCursorThickness,
+    lensCursorChromaticAberration: DEFAULT_SETTINGS.lensCursorChromaticAberration,
+    lensCursorAnisotropy: DEFAULT_SETTINGS.lensCursorAnisotropy,
+    lensCursorTransmission: DEFAULT_SETTINGS.lensCursorTransmission,
+    lensCursorRoughness: DEFAULT_SETTINGS.lensCursorRoughness,
+    lensCursorDistortion: DEFAULT_SETTINGS.lensCursorDistortion,
+    lensCursorDistortionScale: DEFAULT_SETTINGS.lensCursorDistortionScale,
+    lensCursorTemporalDistortion: DEFAULT_SETTINGS.lensCursorTemporalDistortion,
+    lensCursorSamples: 4,
+    lensCursorBackside: false,
+    lensCursorBacksideThickness: DEFAULT_SETTINGS.lensCursorBacksideThickness,
+    lensCursorTransmissionSampler: DEFAULT_SETTINGS.lensCursorTransmissionSampler,
+    lensCursorResolution: 2024,
+    lensCursorBacksideResolution: DEFAULT_SETTINGS.lensCursorBacksideResolution,
+    lensCursorBackground: '#ffffff',
+
+    // Pulse controls with gentler default values
+    pulseEnabled: true,
+    pulseMinScale: 0.98,
+    pulseMaxScale: 1.02,
+    pulseSpeed: 0.0005,
+
+    // Transition controls
+    smoothingFactor: 15,
+
+    // Global timing control
+    useGlobalTiming: true,
+
+    // Particle system settings
+    particleSettings: DEFAULT_SETTINGS,
+
+    // Callbacks
+    onStageChange: (stage: AnimationStage) => {
+      console.log(`AnimatedParticleSystem - Stage changed to: ${stage}`);
+    },
+    onAnimationComplete: () => {
+      console.log('AnimatedParticleSystem - Animation completed');
+    }
+  });
+
+
+    // Add animated particle system to scene
+    scene.add(animatedParticleSystem.getGroup());
+
+    // Text items for orbits
+    const orbitingTextItems1 = [
+    {
+      text1: 'CRM',
+      icon: '<svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 8.36133C17.4706 8.36133 21.5 7.01818 21.5 5.36133C21.5 3.70447 17.4706 2.36133 12.5 2.36133C7.52944 2.36133 3.5 3.70447 3.5 5.36133C3.5 7.01818 7.52944 8.36133 12.5 8.36133Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 5.36133V19.3613C3.5 20.157 4.44821 20.92 6.13604 21.4826C7.82387 22.0453 10.1131 22.3613 12.5 22.3613C14.8869 22.3613 17.1761 22.0453 18.864 21.4826C20.5518 20.92 21.5 20.157 21.5 19.3613V5.36133" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12.3613C3.5 13.157 4.44821 13.92 6.13604 14.4826C7.82387 15.0453 10.1131 15.3613 12.5 15.3613C14.8869 15.3613 17.1761 15.0453 18.864 14.4826C20.5518 13.92 21.5 13.157 21.5 12.3613" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    }
+  ];
+
+  const orbitingTextItems2 = [
+    {
+      text1: 'Plataforma de atendimento',
+      text2: 'no WhatsApp',
+      icon: '<svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.49169 15.703C2.63873 16.0739 2.67147 16.4804 2.58569 16.87L1.52069 20.16C1.48638 20.3269 1.49525 20.4997 1.54647 20.6622C1.59769 20.8246 1.68955 20.9713 1.81336 21.0883C1.93716 21.2053 2.0888 21.2887 2.25389 21.3307C2.41898 21.3726 2.59205 21.3717 2.75669 21.328L6.16969 20.33C6.53741 20.2571 6.91822 20.289 7.26869 20.422C9.40408 21.4192 11.8231 21.6302 14.0988 21.0177C16.3746 20.4053 18.361 19.0087 19.7074 17.0744C21.0538 15.1401 21.6738 12.7924 21.458 10.4456C21.2422 8.09871 20.2044 5.90349 18.5278 4.24722C16.8511 2.59094 14.6434 1.58006 12.2941 1.39292C9.94475 1.20578 7.60483 1.8544 5.68713 3.22436C3.76944 4.59432 2.39722 6.59756 1.81258 8.88066C1.22795 11.1638 1.46846 13.58 2.49169 15.703Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    },
+    {
+      text1: 'App de força',
+      text2: 'de Vendas',
+      icon: '<svg width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.3333 2.69434H8.66659C7.37792 2.69434 6.33325 3.739 6.33325 5.02767V23.6943C6.33325 24.983 7.37792 26.0277 8.66659 26.0277H20.3333C21.6219 26.0277 22.6666 24.983 22.6666 23.6943V5.02767C22.6666 3.739 21.6219 2.69434 20.3333 2.69434Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 21.3613H14.5117" stroke="black" stroke-width="2.33333" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    }
+  ];
+
+    // Create two orbiting spheres instances with detailed configuration
+    const orbit1Config = {
+      sphereCount: 300,
+      initialRadius: 3.6,
+      sphereSize: 0.01,
+      rotationSpeed: 0.1,
+      color: DEFAULT_SETTINGS.particleColor,
+      enabled: true,
+      isAnimating: true,
+
+      // Text configuration
+      textItems: orbitingTextItems1,
+      showTexts: true,
+      textColor: DEFAULT_SETTINGS.orbitingTextColor1,
+      textSize: DEFAULT_SETTINGS.orbitingTextSize1,
+      textOffset: DEFAULT_SETTINGS.orbitingTextOffset1,
+
+      // Animation stages (synchronized with global timing)
+      stage1Duration: 3,
+      stage2Duration: 3,
+      stage3Duration: 3,
+      stage4Duration: 3,
+      stage1Radius: 3.6,
+      stage2Radius: 3.2,
+      stage3Radius: 2.5,
+      stage4Radius: 1.6,
+      finalRadius: 1.6,
+      autoLoop: true,
+      returnDelay: 3000,
+      returnDuration: 1.2,
+
+      // Text fade configuration
+      hideTextsByStage: { 0: 'stage4' },
+      textFadeInDuration: 0.2,
+      textFadeOutDuration: 0.3,
+
+      onStageChange: (stage: AnimationStage) => {
+        console.log(`Orbit 1 - Stage changed to: ${stage}`);
+      }
+    };
+
+    const orbit1 = new OrbitingSpheres(orbit1Config as any);
+
+  const orbit2Config = {
+    sphereCount: 220,
+    initialRadius: 2.2,
+    sphereSize: 0.01,
+    rotationSpeed: 0.1,
+    color: DEFAULT_SETTINGS.particleColor,
+    enabled: true,
+    isAnimating: true,
+
+    // Text configuration
+    textItems: orbitingTextItems2,
+    showTexts: true,
+    textColor: DEFAULT_SETTINGS.orbitingTextColor2,
+    textSize: DEFAULT_SETTINGS.orbitingTextSize2,
+    textOffset: DEFAULT_SETTINGS.orbitingTextOffset2,
+
+    // Animation stages (synchronized with global timing)
+    stage1Duration: 3,
+    stage2Duration: 3,
+    stage3Duration: 3,
+    stage4Duration: 3,
+    stage1Radius: 2.2,
+    stage2Radius: 1.8,
+    stage3Radius: 1.3,
+    stage4Radius: 1,
+    finalRadius: 1,
+    autoLoop: true,
+    returnDelay: 3000,
+    returnDuration: 1.2,
+
+    // Text fade configuration - different stages for each text
+    hideTextsByStage: { 0: 'stage2', 1: 'stage3' },
+    textFadeInDuration: 0.2,
+    textFadeOutDuration: 0.3,
+
+    onStageChange: (stage: AnimationStage) => {
+      console.log(`Orbit 2 - Stage changed to: ${stage}`);
+    }
+  };
+
+  const orbit2 = new OrbitingSpheres(orbit2Config as any);
+
+    
+
+    // Add orbits to scene
+    scene.add(orbit1.getGroup());
+    scene.add(orbit2.getGroup());
+
+    // Set camera reference for text positioning
+    orbit1.setCamera(camera);
+    orbit2.setCamera(camera);
+
+    // Global animation timing system
+    let globalAnimationStartTime = 0;
+    let isGlobalAnimationRunning = false;
+
+    // Animation configuration (updated to match AnimatedParticleSystem)
+    const ANIMATION_CONFIG = {
+      stage1Duration: 3,
+      stage2Duration: 3,
+      stage3Duration: 3,
+      stage4Duration: 3,
+      returnDelay: 3000, // in milliseconds
+      returnDuration: 1.2,
+      autoLoop: true
+    };
+
+    // Calculate total cycle time
+    const STAGE_CYCLE_TIME = ANIMATION_CONFIG.stage1Duration +
+                            ANIMATION_CONFIG.stage2Duration +
+                            ANIMATION_CONFIG.stage3Duration +
+                            ANIMATION_CONFIG.stage4Duration;
+
+    const TOTAL_CYCLE_TIME = STAGE_CYCLE_TIME +
+                            (ANIMATION_CONFIG.returnDelay / 1000) +
+                            ANIMATION_CONFIG.returnDuration;
+
+    function getCurrentGlobalStage(globalElapsed: number): AnimationStage {
+      if (!isGlobalAnimationRunning) return 'idle';
+
+      // Handle looping
+      const cycleElapsed = globalElapsed % TOTAL_CYCLE_TIME;
+
+      if (cycleElapsed < ANIMATION_CONFIG.stage1Duration) {
+        return 'stage1';
+      } else if (cycleElapsed < ANIMATION_CONFIG.stage1Duration + ANIMATION_CONFIG.stage2Duration) {
+        return 'stage2';
+      } else if (cycleElapsed < ANIMATION_CONFIG.stage1Duration + ANIMATION_CONFIG.stage2Duration + ANIMATION_CONFIG.stage3Duration) {
+        return 'stage3';
+      } else if (cycleElapsed < STAGE_CYCLE_TIME) {
+        return 'stage4';
+      } else if (cycleElapsed < STAGE_CYCLE_TIME + (ANIMATION_CONFIG.returnDelay / 1000)) {
+        return 'completed';
+      } else {
+        return 'returning';
+      }
+    }
+
+    // Start global animation
+    function startGlobalAnimation() {
+      globalAnimationStartTime = Date.now() ;
+      isGlobalAnimationRunning = true;
+      console.log('Global animation started');
+    }
+
+    // Initialize all components for global timing (synchronized)
+    orbit1.initializeForGlobalTiming();
+    orbit2.initializeForGlobalTiming();
+    // animatedParticleSystem.initializeForGlobalTiming();
+
+    // Start the global animation system
+    startGlobalAnimation();
+
+    // Animation loop
+    let lastTime = 0;
+    function animate(currentTime: number) {
+      const deltaTime = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
+
+      // Calculate global elapsed time
+      const globalElapsed = (Date.now() - globalAnimationStartTime) / 1000;
+      const globalStage = getCurrentGlobalStage(globalElapsed);
+
+      // Update all systems with global timing
+      animatedParticleSystem.update(deltaTime, globalElapsed, globalStage);
+      orbit1.update(deltaTime, globalElapsed, globalStage);
+      orbit2.update(deltaTime, globalElapsed, globalStage);
+
+
+      // Render the scene with lens effects
+      animatedParticleSystem.render(renderer, camera, scene);
+
+      // Continue animation loop
+      requestAnimationFrame(animate);
+    }
+
+    console.log('🚀 Starting animation loop...');
+    // Start animation loop
+    requestAnimationFrame(animate);
+
+    // Handle resize
+    function handleResize() {
+      const newWidth = container.clientWidth;
+      const newHeight = container.clientHeight;
+
+      camera.aspect = newWidth / newHeight;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(newWidth, newHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }
+
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function for when component unmounts
+    function cleanup() {
+      window.removeEventListener('resize', handleResize);
+
+      // Dispose of Three.js objects
+      animatedParticleSystem.dispose();
+      orbit1.dispose();
+      orbit2.dispose();
+
+      // Dispose renderer
+      renderer.dispose();
+
+      console.log('Orbit system cleaned up');
+    }
+
+    // Store cleanup function for potential use
+    (window as any).orbitSystemCleanup = cleanup;
+
+    console.log('🎯 Orbit System fully initialized and running!');
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initOrbitSystem);
+  } else {
+    initOrbitSystem();
+  }
+</script>

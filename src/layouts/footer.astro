@@ -1,6 +1,7 @@
 ---
 import Logotype from "@/components/icons/logotype.astro";
 import FooterCircle from "@/components/icons/footer-circle.astro";
+import { scrollTo } from "@/utils/lenis";
 ---
 
 <div class="sticky bottom-0 z-0">
@@ -13,11 +14,11 @@ import FooterCircle from "@/components/icons/footer-circle.astro";
     >
       <div
         id="footer-circle"
-        class="absolute z-0 inset-0 flex items-center justify-center opacity-0 translate-y-[20px]"
+        class="absolute z-0 inset-0 flex items-center justify-center opacity-0 translate-y-[20px] scale-[150%] md:scale-100"
       >
         <FooterCircle />
       </div>
-      <div class="relative z-10">
+      <div class="relative z-10 -rotate-90 w-[85vh] scale-[160%] md:scale-100  md:rotate-none md:w-screen">
         <Logotype />
       </div>
     </div>
@@ -29,11 +30,13 @@ import FooterCircle from "@/components/icons/footer-circle.astro";
         id="footer-header"
         class="flex items-center justify-center gap-2 opacity-0 translate-y-[20px]"
       >
-        <div
-          class="bg-[#F4F4F4] text-[13px] font-normal px-2.5 h-7 w-fit rounded-lg flex items-center justify-center"
+        <button
+          id="back-to-top-btn"
+          class="bg-[#F4F4F4] text-[13px] font-normal px-2.5 h-7 w-fit rounded-lg flex items-center justify-center cursor-pointer hover:bg-[#E8E8E8] transition-colors duration-200"
+          type="button"
         >
           Voltar ao Topo
-        </div>
+        </button>
         <div
           class="bg-[#F4F4F4] text-[13px] font-normal px-2.5 h-7 w-fit rounded-lg flex items-center justify-center"
         >
@@ -53,7 +56,7 @@ import FooterCircle from "@/components/icons/footer-circle.astro";
         id="footer-footer"
         class="flex items-center justify-center gap-11 opacity-0 translate-y-[20px]"
       >
-        <span class="font-mono text-[13px]"> © 2025 Sharpi </span>
+        <span class="font-mono text-[13px] hidden md:block"> © 2025 Sharpi </span>
         <span class="font-mono text-[13px] px-2.5 py-1.5">
           Cookie Preferences
         </span>
@@ -67,6 +70,18 @@ import FooterCircle from "@/components/icons/footer-circle.astro";
 
 <script>
   import { animate, stagger } from "motion";
+  import { scrollTo } from "@/utils/lenis";
+
+  function initBackToTopButton() {
+    const backToTopBtn = document.getElementById("back-to-top-btn");
+    
+    if (backToTopBtn) {
+      backToTopBtn.addEventListener("click", () => {
+        // Scroll suave até a seção hero usando Lenis
+        scrollTo("#hero", { duration: 1.5 });
+      });
+    }
+  }
 
   function initFooterAnimation() {
     const footerContainer = document.getElementById("footer-container");
@@ -135,8 +150,12 @@ import FooterCircle from "@/components/icons/footer-circle.astro";
 
   // Initialize when DOM is ready
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initFooterAnimation);
+    document.addEventListener("DOMContentLoaded", () => {
+      initFooterAnimation();
+      initBackToTopButton();
+    });
   } else {
     initFooterAnimation();
+    initBackToTopButton();
   }
 </script>

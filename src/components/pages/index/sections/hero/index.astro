@@ -6,7 +6,7 @@ import DeviceSimulation from "./device-simulation.astro";
 import CalendarIcon from "@/components/icons/calendar.astro";
 ---
 
-<section class="relative z-0 w-full h-screen flex overflow-hidden">
+<section id="hero" class="relative z-0 w-full h-screen flex overflow-hidden">
   <div
     class="relative z-10 flex items-center flex-1 flex-col pt-24 md:pt-44 gap-2"
   >
@@ -17,11 +17,12 @@ import CalendarIcon from "@/components/icons/calendar.astro";
       <Button
         title="Agende uma demo"
         href="https://wa.me/5521984401411?text=Ol%C3%A1%2C%20eu%20gostaria%20de%20saber%20mais%20sobre%20o%20sistema%20da%20Sharpi."
-        class="gap-1 pl-[3px]"
+        class="gap-1 pl-[3px] font-mono"
         target="_blank"
+
       >
         <div
-          class="size-6.5 rounded-full flex items-center justify-center border border-black"
+          class="size-6.5 rounded-full flex  items-center justify-center border border-black"
         >
           <CalendarIcon />
         </div>
