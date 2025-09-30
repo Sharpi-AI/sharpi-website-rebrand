@@ -1,0 +1,94 @@
+---
+import Logo from "../logo/index.astro";
+---
+
+<div class="sticky top-0 max-h-0 z-50 overflow-visible w-full">
+  <header
+    id="header-container"
+    class="w-full p-4 flex items-center justify-between transition-transform duration-200 ease-in-out"
+    style="transform: translateY(0%)"
+  >
+    <div class="p-4 flex items-center justify-center w-full">
+      <Logo />
+    </div>
+  </header>
+
+  <div
+    id="page-overlay"
+    class="fixed inset-0 bg-white opacity-100 pointer-events-none z-[9999]"
+  >
+  </div>
+</div>
+
+<script>
+  import { animate } from "motion";
+
+  function initPageOverlay() {
+    const overlay = document.getElementById("page-overlay");
+    if (!overlay) return;
+
+    // Fade out overlay before hero animations start
+    animate(
+      overlay,
+      { opacity: [1, 0] },
+      {
+        duration: 0.4,
+        delay: 0.2,
+        ease: "easeOut",
+      }
+    );
+  }
+
+  function initHeaderFooterInteraction() {
+    const header = document.getElementById("header-container");
+
+    if (!header) return;
+
+    function checkScrollPosition() {
+      if (!header) return;
+
+      const footerStartPosition =
+        document.body.scrollHeight - window.innerHeight;
+      const currentScrollPosition = window.scrollY;
+
+      const tolerance = 100;
+      const shouldHideHeader =
+        currentScrollPosition >= footerStartPosition - tolerance;
+
+      if (shouldHideHeader) {
+        header.style.transform = "translateY(-100%)";
+      } else {
+        header.style.transform = "translateY(0%)";
+      }
+    }
+
+    let ticking = false;
+    function handleScroll() {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          checkScrollPosition();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    // Initial check
+    checkScrollPosition();
+
+    // Listen to scroll events
+    window.addEventListener("scroll", handleScroll, { passive: true });
+  }
+
+  // Initialize animations when DOM is ready
+  function initAnimations() {
+    initPageOverlay();
+    initHeaderFooterInteraction();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAnimations);
+  } else {
+    initAnimations();
+  }
+</script>

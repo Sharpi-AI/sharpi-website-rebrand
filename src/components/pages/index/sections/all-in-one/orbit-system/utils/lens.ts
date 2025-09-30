@@ -43,8 +43,18 @@ export class Lens {
   private oldBackground: THREE.Color | THREE.Texture | null = null;
   private oldToneMapping: THREE.ToneMapping = THREE.ACESFilmicToneMapping;
   private childObjects: THREE.Object3D[] = [];
+  private isMobile: boolean;
 
   constructor(options: LensOptions = {}) {
+    // Detectar se é dispositivo móvel
+    this.isMobile = this.detectMobile();
+    
+    // Valores otimizados para mobile
+    const mobileSamples = 2;
+    const mobileResolution = 512;
+    const desktopSamples = 6;
+    const desktopResolution = 1024;
+
     this.options = {
       size: 0.25,
       ior: 1.2,
@@ -56,11 +66,11 @@ export class Lens {
       distortion: 0,
       distortionScale: 0.5,
       temporalDistortion: 0,
-      samples: 6,
+      samples: this.isMobile ? mobileSamples : desktopSamples,
       backside: false,
       backsideThickness: 0,
       transmissionSampler: false,
-      resolution: 1024,
+      resolution: this.isMobile ? mobileResolution : desktopResolution,
       background: '#ffffff',
       enabled: true,
       ...options
@@ -105,16 +115,12 @@ export class Lens {
     const resolution = this.options.resolution!;
     const backsideResolution = this.options.backsideResolution || resolution;
 
-    console.log('Creating render targets with resolution:', resolution);
-
     this.renderTargetMain = new THREE.WebGLRenderTarget(resolution, resolution, {
       minFilter: THREE.LinearFilter,
       magFilter: THREE.LinearFilter,
       format: THREE.RGBAFormat,
       type: THREE.UnsignedByteType,
     });
-
-    console.log('Created main render target:', this.renderTargetMain);
 
     if (this.options.backside) {
       this.renderTargetBack = new THREE.WebGLRenderTarget(backsideResolution, backsideResolution, {
@@ -123,12 +129,10 @@ export class Lens {
         format: THREE.RGBAFormat,
         type: THREE.UnsignedByteType,
       });
-      console.log('Created backside render target:', this.renderTargetBack);
     }
 
     // Set the buffer texture for the transmission material
     this.transmissionMaterial.setBuffer(this.renderTargetMain.texture);
-    console.log('Set buffer texture on transmission material');
   }
 
   private createLensMesh(): void {
@@ -198,12 +202,9 @@ export class Lens {
 
   public render(renderer: THREE.WebGLRenderer, camera: THREE.Camera, mainScene: THREE.Scene): void {
     if (!this.options.enabled) {
-      console.log('Lens disabled, rendering normally');
       renderer.render(mainScene, camera);
       return;
     }
-
-    console.log('Lens render start');
 
     // Store original state
     this.oldBackground = mainScene.background;
@@ -216,12 +217,10 @@ export class Lens {
     renderer.toneMapping = THREE.NoToneMapping;
     if (backgroundTexture) {
       mainScene.background = backgroundTexture;
-      console.log('Set background color:', this.options.background);
     }
 
     // Render backside if needed
     if (this.options.backside && this.renderTargetBack) {
-      console.log('Rendering backside to render target');
       renderer.setRenderTarget(this.renderTargetBack);
       renderer.render(this.lensScene, camera);
 
@@ -232,8 +231,6 @@ export class Lens {
     }
 
     // Render main lens scene to buffer
-    console.log('Rendering lens scene to main render target');
-    console.log('Lens scene children:', this.lensScene.children.length);
     renderer.setRenderTarget(this.renderTargetMain);
     renderer.clear();
     renderer.render(this.lensScene, camera);
@@ -242,7 +239,6 @@ export class Lens {
     this.transmissionMaterial.setBuffer(this.renderTargetMain.texture);
     this.transmissionMaterial.side = THREE.FrontSide;
     this.transmissionMaterial.uniforms.thickness.value = this.options.thickness;
-    console.log('Updated transmission material with buffer texture');
 
     // Restore render target
     renderer.setRenderTarget(null);
@@ -252,16 +248,12 @@ export class Lens {
     renderer.toneMapping = this.oldToneMapping;
 
     // Now render the main scene normally - the lens will use the captured buffer
-    console.log('Rendering main scene with lens');
     renderer.render(mainScene, camera);
 
     // Render background mesh with captured texture
-    console.log('Rendering background mesh');
     renderer.autoClear = false;
     renderer.render(this.backgroundScene, camera);
     renderer.autoClear = true;
-
-    console.log('Lens render complete');
   }
 
   public getMainScene(): THREE.Scene {
@@ -310,8 +302,23 @@ export class Lens {
     if (newOptions.size !== undefined) {
       this.lensMesh.scale.setScalar(newOptions.size);
     }
+  }
 
-    console.log('Updated lens options:', newOptions);
+  private detectMobile(): boolean {
+    if (typeof window === 'undefined') return false;
+    
+    // Detectar por user agent
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const mobileKeywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone'];
+    const isMobileUserAgent = mobileKeywords.some(keyword => userAgent.includes(keyword));
+    
+    // Detectar por touch support
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Detectar por tamanho de tela (opcional, mais conservador)
+    const isSmallScreen = window.innerWidth <= 768;
+    
+    return isMobileUserAgent || (isTouchDevice && isSmallScreen);
   }
 
   public dispose(): void {

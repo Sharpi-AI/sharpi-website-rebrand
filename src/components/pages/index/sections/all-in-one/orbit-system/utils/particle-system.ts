@@ -32,7 +32,7 @@ export class ParticleSystem {
     // Generate particle positions
     const particlePositions = generateParticlePositions(this.settings.arrangementType, {
       particleCount: this.settings.particleCount,
-      radius: this.settings.radius,
+      radius: 0.7,
       numLines: this.settings.numLines,
       particlesPerLine: this.settings.particlesPerLine,
       numRings: this.settings.numRings,

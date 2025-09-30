@@ -309,14 +309,16 @@ export class OrbitingSpheres {
 
       const newPosition = new Vector3(x, y, 0);
 
-      // Update positions only for texts not currently animating
-      const isThisTextFading = this.isTextFadingOutArray[i] || this.isTextFadingInArray[i];
+      // Update positions only for texts not currently animating or faded out
+      const isThisTextFading = this.isTextFadingOutArray[i] || this.isTextFadingInArray[i] || this.hasTextsFadedArray[i];
       if (!isThisTextFading) {
         this.textPositions[i] = newPosition;
       }
 
-      // Always update original positions for reference
-      this.originalTextPositions[i] = newPosition.clone();
+      // Only update original positions when text is not fading out or faded out
+      if (!this.isTextFadingOutArray[i] && !this.hasTextsFadedArray[i]) {
+        this.originalTextPositions[i] = newPosition.clone();
+      }
     }
   }
 
