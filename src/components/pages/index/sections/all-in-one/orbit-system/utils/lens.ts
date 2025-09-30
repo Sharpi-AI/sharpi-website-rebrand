@@ -120,6 +120,7 @@ export class Lens {
       magFilter: THREE.LinearFilter,
       format: THREE.RGBAFormat,
       type: THREE.UnsignedByteType,
+      
     });
 
     if (this.options.backside) {
@@ -209,6 +210,8 @@ export class Lens {
     // Store original state
     this.oldBackground = mainScene.background;
     this.oldToneMapping = renderer.toneMapping;
+    const oldClearColor = renderer.getClearColor(new THREE.Color());
+    const oldClearAlpha = renderer.getClearAlpha();
 
     // Set background if specified
     const backgroundTexture = this.options.background ? new THREE.Color(this.options.background) : null;
@@ -221,13 +224,23 @@ export class Lens {
 
     // Render backside if needed
     if (this.options.backside && this.renderTargetBack) {
+      // Set clear color to background for render target
+      if (backgroundTexture) {
+        renderer.setClearColor(backgroundTexture, 1);
+      }
       renderer.setRenderTarget(this.renderTargetBack);
+      renderer.clear();
       renderer.render(this.lensScene, camera);
 
       // Update material for backside rendering
       this.transmissionMaterial.setBuffer(this.renderTargetBack.texture);
       this.transmissionMaterial.side = THREE.BackSide;
       this.transmissionMaterial.uniforms.thickness.value = this.options.backsideThickness;
+    }
+
+    // Set clear color to background for render target
+    if (backgroundTexture) {
+      renderer.setClearColor(backgroundTexture, 1);
     }
 
     // Render main lens scene to buffer
@@ -246,6 +259,7 @@ export class Lens {
     // Restore original state
     mainScene.background = this.oldBackground;
     renderer.toneMapping = this.oldToneMapping;
+    renderer.setClearColor(oldClearColor, oldClearAlpha);
 
     // Now render the main scene normally - the lens will use the captured buffer
     renderer.render(mainScene, camera);

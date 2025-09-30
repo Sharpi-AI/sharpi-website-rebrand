@@ -5,9 +5,45 @@
 <div id="orbit-system-container" class="absolute inset-0">
   <canvas id="orbit-system-canvas" class="w-full h-full"></canvas>
   <div id="orbit-texts-container" class="absolute inset-0 pointer-events-none"></div>
+  <div id="cloned-cards-container" class="absolute left-1/2 -translate-x-1/2 md:left-1/6 top-1/2 -translate-y-1/2 flex flex-col gap-16 opacity-0 transition-opacity duration-500 pointer-events-none z-10">
+
+    <p class="text-sm text-[#4C43FC]  font-normal leading-none max-w-[20ch]">
+      Substitua todas essas ferramentas de uma só vez
+    </p>
+
+    <div class="flex flex-col gap-3">
+      <div class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)]  opacity-0 transition-all duration-400 ease-out  w-[173px] max-w-[300px]" style="transition-delay: 0ms;">
+        <div class="flex-shrink-0  size-9 flex items-center justify-center rounded-md">
+          <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 8.36133C17.4706 8.36133 21.5 7.01818 21.5 5.36133C21.5 3.70447 17.4706 2.36133 12.5 2.36133C7.52944 2.36133 3.5 3.70447 3.5 5.36133C3.5 7.01818 7.52944 8.36133 12.5 8.36133Z" stroke="#4C43FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 5.36133V19.3613C3.5 20.157 4.44821 20.92 6.13604 21.4826C7.82387 22.0453 10.1131 22.3613 12.5 22.3613C14.8869 22.3613 17.1761 22.0453 18.864 21.4826C20.5518 20.92 21.5 20.157 21.5 19.3613V5.36133" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12.3613C3.5 13.157 4.44821 13.92 6.13604 14.4826C7.82387 15.0453 10.1131 15.3613 12.5 15.3613C14.8869 15.3613 17.1761 15.0453 18.864 14.4826C20.5518 13.92 21.5 13.157 21.5 12.3613" stroke="#4C43FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flex flex-col gap-px">
+          <div class="text-[15px] text-[#4C43FC] font-medium  leading-none tracking-[-0.02em]">CRM</div>
+        </div>
+      </div>
+
+      
+      <div class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)]  opacity-0 transition-all duration-400 ease-out  w-fit max-w-[300px]" style="transition-delay: 100ms;">
+        <div class="flex-shrink-0  size-9 flex items-center justify-center rounded-md">
+          <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.49169 15.703C2.63873 16.0739 2.67147 16.4804 2.58569 16.87L1.52069 20.16C1.48638 20.3269 1.49525 20.4997 1.54647 20.6622C1.59769 20.8246 1.68955 20.9713 1.81336 21.0883C1.93716 21.2053 2.0888 21.2887 2.25389 21.3307C2.41898 21.3726 2.59205 21.3717 2.75669 21.328L6.16969 20.33C6.53741 20.2571 6.91822 20.289 7.26869 20.422C9.40408 21.4192 11.8231 21.6302 14.0988 21.0177C16.3746 20.4053 18.361 19.0087 19.7074 17.0744C21.0538 15.1401 21.6738 12.7924 21.458 10.4456C21.2422 8.09871 20.2044 5.90349 18.5278 4.24722C16.8511 2.59094 14.6434 1.58006 12.2941 1.39292C9.94475 1.20578 7.60483 1.8544 5.68713 3.22436C3.76944 4.59432 2.39722 6.59756 1.81258 8.88066C1.22795 11.1638 1.46846 13.58 2.49169 15.703Z" stroke="#4C43FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flex flex-col gap-px">
+          <div class="text-[15px] text-[#4C43FC] font-medium  leading-none tracking-[-0.02em]">Plataforma de atendimento</div>
+          <div class="text-[15px] text-[#6F6F6F] font-mono font-medium leading-none tracking-[-0.02em]">no WhatsApp</div>
+        </div>
+      </div>
+
+      <div class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)]  opacity-0 transition-all duration-400 ease-out  w-[200px] max-w-[300px]" style="transition-delay: 200ms;">
+        <div class="flex-shrink-0  size-9 flex items-center justify-center rounded-md">
+          <svg width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.3333 2.69434H8.66659C7.37792 2.69434 6.33325 3.739 6.33325 5.02767V23.6943C6.33325 24.983 7.37792 26.0277 8.66659 26.0277H20.3333C21.6219 26.0277 22.6666 24.983 22.6666 23.6943V5.02767C22.6666 3.739 21.6219 2.69434 20.3333 2.69434Z" stroke="#4C43FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 21.3613H14.5117" stroke="black" stroke-width="2.33333" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flex flex-col gap-px">
+          <div class="text-[15px] text-[#4C43FC] font-medium  leading-none tracking-[-0.02em]">App de força</div>
+          <div class="text-[15px] text-[#6F6F6F] font-mono font-medium leading-none tracking-[-0.02em]">de Vendas</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-
-
 
 <script>
   import * as THREE from 'three';
@@ -20,7 +56,7 @@
 
   // Wait for DOM to be ready
   function initOrbitSystem() {
-    console.log('🔄 Initializing Orbit System');
+    
 
     // Get DOM elements
     const container = document.getElementById('orbit-system-container') as HTMLElement;
@@ -42,10 +78,10 @@
     console.log('📐 Dimensions:', { width, height, pixelRatio });
 
     // Initialize WebGL Renderer
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(pixelRatio);
-    renderer.setClearColor(0xffffff, 1);
+    renderer.setClearColor(0x000000, 0);
     renderer.toneMapping = THREE.NoToneMapping;
     renderer.toneMappingExposure = 1.0;
     console.log('🎨 WebGL Renderer initialized');
@@ -69,6 +105,7 @@
 
     // Initialize Scene
     const scene = new THREE.Scene();
+    // scene.background = new THREE.Color(0xe3f2fd);
     console.log('🎬 Scene initialized');
 
 
@@ -109,7 +146,7 @@
     lensCursorTransmissionSampler: DEFAULT_SETTINGS.lensCursorTransmissionSampler,
     lensCursorResolution: 2024,
     lensCursorBacksideResolution: DEFAULT_SETTINGS.lensCursorBacksideResolution,
-    lensCursorBackground: '#ffffff',
+    lensCursorBackground: '#e3f2fd',
 
     // Pulse controls with gentler default values
     pulseEnabled: true,
@@ -283,8 +320,13 @@
     function getCurrentGlobalStage(globalElapsed: number): AnimationStage {
       if (!isGlobalAnimationRunning) return 'idle';
 
+      // If autoLoop is disabled, lock at stage4 after completing all stages
+      if (!ANIMATION_CONFIG.autoLoop && globalElapsed >= STAGE_CYCLE_TIME) {
+        return 'stage4';
+      }
+
       // Handle looping
-      const cycleElapsed = globalElapsed % TOTAL_CYCLE_TIME;
+      const cycleElapsed = ANIMATION_CONFIG.autoLoop ? globalElapsed % TOTAL_CYCLE_TIME : globalElapsed;
 
       if (cycleElapsed < ANIMATION_CONFIG.stage1Duration) {
         return 'stage1';
@@ -316,6 +358,39 @@
     // Start the global animation system
     startGlobalAnimation();
 
+    // Track last stage for cloned cards visibility
+    let lastStageForCards = 'idle';
+
+    // Function to update cloned cards visibility
+    function updateClonedCardsVisibility(stage: AnimationStage) {
+      const container = document.getElementById('cloned-cards-container');
+      if (!container) return;
+
+      const cards = container.querySelectorAll('.cloned-card');
+
+      if (stage === 'stage4') {
+        container.classList.remove('opacity-0');
+        container.classList.add('opacity-100');
+        // Show cards with staggered animation
+        cards.forEach((card) => {
+          card.classList.remove('-translate-x-5', 'opacity-0');
+          card.classList.add('translate-x-0', 'opacity-100');
+        });
+      } else if (lastStageForCards === 'stage4' && stage !== 'stage4') {
+        // Hide cards when leaving stage4
+        cards.forEach((card) => {
+          card.classList.remove('translate-x-0', 'opacity-100');
+          card.classList.add('-translate-x-5', 'opacity-0');
+        });
+        setTimeout(() => {
+          container.classList.remove('opacity-100');
+          container.classList.add('opacity-0');
+        }, 400);
+      }
+
+      lastStageForCards = stage;
+    }
+
     // Animation loop
     let lastTime = 0;
     function animate(currentTime: number) {
@@ -325,6 +400,9 @@
       // Calculate global elapsed time
       const globalElapsed = (Date.now() - globalAnimationStartTime) / 1000;
       const globalStage = getCurrentGlobalStage(globalElapsed);
+
+      // Update cloned cards visibility based on stage
+      updateClonedCardsVisibility(globalStage);
 
       // Update all systems with global timing
       animatedParticleSystem.update(deltaTime, globalElapsed, globalStage);

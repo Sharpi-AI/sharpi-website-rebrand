@@ -2,19 +2,27 @@
 import Logo from "@/components/icons/logo.astro";
 import Button from "@/components/ui/button/index.astro";
 ---
+<!-- 
+<div class="fixed top-8 left-8 right-0 z-50 flex items-center ">
+  <Logo />
+</div> -->
 
 <div class="sticky top-0 max-h-0 z-50 overflow-visible w-full">
   <header
     id="header-container"
     class="w-full p-4 flex items-center justify-between transition-transform duration-200 ease-in-out"
-    style="transform: translateY(0%)"
+    
   >
-    <div class="p-4  grid grid-cols-3 w-full">
-      <Logo />
+    <div class="p-4  grid grid-cols-3 w-full ">
+      <div class="flex items-center opacity-0 md:opacity-100  ">
+        <Logo />
+      </div>
 
 
-      <div class="w-full flex items-center justify-center">
-        <div class="w-fit flex items-center justify-between bg-black/20 backdrop-blur-[22px] rounded-lg h-10 p-1 gap-8">
+      <div class="col-start-2 w-full flex items-center justify-center">
+        <div class="w-fit flex items-center justify-between bg-black/20 rounded-lg h-10 p-1 gap-8" style={{
+          backdropFilter: "blur(22px)"
+        }}>
           <div class="flex items-center justify-center">
             <Button href="/"  variant="ghost" size="lg" class="text-white text-[13px] h-full px-4.5 pt-0.5">
               Home
