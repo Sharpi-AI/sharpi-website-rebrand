@@ -2,6 +2,21 @@
 import Logo from "@/components/icons/logo.astro";
 import Button from "@/components/ui/button/index.astro";
 ---
+
+<style is:global>
+  .scrolled .entrar-button {
+    color: #2563eb !important;
+  }
+
+  .scrolled .logo-icon {
+    mix-blend-mode: normal !important;
+  }
+
+  .scrolled .logo-icon .logo-path {
+    fill: #2563eb !important;
+    fill-opacity: 1 !important;
+  }
+</style>
 <!-- 
 <div class="fixed top-8 left-8 right-0 z-50 flex items-center ">
   <Logo />
@@ -52,7 +67,7 @@ import Button from "@/components/ui/button/index.astro";
 
       <div class="w-full flex items-center justify-end">
 
-        <Button href="https://app.sharpi.com.br" target="_blank" variant="ghost" size="lg" class="text-white text-[13px]">
+        <Button href="https://app.sharpi.com.br" target="_blank" variant="ghost" size="lg" class="entrar-button text-white text-[13px] transition-colors duration-300">
           Entrar
         </Button>
       </div>
@@ -85,11 +100,40 @@ import Button from "@/components/ui/button/index.astro";
     );
   }
 
+  function updateHeaderColors() {
+    const heroSection = document.getElementById("hero");
+    const headerContainer = document.getElementById("header-container");
 
+    if (!heroSection || !headerContainer) {
+      console.log("Hero or header not found");
+      return;
+    }
+
+    const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
+    const scrollY = window.scrollY;
+
+    console.log("Scroll Y:", scrollY, "Hero Bottom:", heroBottom);
+
+    if (scrollY > heroBottom) {
+      headerContainer.classList.add("scrolled");
+      console.log("Added scrolled class");
+    } else {
+      headerContainer.classList.remove("scrolled");
+      console.log("Removed scrolled class");
+    }
+  }
 
   // Initialize animations when DOM is ready
   function initAnimations() {
     initPageOverlay();
+    updateHeaderColors();
+
+    // Add scroll listener
+    if (window.lenis) {
+      window.lenis.on("scroll", updateHeaderColors);
+    } else {
+      window.addEventListener("scroll", updateHeaderColors);
+    }
   }
 
   if (document.readyState === "loading") {
