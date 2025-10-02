@@ -1,21 +1,27 @@
 ---
-import OrbitSystem from './orbit-system/index.astro';
+import OrbitSystem from "./orbit-system/index.astro";
 ---
 
-<section id="all-in-one" class="relative z-0 py-12 flex flex-col items-center justify-center gap-8 px-4  -mb-40">
+<section
+  id="all-in-one"
+  class="relative z-0 py-12 flex flex-col items-center justify-center gap-8 px-4 -mb-40"
+>
   <div class="relative z-10 flex flex-col items-center justify-center gap-5">
     <h2
-      class="text-[37px] md:text-[58px] w-full max-w-[14ch] md:max-w-[24ch] text-center  font-normal leading-none text-[#383838]  tracking-tight"
-      >
+      class="text-[37px] md:text-[58px] w-full max-w-[14ch] md:max-w-[24ch] text-center font-normal leading-none text-[#383838] tracking-tight"
+    >
       A única ferramenta que o seu comercial precisa
     </h2>
-    
-    <p class="text-sm md:text-[17px] text-center leading-snug tracking-[-0.02em] max-w-[36ch] md:max-w-[60ch] " >
-      A Sharpi centraliza sua jornada de vendas, respeita seu processo comerciale unifica todos os dados em uma única plataforma
+
+    <p
+      class="text-sm md:text-[17px] text-center leading-snug tracking-[-0.02em] max-w-[36ch] md:max-w-[60ch]"
+    >
+      A Sharpi centraliza sua jornada de vendas, respeita seu processo
+      comerciale unifica todos os dados em uma única plataforma
     </p>
   </div>
 
-  <div class="z-0 w-full max-w-7xl min-h-[604px] ">
+  <div class="z-0 w-full max-w-7xl min-h-[604px]">
     <OrbitSystem />
   </div>
 </section>
@@ -87,7 +93,7 @@ import OrbitSystem from './orbit-system/index.astro';
 
     // Colors
     const whiteColor: [number, number, number] = [255, 255, 255];
-    const babyBlueColor: [number, number, number] = [227, 242, 253]; // #e3f2fd
+    const babyBlueColor: [number, number, number] = [204, 228, 243]; // #CCE4F3
 
     // Listen for scroll events
     window.lenis.on("scroll", () => {

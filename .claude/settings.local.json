@@ -3,7 +3,9 @@
     "allow": [
       "Bash(pnpm add:*)",
       "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:docs.astro.build)"
     ],
     "deny": [],
     "ask": []

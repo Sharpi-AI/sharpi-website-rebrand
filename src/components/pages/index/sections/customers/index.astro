@@ -1,52 +1,61 @@
 ---
+import { Image } from "astro:assets";
+
+import multiplasLogo from "@/assets/customers/multiplas.png";
+import polarLogo from "@/assets/customers/polar.png";
+import mantiqueiraLogo from "@/assets/customers/mantiqueira.png";
+import boldLogo from "@/assets/customers/bold.png";
+import casasLogo from "@/assets/customers/casas.png";
+
 const customers = [
   {
     name: "Multiplas",
-    logo: "/assets/medias/index/customers/multiplas.png",
+    logo: multiplasLogo,
+    alt: "Logo da Multiplas - cliente da Sharpi",
   },
   {
     name: "Polar",
-    logo: "/assets/medias/index/customers/polar.png",
+    logo: polarLogo,
+    alt: "Logo da Polar - cliente da Sharpi",
   },
   {
     name: "Mantiqueira",
-    logo: "/assets/medias/index/customers/mantiqueira.png",
+    logo: mantiqueiraLogo,
+    alt: "Logo da Mantiqueira - cliente da Sharpi",
   },
   {
     name: "Bold",
-    logo: "/assets/medias/index/customers/bold.png",
+    logo: boldLogo,
+    alt: "Logo da Bold - cliente da Sharpi",
   },
   {
     name: "Casas Pedro",
-    logo: "/assets/medias/index/customers/casas.png",
+    logo: casasLogo,
+    alt: "Logo da Casas Pedro - cliente da Sharpi",
   },
-  // {
-  //   name: "Vidaveg",
-  //   logo: "/assets/medias/index/customers/vidaveg.png",
-  // },
-  // {
-  //   name: "Organicos da Fatima",
-  //   logo: "/assets/medias/index/customers/organicos.png",
-  // },
 ];
 ---
 
 <section id="customers" class="overflow-x-hidden py-10 mt-20 px-4 md:px-0">
-  <div class="container mx-auto  space-y-8">
+  <div class="container mx-auto space-y-8">
     <h2
       class="text-sm font-normal text-center leading-none text-[#969696] tracking-tight"
     >
       Times de venda avançados que confiam na Sharpi:
     </h2>
-    <ul class="flex  flex-wrap-reverse md:flex-nowrap gap-x-10 gap-y-4 md:gap-x-20 md:gap-y-20 items-center justify-center">
+    <ul class="flex flex-wrap-reverse md:flex-nowrap gap-x-10 gap-y-4 md:gap-x-20 md:gap-y-20 items-center justify-center">
       {
         customers.map((customer) => (
           <li>
-            <div class="grayscale rounded-lg  w-fit max-w-[80px] md:max-w-[100px] flex items-center justify-center ">
-              <img
-                class="w-full h-full object-contain max-h-[60px] md:max-h-[70px] "
+            <div class="grayscale rounded-lg w-fit max-w-[80px] md:max-w-[100px] flex items-center justify-center">
+              <Image
                 src={customer.logo}
-                alt={customer.name}
+                alt={customer.alt}
+                width={100}
+                height={70}
+                class="w-full h-full object-contain max-h-[60px] md:max-h-[70px]"
+                loading="lazy"
+                format="webp"
               />
             </div>
           </li>
