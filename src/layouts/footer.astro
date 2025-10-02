@@ -1,7 +1,8 @@
 ---
 import Logotype from "@/components/icons/logotype.astro";
 import FooterCircle from "@/components/icons/footer-circle.astro";
-import { scrollTo } from "@/utils/lenis";
+
+import Logo from "@/components/shared/logo/index.astro";
 ---
 
 <div class="sticky bottom-0 z-0">
@@ -18,13 +19,15 @@ import { scrollTo } from "@/utils/lenis";
       >
         <FooterCircle />
       </div>
-      <div class="relative z-10 -rotate-90 w-[85vh] scale-[160%] md:scale-100  md:rotate-none md:w-screen">
+      <div
+        class="relative z-10 -rotate-90 w-[85vh] scale-[160%] md:scale-100 md:rotate-none md:w-screen"
+      >
         <Logotype />
       </div>
     </div>
 
     <div
-      class="relative z-0 h-full flex flex-col items-center justify-between p-8"
+      class="relative pointer-events-auto z-0 h-full flex flex-col items-center justify-between p-8"
     >
       <div
         id="footer-header"
@@ -44,19 +47,26 @@ import { scrollTo } from "@/utils/lenis";
         </div> -->
       </div>
 
-      <button
+      <a
         id="footer-button"
         class="bg-[#E7E4FF] text-[#573DFF] text-lg font-normal leading-none tracking-[-0.02] p-2.5 rounded-xl flex items-center gap-2.5 opacity-0 scale-75"
+        href="https://wa.me/5521984401411?text=Ol%C3%A1%2C%20eu%20gostaria%20de%20saber%20mais%20sobre%20o%20sistema%20da%20Sharpi."
+        target="_blank"
+        rel="noopener"
       >
-        <div class="size-10.5 bg-white rounded-md"></div>
+        <div class="size-10.5 bg-white rounded-md">
+          <Logo />
+        </div>
         Agende uma demo
-      </button>
+      </a>
 
       <div
         id="footer-footer"
         class="flex items-center justify-center gap-11 opacity-0 translate-y-[20px]"
       >
-        <span class="font-mono text-[13px] hidden md:block"> © 2025 Sharpi </span>
+        <span class="font-mono text-[13px] hidden md:block">
+          © 2025 Sharpi
+        </span>
         <span class="font-mono text-[13px] px-2.5 py-1.5">
           Preferências de Cookies
         </span>
@@ -74,7 +84,7 @@ import { scrollTo } from "@/utils/lenis";
 
   function initBackToTopButton() {
     const backToTopBtn = document.getElementById("back-to-top-btn");
-    
+
     if (backToTopBtn) {
       backToTopBtn.addEventListener("click", () => {
         // Scroll suave até a seção hero usando Lenis

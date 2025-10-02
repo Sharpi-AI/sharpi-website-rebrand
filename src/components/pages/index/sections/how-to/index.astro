@@ -1,5 +1,8 @@
 ---
+import { Image } from "astro:assets";
 import TabSelector from "./tab-selector.astro";
+import messagesImg from "@/assets/how-to/messages.png";
+import audioImg from "@/assets/how-to/audio.png";
 ---
 
 <section
@@ -29,80 +32,127 @@ import TabSelector from "./tab-selector.astro";
       id="tab-content"
       class="relative flex w-full max-w-7xl aspect-[382/604] md:aspect-[1354/744] rounded-3xl bg-[#F5F5F5] shadow-[0px_0px_12px_0px_rgba(0,0,0,0.12)]"
     >
-      <video
-        id="tab-video"
-        class="absolute z-0 w-full h-full inset-0 rounded-[20px] object-cover"
-        src="/assets/medias/index/hero/hero-bg.mp4"
-        autoplay
-        loop
-        muted
-        playsinline
+      <div
+        id="tab-conversa"
+        class="absolute z-0 w-full h-full inset-0 rounded-[20px] transition-opacity duration-300"
+        data-tab-content="conversa"
       >
-      </video>
+        <Image
+          class="w-full h-full object-cover rounded-[20px]"
+          src={messagesImg}
+          alt="Interface de mensagens da Sharpi"
+        />
+      </div>
+
+      <div
+        id="tab-audio"
+        class="absolute z-0 w-full h-full inset-0 rounded-[20px] opacity-0 transition-opacity duration-300"
+        data-tab-content="audio"
+      >
+        <Image
+          class="w-full h-full object-cover rounded-[20px]"
+          src={audioImg}
+          alt="Interface de áudio da Sharpi"
+        />
+      </div>
+
+      <div
+        id="tab-files"
+        class="absolute z-0 w-full h-full inset-0 rounded-[20px] opacity-0 transition-opacity duration-300"
+        data-tab-content="files"
+      >
+        <video
+          class="w-full h-full object-cover rounded-[20px]"
+          autoplay
+          loop
+          muted
+          playsinline
+        >
+          <source
+            media="(max-width: 767px)"
+            src="/assets/medias/index/how-to/files-mobile.mp4"
+          />
+          <source
+            media="(min-width: 768px)"
+            src="/assets/medias/index/how-to/files-desktop.mp4"
+          />
+        </video>
+      </div>
     </div>
   </div>
 </section>
 
 <script>
   const initTabContent = () => {
-    const videoSources = {
-      conversa: "/assets/medias/index/hero/hero-bg.mp4",
-      audio: "/assets/medias/index/how-to/audio-bg.mp4",
-      files: {
-        mobile: "/assets/medias/index/how-to/files-mobile.mp4",
-        desktop: "/assets/medias/index/how-to/files-desktop.mp4",
-      },
-    };
+    const switchTabContent = (activeTab: string) => {
+      // Esconder todos os conteúdos das tabs
+      const allTabContents =
+        document.querySelectorAll<HTMLElement>("[data-tab-content]");
 
-    const isMobileView = (): boolean => {
-      return window.innerWidth < 768;
-    };
+      allTabContents.forEach((content) => {
+        content.style.opacity = "0";
+        content.style.pointerEvents = "none";
 
-    const getVideoSource = (activeTab: string): string => {
-      const source = videoSources[activeTab as keyof typeof videoSources];
+        // Pausar vídeos quando não estão visíveis
+        const video = content.querySelector("video") as HTMLVideoElement;
+        if (video) {
+          video.pause();
+        }
+      });
 
-      if (typeof source === "string") {
-        return source;
-      }
+      // Mostrar o conteúdo da tab ativa
+      const activeContent = document.querySelector<HTMLElement>(
+        `[data-tab-content="${activeTab}"]`
+      );
 
-      if (typeof source === "object" && source !== null) {
-        return isMobileView() ? source.mobile : source.desktop;
-      }
+      if (activeContent) {
+        activeContent.style.opacity = "1";
+        activeContent.style.pointerEvents = "auto";
 
-      return videoSources.conversa;
-    };
-
-    const switchTabVideo = (activeTab: string) => {
-      const video = document.getElementById("tab-video") as HTMLVideoElement;
-      const newSrc = getVideoSource(activeTab);
-
-      if (video && newSrc && !video.src.endsWith(newSrc)) {
-        video.src = newSrc;
-        video.load();
+        // Reproduzir vídeo se existir
+        const video = activeContent.querySelector("video") as HTMLVideoElement;
+        if (video) {
+          video.play().catch(() => {
+            // Ignorar erro se autoplay falhar
+          });
+        }
       }
     };
 
     const handleResize = () => {
-      const activeSelector =
-        document
-          .querySelector('[data-active="true"]')
-          ?.getAttribute("data-selector-button") || "conversa";
-      switchTabVideo(activeSelector);
+      // Atualizar source do vídeo de files baseado no tamanho da tela
+      const filesVideo =
+        document.querySelector<HTMLVideoElement>("#tab-files video");
+
+      if (filesVideo) {
+        const isMobile = window.innerWidth < 768;
+        const newSrc = isMobile
+          ? "/assets/medias/index/how-to/files-mobile.mp4"
+          : "/assets/medias/index/how-to/files-desktop.mp4";
+
+        if (!filesVideo.src.endsWith(newSrc)) {
+          filesVideo.src = newSrc;
+          filesVideo.load();
+        }
+      }
     };
 
     document.addEventListener("howToSelectorChanged", (e: Event) => {
       const customEvent = e as CustomEvent;
       const { activeSelector } = customEvent.detail;
-      switchTabVideo(activeSelector);
+      switchTabContent(activeSelector);
     });
 
     window.addEventListener("resize", handleResize);
 
+    // Inicializar com a tab ativa
     const initialActiveSelector =
       document
         .querySelector('[data-active="true"]')
         ?.getAttribute("data-selector-button") || "conversa";
-    switchTabVideo(initialActiveSelector);
+
+    switchTabContent(initialActiveSelector);
+    handleResize();
   };
 
   if (document.readyState === "loading") {

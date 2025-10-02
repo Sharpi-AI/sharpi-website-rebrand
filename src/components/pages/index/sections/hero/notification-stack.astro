@@ -1,5 +1,5 @@
 ---
-import NotificationCard from "./NotificationCard.astro";
+import NotificationCard from "./notification-card.astro";
 
 const notifications = [
   {
@@ -7,37 +7,34 @@ const notifications = [
     title: "Nova mensagem",
     message: "Você recebeu uma nova proposta de orçamento para análise",
     media: "/assets/medias/index/hero/analizing.mp4",
-    type: "video"
+    type: "video",
   },
   {
     id: 2,
     title: "Pedido aprovado",
     message: "Pedido #1247 foi aprovado e está sendo processado",
     media: "/assets/medias/index/hero/notification-01.png",
-    type: "image"
+    type: "image",
   },
   {
     id: 3,
     title: "Pedido faturado",
     message: "Produto XYZ-123 está com estoque abaixo do limite mínimo",
     media: "/assets/medias/index/hero/analizing.mp4",
-    type: "video"
+    type: "video",
   },
   {
     id: 4,
     title: "Pedido faturado",
     message: "Dados do cliente foram atualizados com sucesso",
     media: "/assets/medias/index/hero/notification-02.png",
-    type: "image"
+    type: "image",
   },
 ];
 ---
 
-<div
-  id="notification-stack"
-  class="relative w-full  md:h-full  px-4 py-6 "
->
-  <div id="notifications-container" class="h-40 relative flex flex-col-reverse ">
+<div id="notification-stack" class="relative w-full md:h-full px-4 py-6">
+  <div id="notifications-container" class="h-40 relative flex flex-col-reverse">
     {
       notifications.map((notification, index) => (
         <div
@@ -50,7 +47,7 @@ const notifications = [
             title={notification.title}
             message={notification.message}
             media={notification.media}
-            type={notification.type}
+            type={notification.type as "image" | "video"}
             index={index}
           />
         </div>
