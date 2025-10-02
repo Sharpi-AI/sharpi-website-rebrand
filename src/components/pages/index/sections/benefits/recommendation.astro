@@ -1,69 +1,105 @@
+---
+import LoadingIcon from "@/components/icons/loading.astro";
+---
 
-  <article class="relative z-0 w-[317px] aspect-[317/421]  md:w-[472px] md:aspect-[472/543] bg-[#F0F0F0] transition-colors duration-200 ease-in hover:bg-[#DCDCDC] rounded-[20px] flex flex-col">
-  <h3 class="mx-auto mt-6 md:mt-9 text-[17px] leading-none tracking-[-0.03em] text-center text-balance font-normal text-[#303030]">Expanda o mix do cliente com recomendações por IA</h3>
+<article
+  class="relative z-0 w-[317px] aspect-[317/421] md:w-[472px] md:aspect-[472/543] bg-[#F0F0F0] transition-colors duration-200 ease-in hover:bg-[#DCDCDC] rounded-[20px] flex flex-col"
+>
+  <h3
+    class="mx-auto mt-6 md:mt-9 text-[17px] leading-none tracking-[-0.03em] text-center text-balance font-normal text-[#303030]"
+  >
+    Expanda o mix do cliente com recomendações por IA
+  </h3>
 
-  <div class="md:absolute md:inset-0  my-auto md:my-0 flex flex-col gap-3 md:gap-8 items-center justify-center">
+  <div
+    class="md:absolute md:inset-0 my-auto md:my-0 flex flex-col gap-3 md:gap-8 items-center justify-center"
+  >
     <div class="space-y-2 w-full">
-      <div class="w-full mx-auto max-w-[276px] md:max-w-[300px] ">
-        <div class="bg-white shadow-[0_0_20px_rgba(0,0,0,0.05)] rounded-[14px] border-[0.5px] border-black/12 py-5 px-4.5 flex items-center gap-2">
-          <img src="/assets/medias/index/benefits/ovos.png" alt="Ovos Vermelhos" class="size-10 rounded-[10px]  object-contain"/>
-          
+      <div class="w-full mx-auto max-w-[276px] md:max-w-[300px]">
+        <div
+          class="bg-white shadow-[0_0_20px_rgba(0,0,0,0.05)] rounded-[14px] border-[0.5px] border-black/12 py-5 px-4.5 flex items-center gap-2"
+        >
+          <img
+            src="/assets/medias/index/benefits/ovos.png"
+            alt="Ovos Vermelhos"
+            class="size-10 rounded-[10px] object-contain"
+          />
+
           <div class="flex flex-col gap-1.5">
-            <span class="text-[#191919] text-normal text-sm tracking-[-0.02em] leading-none">Ovos Vermelhos</span>
-            <span class="text-[#6F6F6F] text-normal text-sm tracking-[-0.02em] leading-none">1 Dúzia</span>
+            <span
+              class="text-[#191919] text-normal text-sm tracking-[-0.02em] leading-none"
+              >Ovos Vermelhos</span
+            >
+            <span
+              class="text-[#6F6F6F] text-normal text-sm tracking-[-0.02em] leading-none"
+              >1 Dúzia</span
+            >
           </div>
         </div>
       </div>
 
-      <div class="w-full mx-auto max-w-[276px] md:max-w-[300px] ">
-        <div class="bg-white shadow-[0_0_20px_rgba(0,0,0,0.05)] rounded-[14px] border-[0.5px] border-black/12 py-5 px-4.5 flex items-center gap-2">
-          <img src="/assets/medias/index/benefits/farinha.png" alt="Farinha de Trigo" class="size-10 rounded-[10px]  object-contain"/>
-          
+      <div class="w-full mx-auto max-w-[276px] md:max-w-[300px]">
+        <div
+          class="bg-white shadow-[0_0_20px_rgba(0,0,0,0.05)] rounded-[14px] border-[0.5px] border-black/12 py-5 px-4.5 flex items-center gap-2"
+        >
+          <img
+            src="/assets/medias/index/benefits/farinha.png"
+            alt="Farinha de Trigo"
+            class="size-10 rounded-[10px] object-contain"
+          />
+
           <div class="flex flex-col gap-1.5">
-            <span class="text-[#191919] text-normal text-sm tracking-[-0.02em] leading-none">Farinha de Trigo</span>
-            <span class="text-[#6F6F6F] text-normal text-sm tracking-[-0.02em] leading-none">12kg</span>
+            <span
+              class="text-[#191919] text-normal text-sm tracking-[-0.02em] leading-none"
+              >Farinha de Trigo</span
+            >
+            <span
+              class="text-[#6F6F6F] text-normal text-sm tracking-[-0.02em] leading-none"
+              >12kg</span
+            >
           </div>
         </div>
       </div>
     </div>
-
 
     <div class="flex flex-col gap-2 w-full items-center">
-      <span class="text-[#232222] text-normal text-xs tracking-[-0.02em] leading-none">Sugestões</span>
+      <span
+        class="text-[#232222] text-normal text-xs tracking-[-0.02em] leading-none"
+        >Sugestões</span
+      >
 
-      <div class="w-full mx-auto max-w-[276px] md:max-w-[300px] ">
-        <div class="bg-[#E7E1FFA8] shadow-[0_0_20px_rgba(0,0,0,0.05)] rounded-[14px] border-[0.5px] border-[#D9D2FF] py-5 px-4.5 flex items-center gap-2">
-          <img src="/assets/medias/index/benefits/manteiga.png" alt="Manteiga" class="size-10 rounded-[10px]  object-contain"/>
-
+      <div class="w-full mx-auto max-w-[276px] md:max-w-[300px]">
+        <div
+          class="bg-[#E7E1FFA8] shadow-[0_0_20px_rgba(0,0,0,0.05)] rounded-[14px] border-[0.5px] border-[#D9D2FF] py-5 px-4.5 flex items-center gap-2"
+        >
+          <img
+            src="/assets/medias/index/benefits/manteiga.png"
+            alt="Manteiga"
+            class="size-10 rounded-[10px] object-contain"
+          />
 
           <div class="flex flex-col gap-1.5">
-            <span class="text-[#191919] text-normal text-sm tracking-[-0.02em] leading-none">Manteiga</span>
-            <span class="text-[#6F6F6F] text-normal text-sm tracking-[-0.02em] leading-none">1kg</span>
+            <span
+              class="text-[#191919] text-normal text-sm tracking-[-0.02em] leading-none"
+              >Manteiga</span
+            >
+            <span
+              class="text-[#6F6F6F] text-normal text-sm tracking-[-0.02em] leading-none"
+              >1kg</span
+            >
           </div>
 
+          <div
+            class="ml-auto bg-[#8468F7] h-9 rounded-lg p-3 pl-2 text-white text-normal tracking-[-0.02em] leading-none text-xs flex items-center justify-center gap-2"
+          >
+            <LoadingIcon />
 
-          <div class="ml-auto bg-[#8468F7] h-9 rounded-lg p-3 text-white text-normal  tracking-[-0.02em] leading-none text-xs flex items-center justify-center gap-2">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0.482422" y="7.86768" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="1.48242" y="4.14258" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="4.20703" y="1.41602" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="7.93164" y="0.417969" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="11.6562" y="1.41602" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="14.3828" y="4.14258" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="15.3828" y="7.86768" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="14.3828" y="11.5923" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="11.6562" y="14.3193" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="7.93164" y="15.3169" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="4.20703" y="14.3193" width="2.49621" height="2.49621" fill="white"/>
-              <rect x="1.48242" y="11.5923" width="2.49621" height="2.49621" fill="white"/>
-            </svg>
-
-              
-            Enviar <span class="hidden md:inline">Sugestão</span> 
+            <div>
+              Enviar <span class="hidden md:inline">Sugestão</span>
+            </div>
           </div>
-        </div>     
+        </div>
       </div>
     </div>
-
   </div>
-  </article>
+</article>

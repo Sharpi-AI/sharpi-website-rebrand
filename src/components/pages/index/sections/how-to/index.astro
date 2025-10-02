@@ -1,27 +1,37 @@
 ---
-import HorizontalSelector from "./horizontal-selector.astro";
+import TabSelector from "./tab-selector.astro";
 ---
 
-<section id="how-to" class="py-28 flex flex-col items-center justify-center gap-8 px-4">
+<section
+  id="how-to"
+  class="py-28 flex flex-col items-center justify-center gap-8 px-4"
+>
   <div class="space-y-5">
     <h2
-      class="text-[37px] md:text-[58px] max-w-[28ch] text-center  font-normal leading-none text-[#383838] mb-8 tracking-tight"
-      >
+      class="text-[37px] md:text-[58px] max-w-[28ch] text-center font-normal leading-none text-[#383838] mb-8 tracking-tight"
+    >
       Chega de lançar pedidos manualmente
     </h2>
-    
-    <p class="text-sm md:text-[17px] text-center leading-snug tracking-[-0.02em] max-w-[66ch] mx-auto " >
-      A Sharpi captura cada pedido — por WhatsApp ou e-mail — e registra tudo direto no seu ERP, drasticamente reduzindo o tempo de digitação, retrabalho e erros.
+
+    <p
+      class="text-sm md:text-[17px] text-center leading-snug tracking-[-0.02em] max-w-[66ch] mx-auto"
+    >
+      A Sharpi captura cada pedido — por WhatsApp ou e-mail — e registra tudo
+      direto no seu ERP, drasticamente reduzindo o tempo de digitação,
+      retrabalho e erros.
     </p>
   </div>
 
-
   <div class="space-y-3 flex items-center justify-center flex-col w-full">
-    <HorizontalSelector />
-    
-    <div class="relative flex w-full max-w-7xl aspect-[382/604] md:aspect-[1354/744] rounded-3xl bg-[#F5F5F5]">
+    <TabSelector />
+
+    <div
+      id="tab-content"
+      class="relative flex w-full max-w-7xl aspect-[382/604] md:aspect-[1354/744] rounded-3xl bg-[#F5F5F5] shadow-[0px_0px_12px_0px_rgba(0,0,0,0.12)]"
+    >
       <video
-        class="absolute z-0 w-full h-full inset-0 rounded-[20px]  opacity-15 object-cover"
+        id="tab-video"
+        class="absolute z-0 w-full h-full inset-0 rounded-[20px] opacity-15 object-cover"
         src="/assets/medias/index/hero/hero-bg.mp4"
         autoplay
         loop
@@ -32,3 +42,41 @@ import HorizontalSelector from "./horizontal-selector.astro";
     </div>
   </div>
 </section>
+
+<script>
+  const initTabContent = () => {
+    const videoSources = {
+      conversa: "/assets/medias/index/hero/hero-bg.mp4",
+      audio: "/assets/medias/index/how-to/audio-bg.mp4",
+      files: "/assets/medias/index/how-to/files-bg.mp4",
+    };
+
+    const switchTabVideo = (activeTab: string) => {
+      const video = document.getElementById("tab-video") as HTMLVideoElement;
+      const newSrc = videoSources[activeTab as keyof typeof videoSources];
+
+      if (video && newSrc && video.src !== newSrc) {
+        video.src = newSrc;
+        video.load();
+      }
+    };
+
+    document.addEventListener("howToSelectorChanged", (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { activeSelector } = customEvent.detail;
+      switchTabVideo(activeSelector);
+    });
+
+    const initialActiveSelector =
+      document
+        .querySelector('[data-active="true"]')
+        ?.getAttribute("data-selector-button") || "conversa";
+    switchTabVideo(initialActiveSelector);
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTabContent);
+  } else {
+    initTabContent();
+  }
+</script>

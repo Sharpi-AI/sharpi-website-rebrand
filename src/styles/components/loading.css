@@ -1,0 +1,27 @@
+@keyframes morph {
+  25%, 75% {
+    rx: 0;
+    ry: 0;
+  }
+  50% {
+    rx: 50%;
+    ry: 50%;
+  }
+}
+
+@keyframes counter-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.morphing-rect {
+  animation: 
+    morph 3s linear infinite,
+    counter-spin 3s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}

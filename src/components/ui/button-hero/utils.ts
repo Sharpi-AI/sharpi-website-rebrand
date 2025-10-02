@@ -1,21 +1,22 @@
-export interface ButtonVariants {
-  variant?: "default" | "ghost" | "link";
+export interface ButtonHeroVariants {
+  variant?: "default";
   size?: "default" | "sm" | "lg" | "icon";
 }
 
-export function buttonVariants({
+export function buttonHeroVariants({
   variant = "default",
   size = "default",
-}: ButtonVariants = {}): string {
+}: ButtonHeroVariants = {}): string {
   const baseClasses = [
     "w-fit",
+    "font-mono",
     "tracking-tight",
-    "flex",
+    "inline-flex",
     "items-center",
     "justify-center",
     "whitespace-nowrap",
-    "rounded-md",
-    "text-[13px]",
+    "rounded-xl",
+    "text-[9px]",
     "font-normal",
     "ring-offset-background",
     "transition-colors",
@@ -29,13 +30,11 @@ export function buttonVariants({
   ];
 
   const variantClasses = {
-    default: ["text-white", "bg-black/12", "hover:bg-[#4C43FC]"],
-    ghost: ["text-white", "bg-[#4C43FC]/0", "hover:bg-[#4C43FC]"],
-    link: ["text-white", "pb-0.5", "bg-[#4C43FC]/0", "hover:underline"],
+    default: ["bg-[#7171711F]", "text-primary-foreground", "hover:opacity-70"],
   };
 
   const sizeClasses = {
-    default: ["h-[33px]", "px-2.5"],
+    default: ["h-7.5", "px-1.5", "py-2"],
     sm: ["h-9", "rounded-md", "px-3"],
     lg: ["h-11", "rounded-md", "px-8"],
     icon: ["h-10", "w-10"],

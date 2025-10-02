@@ -1,6 +1,6 @@
 ---
 import DataSourceFunnel from "./input-funnels.astro";
-import Button from "@/components/ui/button/index.astro";
+import ButtonHero from "@/components/ui/button-hero/index.astro";
 import DeviceSimulation from "./device-simulation.astro";
 
 import CalendarIcon from "@/components/icons/calendar.astro";
@@ -14,20 +14,19 @@ import CalendarIcon from "@/components/icons/calendar.astro";
       id="hero-content"
       class="flex flex-col items-center gap-6 md:gap-2 opacity-0 translate-y-[30px]"
     >
-      <Button
+      <ButtonHero
         title="Agende uma demo"
         href="https://wa.me/5521984401411?text=Ol%C3%A1%2C%20eu%20gostaria%20de%20saber%20mais%20sobre%20o%20sistema%20da%20Sharpi."
-        class="gap-1 pl-[3px] font-mono"
+        class="gap-1 pl-[3px]"
         target="_blank"
-
       >
         <div
-          class="size-6.5 rounded-full flex  items-center justify-center border border-black"
+          class="size-6.5 rounded-full flex items-center justify-center border border-black"
         >
           <CalendarIcon />
         </div>
         Agende uma demo
-      </Button>
+      </ButtonHero>
 
       <h1
         class="text-[37px] md:text-[58px] max-w-[30ch] text-center text-balance font-normal leading-[0.95] md:leading-none text-[#383838] tracking-tight mb-8 md:mb-14 pointer-events-none"
