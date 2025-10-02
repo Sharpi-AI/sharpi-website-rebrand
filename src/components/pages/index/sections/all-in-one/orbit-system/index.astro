@@ -3,14 +3,18 @@
 ---
 
 <div id="orbit-system-container" class="absolute inset-0">
-  <canvas id="orbit-system-canvas" class="w-full h-full" aria-hidden="true"></canvas>
+  <canvas id="orbit-system-canvas" class="w-full h-full" aria-hidden="true"
+  ></canvas>
   <div id="orbit-texts-container" class="absolute inset-0 pointer-events-none">
   </div>
   <div
     id="cloned-cards-container"
     class="absolute left-1/2 -translate-x-1/2 md:left-1/6 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-16 opacity-0 transition-opacity duration-500 pointer-events-none z-10"
   >
-    <p class="text-sm text-[#4C43FC] font-normal leading-none max-w-[20ch]" aria-hidden="true">
+    <p
+      class="text-sm text-[#4C43FC] font-normal leading-none max-w-[20ch]"
+      aria-hidden="true"
+    >
       Substitua todas essas ferramentas de uma só vez
     </p>
 
@@ -146,6 +150,12 @@
   import { DEFAULT_SETTINGS } from "./utils/config";
   import type { AnimationStage } from "./utils/lens-particle-system";
 
+  type AnimationState = 'idle' | 'entering' | 'active' | 'leaving' | 'paused';
+
+  let currentAnimationState: AnimationState = 'idle';
+  let animationFrameId: number | null = null;
+  let isInViewport = false;
+
   const initOrbitSystem = () => {
     const container = document.getElementById(
       "orbit-system-container"
@@ -154,13 +164,11 @@
       "orbit-system-canvas"
     ) as HTMLCanvasElement;
 
-
     if (!container || !canvas) return;
 
     const width = container.clientWidth;
     const height = container.clientHeight;
     const pixelRatio = Math.min(window.devicePixelRatio, 2);
-
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
@@ -226,7 +234,7 @@
       lensCursorResolution: 2024,
       lensCursorBacksideResolution:
         DEFAULT_SETTINGS.lensCursorBacksideResolution,
-      lensCursorBackground: "#e3f2fd",
+      lensCursorBackground: "#CCE4F3",
 
       pulseEnabled: true,
       pulseMinScale: 0.98,
@@ -273,12 +281,10 @@
       enabled: true,
       isAnimating: true,
 
-      // Text configuration
+      // Essential text props
       textItems: orbitingTextItems1,
       showTexts: true,
-      textColor: DEFAULT_SETTINGS.orbitingTextColor1,
-      textSize: DEFAULT_SETTINGS.orbitingTextSize1,
-      textOffset: DEFAULT_SETTINGS.orbitingTextOffset1,
+      textOffset: 0.3,
 
       // Animation stages (synchronized with global timing)
       stage1Duration: 3,
@@ -313,12 +319,10 @@
       enabled: true,
       isAnimating: true,
 
-      // Text configuration
+      // Essential text props
       textItems: orbitingTextItems2,
       showTexts: true,
-      textColor: DEFAULT_SETTINGS.orbitingTextColor2,
-      textSize: DEFAULT_SETTINGS.orbitingTextSize2,
-      textOffset: DEFAULT_SETTINGS.orbitingTextOffset2,
+      textOffset: 0.25,
 
       // Animation stages (synchronized with global timing)
       stage1Duration: 3,
@@ -466,9 +470,32 @@
       lastStageForCards = stage;
     }
 
+    // Animation state management
+    const pauseAnimation = () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      currentAnimationState = 'paused';
+      console.log('🔴 Animation paused - out of viewport');
+    };
+
+    const resumeAnimation = () => {
+      if (animationFrameId === null && isInViewport) {
+        currentAnimationState = 'active';
+        console.log('🟢 Animation resumed - in viewport');
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
     // Animation loop
     let lastTime = 0;
-    function animate(currentTime: number) {
+    const animate = (currentTime: number) => {
+      if (currentAnimationState === 'paused' || !isInViewport) {
+        animationFrameId = null;
+        return;
+      }
+
       const deltaTime = (currentTime - lastTime) / 1000;
       lastTime = currentTime;
 
@@ -487,31 +514,90 @@
       // Render the scene with lens effects
       animatedParticleSystem.render(renderer, camera, scene);
 
-      // Continue animation loop
-      requestAnimationFrame(animate);
-    }
+      // Continue animation loop only if still in viewport
+      if (isInViewport && currentAnimationState === 'active') {
+        animationFrameId = requestAnimationFrame(animate);
+      } else {
+        animationFrameId = null;
+      }
+    };
 
-    console.log("🚀 Starting animation loop...");
-    // Start animation loop
-    requestAnimationFrame(animate);
+    // Intersection Observer for viewport detection
+    const createViewportObserver = () => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          const wasInViewport = isInViewport;
+          isInViewport = entry.isIntersecting;
 
-    // Handle resize
-    function handleResize() {
-      const newWidth = container.clientWidth;
-      const newHeight = container.clientHeight;
+          if (!wasInViewport && isInViewport) {
+            // Entering viewport
+            currentAnimationState = 'entering';
+            console.log('👀 Entering viewport - starting animation');
+            resumeAnimation();
+          } else if (wasInViewport && !isInViewport) {
+            // Leaving viewport
+            currentAnimationState = 'leaving';
+            console.log('👋 Leaving viewport - pausing animation');
+            pauseAnimation();
+          }
+        },
+        {
+          threshold: 0.1, // Trigger when 10% of element is visible
+          rootMargin: '50px' // Start animation 50px before element enters viewport
+        }
+      );
 
-      camera.aspect = newWidth / newHeight;
-      camera.updateProjectionMatrix();
+      observer.observe(container);
+      return observer;
+    };
 
-      renderer.setSize(newWidth, newHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    }
+    const viewportObserver = createViewportObserver();
+
+    console.log("🚀 Orbit system initialized - waiting for viewport...");
+    // Animation will start when element enters viewport
+
+    // Handle resize with debouncing
+    let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+    const handleResize = () => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      
+      resizeTimeout = setTimeout(() => {
+        const newWidth = container.clientWidth;
+        const newHeight = container.clientHeight;
+
+        camera.aspect = newWidth / newHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(newWidth, newHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        resizeTimeout = null;
+      }, 100);
+    };
 
     // Add resize listener
     window.addEventListener("resize", handleResize);
 
     // Cleanup function for when component unmounts
-    function cleanup() {
+    const cleanup = () => {
+      // Stop animation loop
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+
+      // Disconnect viewport observer
+      viewportObserver.disconnect();
+
+      // Clear resize timeout
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+
+      // Remove event listeners
       window.removeEventListener("resize", handleResize);
 
       // Dispose of Three.js objects
@@ -522,14 +608,17 @@
       // Dispose renderer
       renderer.dispose();
 
-      console.log("Orbit system cleaned up");
-    }
+      currentAnimationState = 'idle';
+      isInViewport = false;
+
+      console.log("🧹 Orbit system cleaned up");
+    };
 
     // Store cleanup function for potential use
     (window as any).orbitSystemCleanup = cleanup;
 
     console.log("🎯 Orbit System fully initialized and running!");
-  }
+  };
 
   // Initialize when DOM is ready
   if (document.readyState === "loading") {

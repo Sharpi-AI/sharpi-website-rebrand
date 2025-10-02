@@ -1,5 +1,10 @@
 ---
+import { Image } from "astro:assets";
 import LoadingIcon from "@/components/icons/loading.astro";
+
+import ovosImage from "@/assets/benefits/ovos.png";
+import farinhaImage from "@/assets/benefits/farinha.png";
+import manteixaImage from "@/assets/benefits/manteiga.png";
 ---
 
 <article
@@ -19,10 +24,14 @@ import LoadingIcon from "@/components/icons/loading.astro";
         <div
           class="bg-white shadow-[0_0_20px_rgba(0,0,0,0.05)] rounded-[14px] border-[0.5px] border-black/12 py-5 px-4.5 flex items-center gap-2"
         >
-          <img
-            src="/assets/medias/index/benefits/ovos.png"
-            alt="Ovos Vermelhos"
+          <Image
+            src={ovosImage}
+            alt="Ovos Vermelhos - produto recomendado"
+            width={40}
+            height={40}
             class="size-10 rounded-[10px] object-contain"
+            loading="lazy"
+            format="webp"
           />
 
           <div class="flex flex-col gap-1.5">
@@ -42,10 +51,14 @@ import LoadingIcon from "@/components/icons/loading.astro";
         <div
           class="bg-white shadow-[0_0_20px_rgba(0,0,0,0.05)] rounded-[14px] border-[0.5px] border-black/12 py-5 px-4.5 flex items-center gap-2"
         >
-          <img
-            src="/assets/medias/index/benefits/farinha.png"
-            alt="Farinha de Trigo"
+          <Image
+            src={farinhaImage}
+            alt="Farinha de Trigo - produto recomendado"
+            width={40}
+            height={40}
             class="size-10 rounded-[10px] object-contain"
+            loading="lazy"
+            format="webp"
           />
 
           <div class="flex flex-col gap-1.5">
@@ -72,10 +85,14 @@ import LoadingIcon from "@/components/icons/loading.astro";
         <div
           class="bg-[#E7E1FFA8] shadow-[0_0_20px_rgba(0,0,0,0.05)] rounded-[14px] border-[0.5px] border-[#D9D2FF] py-5 px-4.5 flex items-center gap-2"
         >
-          <img
-            src="/assets/medias/index/benefits/manteiga.png"
-            alt="Manteiga"
+          <Image
+            src={manteixaImage}
+            alt="Manteiga - produto sugerido por IA"
+            width={40}
+            height={40}
             class="size-10 rounded-[10px] object-contain"
+            loading="lazy"
+            format="webp"
           />
 
           <div class="flex flex-col gap-1.5">

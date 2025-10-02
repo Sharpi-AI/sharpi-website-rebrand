@@ -31,7 +31,7 @@ import TabSelector from "./tab-selector.astro";
     >
       <video
         id="tab-video"
-        class="absolute z-0 w-full h-full inset-0 rounded-[20px] opacity-15 object-cover"
+        class="absolute z-0 w-full h-full inset-0 rounded-[20px] object-cover"
         src="/assets/medias/index/hero/hero-bg.mp4"
         autoplay
         loop
@@ -48,17 +48,46 @@ import TabSelector from "./tab-selector.astro";
     const videoSources = {
       conversa: "/assets/medias/index/hero/hero-bg.mp4",
       audio: "/assets/medias/index/how-to/audio-bg.mp4",
-      files: "/assets/medias/index/how-to/files-bg.mp4",
+      files: {
+        mobile: "/assets/medias/index/how-to/files-mobile.mp4",
+        desktop: "/assets/medias/index/how-to/files-desktop.mp4",
+      },
+    };
+
+    const isMobileView = (): boolean => {
+      return window.innerWidth < 768;
+    };
+
+    const getVideoSource = (activeTab: string): string => {
+      const source = videoSources[activeTab as keyof typeof videoSources];
+
+      if (typeof source === "string") {
+        return source;
+      }
+
+      if (typeof source === "object" && source !== null) {
+        return isMobileView() ? source.mobile : source.desktop;
+      }
+
+      return videoSources.conversa;
     };
 
     const switchTabVideo = (activeTab: string) => {
       const video = document.getElementById("tab-video") as HTMLVideoElement;
-      const newSrc = videoSources[activeTab as keyof typeof videoSources];
+      const newSrc = getVideoSource(activeTab);
 
-      if (video && newSrc && video.src !== newSrc) {
+      if (video && newSrc && !video.src.endsWith(newSrc)) {
         video.src = newSrc;
         video.load();
       }
+    };
+
+    const handleResize = () => {
+      const activeSelector =
+        document
+          .querySelector('[data-active="true"]')
+          ?.getAttribute("data-selector-button") || "conversa";
+      switchTabVideo(activeSelector);
     };
 
     document.addEventListener("howToSelectorChanged", (e: Event) => {
@@ -66,6 +95,8 @@ import TabSelector from "./tab-selector.astro";
       const { activeSelector } = customEvent.detail;
       switchTabVideo(activeSelector);
     });
+
+    window.addEventListener("resize", handleResize);
 
     const initialActiveSelector =
       document

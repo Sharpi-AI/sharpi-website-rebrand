@@ -1,33 +1,61 @@
 ---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
 interface Props {
   targetScale?: string;
   cardId?: string;
+  name: string;
+  role: string;
+  company: string;
+  text: string;
+  avatar: ImageMetadata;
 }
 
-const { targetScale = 1, cardId = "testimonials-card" } = Astro.props;
+const { 
+  targetScale = "1", 
+  cardId = "testimonials-card",
+  name,
+  role,
+  company,
+  text,
+  avatar
+} = Astro.props;
 ---
 
 
 <article
   id={cardId}
-  class="testimonials-card origin-top-left transition-all duration-300 ease-in-out w-[308px] aspect-[308/224]  bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)]"
-  style={`transform: scale(${targetScale}); `}
+  class="testimonials-card origin-top-left transition-all duration-300 ease-in-out w-[308px] aspect-[308/224] bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-[#573dff] focus:ring-opacity-50"
+  style={`transform: scale(${targetScale});`}
   data-target-scale={targetScale}
+  tabindex="0"
+  role="button"
+  aria-label={`Testimonial from ${name}, ${role} at ${company}`}
 >
   <div class="flex flex-col gap-8 p-4 justify-between flex-1">
     <div class="flex gap-1 items-center">
-      <div class="size-6.5 shrink-0 bg-gray-200 rounded-full"></div>
+      <div class="size-6.5 shrink-0 bg-gray-200 rounded-full overflow-hidden">
+        <Image 
+          src={avatar} 
+          alt={`${name} avatar`} 
+          class="w-full h-full object-cover"
+          width={26}
+          height={26}
+          loading="lazy"
+        />
+      </div>
       <div class="flex flex-col gap-0.5">
-        <span class="font-normal text-sm text-[#3A3A3A] leading-none">Luisa Abrantes</span>
+        <span class="font-normal text-sm text-[#3A3A3A] leading-none">{name}</span>
         <div class="flex gap-0.5">
-          <span class="font-normal text-sm text-[#747474] leading-none">CEO</span>
-          <span class="font-medium text-sm text-[#3A3A3A] leading-none">Mantiqueira Foods</span>
+          <span class="font-normal text-sm text-[#747474] leading-none">{role}</span>
+          <span class="font-medium text-sm text-[#3A3A3A] leading-none">{company}</span>
         </div>
-      </div>  
+      </div>
     </div>
 
     <p class="text-sm tracking-[-0.02em] leading-snug mt-auto text-balance">
-      We needed a partner that understands what Accardi Foods needs today and in the future — Sharpi’s technology, including their AI, checked all the boxes and delivered a solution we can rely on every day.
+      {text}
     </p>
   </div>
 </article>

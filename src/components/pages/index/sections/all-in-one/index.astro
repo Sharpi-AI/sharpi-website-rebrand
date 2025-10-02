@@ -16,8 +16,8 @@ import OrbitSystem from "./orbit-system/index.astro";
     <p
       class="text-sm md:text-[17px] text-center leading-snug tracking-[-0.02em] max-w-[36ch] md:max-w-[60ch]"
     >
-      A Sharpi centraliza sua jornada de vendas, respeita seu processo
-      comerciale unifica todos os dados em uma única plataforma
+      A Sharpi centraliza sua jornada de vendas, respeita seu processo comercial
+      e unifica todos os dados em uma única plataforma
     </p>
   </div>
 
@@ -27,8 +27,7 @@ import OrbitSystem from "./orbit-system/index.astro";
 </section>
 
 <script>
-  // Wait for Lenis to be available
-  function initColorTransition() {
+  const initColorTransition = () => {
     const pageContent = document.getElementById("page-content");
     const allInOneSection = document.getElementById("all-in-one");
 
@@ -37,89 +36,70 @@ import OrbitSystem from "./orbit-system/index.astro";
       return;
     }
 
-    // Function to interpolate between two colors
-    function interpolateColor(
+    const interpolateColor = (
       color1: [number, number, number],
       color2: [number, number, number],
       factor: number
-    ): string {
+    ): string => {
       const clampedFactor = Math.max(0, Math.min(1, factor));
       const result = color1.map((channel, i) =>
         Math.round(channel + clampedFactor * (color2[i] - channel))
       );
       return `rgb(${result[0]}, ${result[1]}, ${result[2]})`;
-    }
+    };
 
-    // Function to calculate scroll progress through the section
-    function calculateProgress(element: HTMLElement): number {
+    const calculateProgress = (element: HTMLElement): number => {
       const rect = element.getBoundingClientRect();
       const windowHeight = window.innerHeight;
       const elementTop = rect.top;
       const elementHeight = rect.height;
 
-      // Phase 1: Before section (progress < 0)
-      // Phase 2: Entering section (progress 0-1) - white to baby blue
-      // Phase 3: Leaving section (progress 1-2) - baby blue to white
-      // Phase 4: After section (progress > 2)
+      const enterStart = windowHeight * 0.6; // 60% da altura da janela
+      const enterEnd = windowHeight * 0.4; // 40% da altura da janela
+      const leaveStart = -elementHeight * 0.4; // -40% da altura do elemento
+      const leaveEnd = -elementHeight * 0.6; // -60% da altura do elemento
 
-      const enterStart = windowHeight;
-      const enterEnd = windowHeight / 2;
-      const leaveStart = -elementHeight / 2;
-      const leaveEnd = -elementHeight;
-
-      // Before section
       if (elementTop > enterStart) {
         return -1;
       }
 
-      // Entering section (0 to 1)
       if (elementTop > enterEnd) {
         return (enterStart - elementTop) / (enterStart - enterEnd);
       }
 
-      // In the middle of section (stay at 1)
       if (elementTop > leaveStart) {
         return 1;
       }
 
-      // Leaving section (1 to 2)
       if (elementTop > leaveEnd) {
         return 1 + (leaveStart - elementTop) / (leaveStart - leaveEnd);
       }
 
-      // After section
       return 2.1;
-    }
+    };
 
-    // Colors
     const whiteColor: [number, number, number] = [255, 255, 255];
     const babyBlueColor: [number, number, number] = [204, 228, 243]; // #CCE4F3
 
-    // Listen for scroll events
     window.lenis.on("scroll", () => {
       const progress = calculateProgress(allInOneSection);
 
       let newColor: string;
 
       if (progress < 0) {
-        // Before section - white
         newColor = interpolateColor(whiteColor, whiteColor, 0);
       } else if (progress <= 1) {
-        // Entering section - white to baby blue
         newColor = interpolateColor(whiteColor, babyBlueColor, progress);
       } else if (progress <= 2) {
-        // Leaving section - baby blue to white
         newColor = interpolateColor(babyBlueColor, whiteColor, progress - 1);
       } else {
-        // After section - white
         newColor = interpolateColor(whiteColor, whiteColor, 0);
       }
 
       pageContent.style.backgroundColor = newColor;
     });
-  }
+  };
 
-  // Initialize when DOM is ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initColorTransition);
   } else {

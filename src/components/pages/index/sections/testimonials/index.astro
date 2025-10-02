@@ -1,5 +1,12 @@
 ---
 import Card from "./card.astro";
+import { Image } from "astro:assets";
+
+import img01 from "@/assets/testimonials/img-01.png";
+import img02 from "@/assets/testimonials/img-02.png";
+import img03 from "@/assets/testimonials/img-03.png";
+import img04 from "@/assets/testimonials/img-04.png";
+
 const testimonials = [
   {
     id: "testimonials-card-1",
@@ -7,7 +14,7 @@ const testimonials = [
     role: "CEO",
     company: "Mantiqueira Foods",
     text: "We needed a partner that understands what Accardi Foods needs today and in the future — Sharpi's technology, including their AI, checked all the boxes and delivered a solution we can rely on every day.",
-    avatar: "/assets/medias/index/testimonials/img-04.png"
+    avatar: img04,
   },
   {
     id: "testimonials-card-2",
@@ -15,7 +22,7 @@ const testimonials = [
     role: "Sales Director",
     company: "TechCorp",
     text: "Sharpi transformed our sales process completely. The AI recommendations are incredibly accurate and our team productivity increased by 40% in just 3 months.",
-    avatar: "/assets/medias/index/testimonials/img-02.png"
+    avatar: img02,
   },
   {
     id: "testimonials-card-3",
@@ -23,7 +30,7 @@ const testimonials = [
     role: "VP of Sales",
     company: "Global Industries",
     text: "The automated follow-ups and intelligent lead scoring have revolutionized how we approach sales. Sharpi is now an essential part of our daily workflow.",
-    avatar: "/assets/medias/index/testimonials/img-01.png"
+    avatar: img01,
   },
   {
     id: "testimonials-card-4",
@@ -31,7 +38,7 @@ const testimonials = [
     role: "Sales Manager",
     company: "Innovation Labs",
     text: "What impressed us most about Sharpi is how quickly it adapted to our sales process. The AI learns fast and provides insights that actually help close deals.",
-    avatar: "/assets/medias/index/testimonials/img-03.png"
+    avatar: img03,
   },
   {
     id: "testimonials-card-5",
@@ -39,111 +46,245 @@ const testimonials = [
     role: "Business Development",
     company: "Future Solutions",
     text: "Sharpi's customer intelligence helped us understand our prospects better than ever before. Our conversion rates improved dramatically since implementation.",
-    avatar: "/assets/medias/index/testimonials/img-04.png"
-  }
+    avatar: img04,
+  },
+];
+
+const mosaicImages = [
+  {
+    id: "mosaic-1",
+    src: img04,
+    alt: "Team member profile photo",
+    position: "top-[7%] left-[44%]",
+    size: "w-[24%] aspect-[326/403]",
+    width: 326,
+    height: 403,
+  },
+  {
+    id: "mosaic-2",
+    src: img02,
+    alt: "Team member profile photo",
+    position: "top-[63.5%] left-[31%]",
+    size: "w-[12%] aspect-[165/203]",
+    width: 165,
+    height: 203,
+  },
+  {
+    id: "mosaic-3",
+    src: img03,
+    alt: "Team member profile photo",
+    position: "top-[42%] left-[74%]",
+    size: "w-[5%] aspect-[72/72]",
+    width: 72,
+    height: 72,
+  },
+  {
+    id: "mosaic-4",
+    src: img01,
+    alt: "Team member profile photo",
+    position: "top-[52%] left-[14%]",
+    size: "w-[5%] aspect-[72/72]",
+    width: 72,
+    height: 72,
+  },
 ];
 ---
 
-
-<section id="testimonials" class="py-28 px-4 flex flex-col items-center justify-center overflow-hidden">
+<section
+  id="testimonials"
+  class="py-28 px-4 flex flex-col items-center justify-center overflow-hidden"
+>
   <h2
-    class="text-[37px] md:text-[58px] text-balance md:max-w-[28ch] text-center  font-normal leading-none text-[#383838] mb-8 tracking-tight"
+    class="text-[37px] md:text-[58px] text-balance md:max-w-[28ch] text-center font-normal leading-none text-[#383838] mb-8 tracking-tight"
   >
     Os times de venda mais avançados confiam na Sharpi
   </h2>
 
-
   <!-- Desktop Version -->
-  <div class="hidden md:block relative z-0 aspect-[1356/740] w-full max-w-7xl mx-auto">
+  <div
+    class="hidden md:block relative z-0 aspect-[1356/740] w-full max-w-7xl mx-auto"
+  >
     <video
-      class="absolute -z-10 w-full h-full inset-0 rounded-2xl  opacity-20 object-cover"
+      class="absolute -z-10 w-full h-full inset-0 rounded-2xl opacity-20 object-cover"
       src="/assets/medias/index/testimonials/background.mp4"
       autoplay
       loop
       muted
-      
+      playsinline
+      aria-label="Background animation"
     >
     </video>
 
-    <div class="absolute top-[7%] left-[44%] z-10 w-[24%] aspect-[326/403] rounded-2xl bg-white overflow-hidden">
-      <img src="/assets/medias/index/testimonials/img-04.png" alt="Avatar" class="w-full h-full object-cover"/>
+    <div
+      class={`absolute ${mosaicImages[0].position} z-10 ${mosaicImages[0].size} rounded-2xl bg-white overflow-hidden`}
+    >
+      <Image
+        src={mosaicImages[0].src}
+        alt={mosaicImages[0].alt}
+        class="w-full h-full object-cover"
+        width={mosaicImages[0].width}
+        height={mosaicImages[0].height}
+        loading="lazy"
+      />
     </div>
 
-    <div class="absolute top-[32%] left-[21%] z-10 ">
-      <Card targetScale="0.82" cardId="testimonials-card-1"/>
+    <div class="absolute top-[32%] left-[21%] z-10">
+      <Card
+        targetScale="0.82"
+        cardId="testimonials-card-1"
+        name={testimonials[0].name}
+        role={testimonials[0].role}
+        company={testimonials[0].company}
+        text={testimonials[0].text}
+        avatar={testimonials[0].avatar}
+      />
     </div>
 
-    <div class="absolute top-[63.5%] left-[31%] z-10 w-[12%] aspect-[165/203] rounded-2xl bg-white overflow-hidden">
-      <img src="/assets/medias/index/testimonials/img-02.png" alt="Avatar" class="w-full h-full object-cover"/>
+    <div
+      class={`absolute ${mosaicImages[1].position} z-10 ${mosaicImages[1].size} rounded-2xl bg-white overflow-hidden`}
+    >
+      <Image
+        src={mosaicImages[1].src}
+        alt={mosaicImages[1].alt}
+        class="w-full h-full object-cover"
+        width={mosaicImages[1].width}
+        height={mosaicImages[1].height}
+        loading="lazy"
+      />
     </div>
 
-    <div class="absolute top-[63.5%] left-[16.75%] z-10  ">
-      <Card targetScale="0.48" cardId="testimonials-card-2"/>
+    <div class="absolute top-[63.5%] left-[16.75%] z-10">
+      <Card
+        targetScale="0.48"
+        cardId="testimonials-card-2"
+        name={testimonials[1].name}
+        role={testimonials[1].role}
+        company={testimonials[1].company}
+        text={testimonials[1].text}
+        avatar={testimonials[1].avatar}
+      />
     </div>
 
-    <div class="absolute top-[63.5%] left-[44%] z-10 ">
-      <Card targetScale="0.82" cardId="testimonials-card-3"/>
+    <div class="absolute top-[63.5%] left-[44%] z-10">
+      <Card
+        targetScale="0.82"
+        cardId="testimonials-card-3"
+        name={testimonials[2].name}
+        role={testimonials[2].role}
+        company={testimonials[2].company}
+        text={testimonials[2].text}
+        avatar={testimonials[2].avatar}
+      />
     </div>
 
-    <div class="absolute top-[54%] left-[69%] z-10 ">
-      <Card targetScale="0.58" cardId="testimonials-card-4"/>
+    <div class="absolute top-[54%] left-[69%] z-10">
+      <Card
+        targetScale="0.58"
+        cardId="testimonials-card-4"
+        name={testimonials[3].name}
+        role={testimonials[3].role}
+        company={testimonials[3].company}
+        text={testimonials[3].text}
+        avatar={testimonials[3].avatar}
+      />
     </div>
 
-    <div class="absolute top-[35%] left-[60%] z-10 ">
-      <Card targetScale="0.48" cardId="testimonials-card-5"/>
-    </div>
-    
-    <div class="absolute top-[42%] left-[74%] z-10 w-[5%] aspect-[72/72] rounded bg-white overflow-hidden">
-      <img src="/assets/medias/index/testimonials/img-03.png" alt="Avatar" class="w-full h-full object-cover"/>
-    </div>
-    
-    <div class="absolute top-[52%] left-[14%] z-10 w-[5%] aspect-[72/72] rounded bg-white overflow-hidden">
-      <img src="/assets/medias/index/testimonials/img-01.png" alt="Avatar" class="w-full h-full object-cover"/>
+    <div class="absolute top-[35%] left-[60%] z-10">
+      <Card
+        targetScale="0.48"
+        cardId="testimonials-card-5"
+        name={testimonials[4].name}
+        role={testimonials[4].role}
+        company={testimonials[4].company}
+        text={testimonials[4].text}
+        avatar={testimonials[4].avatar}
+      />
     </div>
 
+    <div
+      class={`absolute ${mosaicImages[2].position} z-10 ${mosaicImages[2].size} rounded bg-white overflow-hidden`}
+    >
+      <Image
+        src={mosaicImages[2].src}
+        alt={mosaicImages[2].alt}
+        class="w-full h-full object-cover"
+        width={mosaicImages[2].width}
+        height={mosaicImages[2].height}
+        loading="lazy"
+      />
+    </div>
+
+    <div
+      class={`absolute ${mosaicImages[3].position} z-10 ${mosaicImages[3].size} rounded bg-white overflow-hidden`}
+    >
+      <Image
+        src={mosaicImages[3].src}
+        alt={mosaicImages[3].alt}
+        class="w-full h-full object-cover"
+        width={mosaicImages[3].width}
+        height={mosaicImages[3].height}
+        loading="lazy"
+      />
+    </div>
   </div>
 
   <!-- Mobile Version -->
-  <div class="relative block md:hidden px-2.5 w-full ">
-    
-
-
-    <div class="splide relative aspect-[308/356] flex items-center justify-center" id="testimonials-carousel">
+  <div class="relative block md:hidden px-2.5 w-full">
+    <div
+      class="splide relative aspect-[308/356] flex items-center justify-center"
+      id="testimonials-carousel"
+    >
       <video
-        class="absolute z-0 w-full h-full inset-0 rounded-[20px]  opacity-20 object-cover"
+        class="absolute z-0 w-full h-full inset-0 rounded-[20px] opacity-20 object-cover"
         src="/assets/medias/index/testimonials/background.mp4"
         autoplay
         loop
         muted
         playsinline
+        aria-label="Background animation"
       >
       </video>
-      <div class="splide__track relative z-10" >
-        <ul class="splide__list ">
-          {testimonials.map((testimonial) => (
-            <li class="splide__slide w-fit origin-center scale-95 duration-200 transition-transform ease-out [.is-active&]:duration-500 [.is-active&]:scale-100">
-              <div class="w-[308px] aspect-[308/356] bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)]">
-                <div class="flex flex-col gap-8 p-4 justify-between flex-1">
-                  <div class="flex gap-3 items-center">
-                    <div class="size-8 shrink-0 bg-gray-200 rounded-full overflow-hidden">
-                      <img src={testimonial.avatar} alt={`${testimonial.name} avatar`} class="w-full h-full object-cover"/>
-                    </div>
-                    <div class="flex flex-col gap-0.5">
-                      <span class="font-normal text-sm text-[#3A3A3A] leading-none">{testimonial.name}</span>
-                      <div class="flex gap-0.5">
-                        <span class="font-normal text-sm text-[#747474] leading-none">{testimonial.role}</span>
-                        <span class="font-medium text-sm text-[#3A3A3A] leading-none">{testimonial.company}</span>
+      <div class="splide__track relative z-10">
+        <ul class="splide__list">
+          {
+            testimonials.map((testimonial) => (
+              <li class="splide__slide w-fit origin-center scale-95 duration-200 transition-transform ease-out [.is-active&]:duration-500 [.is-active&]:scale-100">
+                <div class="w-[308px] aspect-[308/356] bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)]">
+                  <div class="flex flex-col gap-8 p-4 justify-between flex-1">
+                    <div class="flex gap-3 items-center">
+                      <div class="size-8 shrink-0 bg-gray-200 rounded-full overflow-hidden">
+                        <Image
+                          src={testimonial.avatar}
+                          alt={`${testimonial.name} avatar`}
+                          class="w-full h-full object-cover"
+                          width={32}
+                          height={32}
+                          loading="lazy"
+                        />
+                      </div>
+                      <div class="flex flex-col gap-0.5">
+                        <span class="font-normal text-sm text-[#3A3A3A] leading-none">
+                          {testimonial.name}
+                        </span>
+                        <div class="flex gap-0.5">
+                          <span class="font-normal text-sm text-[#747474] leading-none">
+                            {testimonial.role}
+                          </span>
+                          <span class="font-medium text-sm text-[#3A3A3A] leading-none">
+                            {testimonial.company}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <p class="text-base md:text-sm tracking-[-0.02em] leading-snug mt-auto text-balance">
-                    {testimonial.text}
-                  </p>
+                    <p class="text-base md:text-sm tracking-[-0.02em] leading-snug mt-auto text-balance">
+                      {testimonial.text}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            ))
+          }
         </ul>
       </div>
     </div>
@@ -151,86 +292,78 @@ const testimonials = [
 </section>
 
 <script>
-  import { Splide } from '@splidejs/splide';
-  import '@splidejs/splide/css/core';
+  import { Splide } from "@splidejs/splide";
+  import "@splidejs/splide/css/core";
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Desktop testimonial cards hover effects
-    const testimonialCards = document.querySelectorAll<HTMLElement>('.testimonials-card');
-    const TRANSITION_DURATION = 300; // Match CSS transition duration
+  const initTestimonials = () => {
+    const testimonialCards =
+      document.querySelectorAll<HTMLElement>(".testimonials-card");
+    const TRANSITION_DURATION = 300;
 
-    testimonialCards.forEach(card => {
-      const targetScale = card.getAttribute('data-target-scale') || '1';
+    const setupCardInteractions = (card: HTMLElement) => {
+      const targetScale = card.getAttribute("data-target-scale") || "1";
       const cardContainer = card.parentElement;
       let zIndexTimeout: ReturnType<typeof setTimeout> | null = null;
 
-      card.addEventListener('mouseenter', () => {
-        // Clear any pending zIndex reset
+      const activateCard = () => {
         if (zIndexTimeout) {
           clearTimeout(zIndexTimeout);
           zIndexTimeout = null;
         }
 
-        card.style.transform = 'scale(1)';
+        card.style.transform = "scale(1)";
         if (cardContainer) {
-          cardContainer.style.zIndex = '50';
+          cardContainer.style.zIndex = "50";
         }
-      });
+      };
 
-      card.addEventListener('mouseleave', () => {
+      const deactivateCard = () => {
         card.style.transform = `scale(${targetScale})`;
         if (cardContainer) {
-          // Delay zIndex reset until after transition completes
           zIndexTimeout = setTimeout(() => {
-            cardContainer.style.zIndex = '10';
+            cardContainer.style.zIndex = "10";
             zIndexTimeout = null;
           }, TRANSITION_DURATION);
         }
-      });
+      };
 
-      // Add focus support for accessibility
-      card.addEventListener('focus', () => {
-        // Clear any pending zIndex reset
-        if (zIndexTimeout) {
-          clearTimeout(zIndexTimeout);
-          zIndexTimeout = null;
-        }
+      card.addEventListener("mouseenter", activateCard);
+      card.addEventListener("mouseleave", deactivateCard);
+      card.addEventListener("focus", activateCard);
+      card.addEventListener("blur", deactivateCard);
 
-        card.style.transform = 'scale(1)';
-        if (cardContainer) {
-          cardContainer.style.zIndex = '50';
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          activateCard();
         }
       });
+    };
 
-      card.addEventListener('blur', () => {
-        card.style.transform = `scale(${targetScale})`;
-        if (cardContainer) {
-          // Delay zIndex reset until after transition completes
-          zIndexTimeout = setTimeout(() => {
-            cardContainer.style.zIndex = '10';
-            zIndexTimeout = null;
-          }, TRANSITION_DURATION);
-        }
-      });
-    });
+    testimonialCards.forEach(setupCardInteractions);
 
+    const splideContainer = document.getElementById("testimonials-carousel");
+    if (!splideContainer) return;
 
-    const splidePaddingLeft = (window.innerWidth - 308 - 20) / 2;
-    const splidePaddingRight = (window.innerWidth - 308 - 20) / 2;
+    const padding = Math.max(0, (window.innerWidth - 308 - 20) / 2);
 
-    // Initialize mobile testimonials carousel
-    const testimonialsSplide = new Splide('#testimonials-carousel', {
+    const testimonialsSplide = new Splide("#testimonials-carousel", {
       perMove: 1,
       speed: 600,
       autoWidth: true,
-      focus: 'center',
+      focus: "center",
       pagination: true,
       arrows: false,
       gap: 16,
-      padding: { left: splidePaddingLeft, right: splidePaddingRight },
-
+      padding: { left: padding, right: padding },
     });
 
     testimonialsSplide.mount();
-  });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTestimonials);
+  } else {
+    initTestimonials();
+  }
 </script>

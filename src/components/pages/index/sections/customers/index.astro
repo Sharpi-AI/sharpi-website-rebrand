@@ -43,7 +43,9 @@ const customers = [
     >
       Times de venda avançados que confiam na Sharpi:
     </h2>
-    <ul class="flex flex-wrap-reverse md:flex-nowrap gap-x-10 gap-y-4 md:gap-x-20 md:gap-y-20 items-center justify-center">
+    <ul
+      class="flex flex-wrap-reverse md:flex-nowrap gap-x-10 gap-y-4 md:gap-x-20 md:gap-y-20 items-center justify-center"
+    >
       {
         customers.map((customer) => (
           <li>
@@ -53,6 +55,7 @@ const customers = [
                 alt={customer.alt}
                 width={100}
                 height={70}
+                quality={100}
                 class="w-full h-full object-contain max-h-[60px] md:max-h-[70px]"
                 loading="lazy"
                 format="webp"
