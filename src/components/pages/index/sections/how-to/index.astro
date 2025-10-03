@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import TabSelector from "./tab-selector.astro";
-import messagesImg from "@/assets/how-to/messages.png";
+import MessagesToOrder from "./messages-to-order.astro";
 import audioImg from "@/assets/how-to/audio.png";
 ---
 
@@ -37,11 +37,7 @@ import audioImg from "@/assets/how-to/audio.png";
         class="absolute z-0 w-full h-full inset-0 rounded-[20px] transition-opacity duration-300"
         data-tab-content="conversa"
       >
-        <Image
-          class="w-full h-full object-cover rounded-[20px]"
-          src={messagesImg}
-          alt="Interface de mensagens da Sharpi"
-        />
+        <MessagesToOrder />
       </div>
 
       <div

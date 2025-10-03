@@ -1,0 +1,556 @@
+---
+
+import PlusIcon from "@/components/icons/plus.astro";
+import StartIcon from "@/components/icons/start.astro";
+import DoubleCheckIcon from "@/components/icons/double-check.astro";
+import DownloadIcon from "@/components/icons/download.astro";
+---
+
+<div class="relative w-full h-full rounded-[21px] overflow-clip" id="messages-to-order-container">
+  <!-- Background -->
+  <div
+    class="absolute inset-0 pointer-events-none rounded-[21px]"
+    aria-hidden="true"
+  >
+    <div class="absolute bg-gradient-to-br from-[#E8E5FF] to-[#F5F5F5] inset-0 rounded-[21px] opacity-70"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="relative w-full h-full flex flex-col md:flex-row gap-4 md:gap-20 items-center justify-center p-4 md:p-8">
+
+    <!-- Left Panel: Conversa -->
+    <div
+      class="w-full md:w-[355px]   p-2.5 pt-6 pb-2.5 flex flex-col gap-[18px]"
+    >
+      <!-- Header -->
+      <div class="flex flex-col gap-6 w-full">
+        <h3 class="font-medium text-[14px] text-[#3a3a3a] text-center tracking-[-0.28px] leading-[1.33]" data-animate="header-conversa">
+          Conversa
+        </h3>
+
+        <!-- Messages -->
+        <div class="flex flex-col gap-1.5 w-full">
+          <!-- Message 1 -->
+          <div
+            class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] opacity-0 overflow-hidden"
+            data-animate="msg-1"
+            style="max-height: 0;"
+          >
+            <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
+              Quero fazer um pedido, por favor
+            </p>
+            <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
+              17:13
+            </span>
+          </div>
+
+          <!-- Message 2 -->
+          <div
+            class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px] opacity-0 overflow-hidden"
+            data-animate="msg-2"
+            style="max-height: 0;"
+          >
+            <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
+              12kg de arroz para risoto
+            </p>
+            <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
+              17:14
+            </span>
+          </div>
+
+          <!-- Message 3 -->
+          <div class="flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-3" style="max-height: 0;">
+            <div
+              class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]"
+            >
+              <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
+                1kg de muçarela vegana
+              </p>
+              <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
+                17:14
+              </span>
+            </div>
+
+            <!-- User info -->
+            <div class="flex gap-1 items-center px-4">
+              <div class="size-4 rounded-full overflow-hidden shrink-0">
+                <img src="/assets/medias/index/how-to/products/avatar-user.png" alt="William" class="w-full h-full object-cover" />
+              </div>
+              <span class="text-[9px] text-[#3a3a3a] tracking-[-0.18px] leading-[1.33] whitespace-nowrap">
+                William (Mercado União)
+              </span>
+              <span class="text-[9px] text-[#747474] tracking-[-0.18px] leading-[1.33]">
+                1 min atrás
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seller response -->
+      <div class="flex flex-col items-end w-full opacity-0 overflow-hidden" data-animate="msg-seller" style="max-height: 0;">
+        <div
+          class="bg-[#dcf5d8] border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg pl-4 pr-2 py-3 flex items-center justify-between h-[40px] w-[252px]"
+        >
+          <div class="flex gap-1 items-center">
+            <span class="text-[8px] text-[#9c9c9c] tracking-[-0.16px] leading-[0.9]">
+              Vendedor
+            </span>
+            <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
+              Não precisa de tapioca?
+            </p>
+          </div>
+          <div class="size-6 flex items-center justify-center">
+            <DoubleCheckIcon/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer response -->
+      <div class="flex flex-col gap-1.5 w-full">
+        <div class="flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-customer-tapioca" style="max-height: 0;">
+          <div
+            class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[267px]"
+          >
+            <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
+              Sim, 400g da fininha por favor
+            </p>
+            <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
+              17:18
+            </span>
+          </div>
+        </div>
+
+        <!-- Image message -->
+        <div class="flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-image" style="max-height: 0;">
+          <div class="relative min-h-[202px] w-[220px] rounded-[22px] overflow-clip">
+            <!-- Blurred background -->
+            <img src="/assets/medias/index/how-to/products/image-message-bg.png" alt="" class="absolute inset-0 w-full h-full object-cover blur-lg filter" />
+            <div class="absolute inset-0 bg-black/10"></div>
+
+            <!-- Play button overlay -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <DownloadIcon/>
+            </div>
+
+            <!-- Bottom text -->
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-[192px] flex items-center justify-between">
+              <p class="text-[10px] text-white tracking-[-0.2px] leading-[0.9] max-w-[16ch]">
+                Anota esse pedido aqui também
+              </p>
+              <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33]">
+                17:19
+              </span>
+            </div>
+          </div>
+
+          <!-- User info -->
+          <div class="flex gap-1 items-center px-4">
+            <div class="size-4 rounded-full overflow-hidden shrink-0">
+              <img src="/assets/medias/index/how-to/products/avatar-user.png" alt="William" class="w-full h-full object-cover" />
+            </div>
+            <span class="text-[9px] text-[#3a3a3a] tracking-[-0.18px] leading-[1.33] whitespace-nowrap">
+              William (Mercado União)
+            </span>
+            <span class="text-[9px] text-[#747474] tracking-[-0.18px] leading-[1.33]">
+              1 min atrás
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Pedido -->
+    <div
+      class="w-full md:w-[355px]   p-2.5 pt-6 pb-2.5 flex flex-col gap-[18px]"
+    >
+      <!-- Header with counter -->
+      <div class="flex items-center justify-between w-full" data-animate="header-pedido">
+        <h3 class="font-medium text-sm text-[#3a3a3a] text-center tracking-[-0.02em] leading-[1.33]">
+          Pedido
+        </h3>
+        <div class="flex gap-[3px] items-center">
+          <div class="bg-[#fbfbfb] rounded-md p-1.5 size-7 flex items-center justify-center">
+            <span id="order-counter" class="text-[12px] text-black tracking-[-0.24px] leading-normal">0</span>
+          </div>
+          <div class="bg-[#fbfbfb] rounded-md p-1.5 size-7 flex items-center justify-center">
+            <PlusIcon/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order items -->
+      <div class="flex flex-col gap-2 w-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <!-- Item 1: Arroz Arbório -->
+        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-arroz" style="max-height: 0;">
+          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+            <div class="flex gap-2.5 items-center">
+              <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
+                <img src="/assets/medias/index/how-to/products/arroz-arborio.png" alt="Arroz Arbório" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
+                  Arroz Arbório KG
+                </p>
+                <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
+                  <span>12 UN</span>
+                  <span>R$ 20</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 240</p>
+          </div>
+          <div class="grid grid-cols-3 items-center justify-between opacity-60">
+            <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
+              <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">A</span>
+            </div>
+            
+            <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2 text-[#232222]">
+              <StartIcon color="#232222" size={12} class="shrink-0"/>
+              <span class="text-[11px]  tracking-[-0.02em] leading-[1.2] whitespace-nowrap">Arroz para risoto</span>
+            </div>
+
+            <span class="justify-self-end  font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 12</span>
+          </div>
+        </div>
+
+        <!-- Item 2: Mussarela de Castanha -->
+        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-mussarela" style="max-height: 0;">
+          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+            <div class="flex gap-2.5 items-center">
+              <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
+                <img src="/assets/medias/index/how-to/products/mussarela-castanha.png" alt="Mussarela de Castanha" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
+                  Mussarela de Castanha de Caju UN
+                </p>
+                <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
+                  <span>4 UN</span>
+                  <span>R$ 34,90</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 139,60</p>
+          </div>
+          <div class="grid grid-cols-3 items-center justify-between opacity-60">
+            <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
+              <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">B</span>
+            </div>
+
+            <div class="flex-1 flex justify-self-center justify-center items-center gap-1.5 px-2">
+              <StartIcon color="#232222" class="shrink-0" size={12}/>
+              <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">Muçarela vegana</span>
+            </div>
+            
+            <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">×4</span>
+          </div>
+        </div>
+
+        <!-- Item 3: Tapioca Fina -->
+        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-tapioca" style="max-height: 0;">
+          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+            <div class="flex gap-2.5 items-center">
+              <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
+                <img src="/assets/medias/index/how-to/products/tapioca-fina.png" alt="Tapioca Fina" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
+                  Tapioca Fina 400G
+                </p>
+                <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
+                  <span>1 UN</span>
+                  <span>R$ 20</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 20</p>
+          </div>
+          <div class="grid grid-cols-3 items-center justify-between opacity-60">
+            <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
+              <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">C</span>
+            </div>
+            <div class="flex-1 flex justify-self-center items-center justify-center gap-1.5 px-2">
+              <StartIcon  color="#232222" size={12} class="shrink-0"/>
+              <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">da fininha</span>
+            </div>
+            <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 1</span>
+          </div>
+        </div>
+
+
+        <div class="flex items-center justify-between h-7 opacity-0 overflow-hidden" data-animate="text-imagem" style="max-height: 0;">
+          <p class="text-[12px] text-[#2e2e2e] tracking-[-0.24px] leading-[0.9]">
+            Itens adicionados por imagem
+          </p>
+        </div>
+
+        <!-- Item 4: Açúcar Mascavo -->
+        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-acucar" style="max-height: 0;">
+          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+            <div class="flex gap-2.5 items-center">
+              <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
+                <img src="/assets/medias/index/how-to/products/acucar-mascavo.png" alt="Açúcar Mascavo" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
+                  Açúcar Mascavo KG
+                </p>
+                <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
+                  <span>22 UN</span>
+                  <span>R$ 11,50</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 253</p>
+          </div>
+          <div class="grid grid-cols-3 items-center justify-between">
+            <div class="border-[0.5px] border-[#573dff] rounded-sm size-[14px] flex items-center justify-center p-1">
+              <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">D</span>
+            </div>
+            <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2">
+              <StartIcon color="#573dff" size={12} class="shrink-0"/>
+              <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">Açúcar Mascavo</span>
+            </div>
+            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 22</span>
+          </div>
+        </div>
+
+        <!-- Item 5: Hortelã -->
+        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-hortela" style="max-height: 0;">
+          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+            <div class="flex gap-2.5 items-center">
+              <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
+                <img src="/assets/medias/index/how-to/products/hortela.png" alt="Hortelã" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
+                  Hortelã 30g
+                </p>
+                <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
+                  <span>5 UN</span>
+                  <span>R$ 4</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 20</p>
+          </div>
+          <div class="grid grid-cols-3 items-center justify-between">
+            <div class="border-[0.5px] border-[#573dff] rounded-sm size-[14px] flex items-center justify-center p-1">
+              <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">E</span>
+            </div>
+
+            <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2">
+              <StartIcon color="#573dff" size={12} class="shrink-0"/>
+              <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">"Chá de Hortela"</span>
+            </div>
+
+            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { animate, inView } from "motion";
+
+  const initMessageOrderAnimation = () => {
+    const container = document.querySelector("#messages-to-order-container");
+    if (!container) return;
+
+    // Função para obter altura real do elemento
+    const getElementHeight = (selector: string): string => {
+      const element = document.querySelector(selector);
+      if (!element) return "500px";
+
+      // Temporariamente mostrar elemento para medir
+      const originalMaxHeight = (element as HTMLElement).style.maxHeight;
+      const originalOverflow = (element as HTMLElement).style.overflow;
+
+      (element as HTMLElement).style.maxHeight = "none";
+      (element as HTMLElement).style.overflow = "visible";
+
+      const height = element.scrollHeight;
+
+      // Restaurar estado original
+      (element as HTMLElement).style.maxHeight = originalMaxHeight;
+      (element as HTMLElement).style.overflow = originalOverflow;
+
+      return `${height}px`;
+    };
+
+    // Função para criar configuração de animação com altura dinâmica
+    const getSlideUpConfig = (selector: string) => ({
+      opacity: [0, 1],
+      y: [20, 0],
+      maxHeight: ["0px", getElementHeight(selector)],
+    });
+
+    // Função para atualizar contador de itens
+    const updateCounter = (value: number) => {
+      const counter = document.querySelector('#order-counter');
+      if (counter) counter.textContent = value.toString();
+    };
+
+    const duration = 0.8;
+    const delay = duration;
+
+    const animationOptions = {
+      duration: duration,
+      easing: [0.22, 1, 0.36, 1], // easeOutCubic
+    };
+
+    // Função que executa sequência completa de animações
+    const runAnimationSequence = () => {
+      // Primeiro aguardar 5 segundos, depois fazer fade-out
+      setTimeout(() => {
+        fadeOutAndReset();
+      }, 5000);
+    };
+
+    const fadeOutAndReset = () => {
+      const fadeOutDuration = 0.5;
+
+      const visibleElements = Array.from(document.querySelectorAll('[data-animate]')).filter(
+        el => (el as HTMLElement).style.opacity !== '0'
+      );
+
+      // Se houver elementos visíveis, fazer fade-out
+      if (visibleElements.length > 0) {
+        // Fazer fade-out de todos os elementos simultaneamente
+        const fadeOutPromises = visibleElements.map(el =>
+          animate(el, { opacity: 0 }, { duration: fadeOutDuration, easing: 'ease-out' })
+        );
+
+        // Aguardar todos os fade-outs completarem
+        Promise.all(fadeOutPromises).then(() => {
+          // Após fade-out, resetar completamente
+          resetAndStartAnimation();
+        });
+      } else {
+        // Se não houver elementos visíveis (primeira execução), começar direto
+        resetAndStartAnimation();
+      }
+    };
+
+    const resetAndStartAnimation = () => {
+      // Resetar contador
+      updateCounter(0);
+
+      // Resetar todos elementos para estado inicial
+      document.querySelectorAll('[data-animate]').forEach(el => {
+        (el as HTMLElement).style.opacity = '0';
+        (el as HTMLElement).style.maxHeight = '0';
+        (el as HTMLElement).style.overflow = 'hidden';
+      });
+
+      // Iniciar animações de entrada imediatamente
+      startEntryAnimations();
+    };
+
+    const startEntryAnimations = () => {
+      // Painel Conversa - Esquerda
+      animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
+        ...animationOptions,
+        delay: delay,
+      });
+
+      animate('[data-animate="msg-1"]', getSlideUpConfig('[data-animate="msg-1"]'), {
+        ...animationOptions,
+        delay: delay * 2,
+      });
+
+      animate('[data-animate="msg-2"]', getSlideUpConfig('[data-animate="msg-2"]'), {
+        ...animationOptions,
+        delay: delay * 3,
+      });
+
+      animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
+        ...animationOptions,
+        delay: delay * 4,
+      });
+
+      // Painel Pedido - Direita
+      animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
+        ...animationOptions,
+        delay: delay * 5,
+      });
+
+      // Items com atualização do contador
+      animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
+        ...animationOptions,
+        delay: delay * 6,
+      }).then(() => updateCounter(1));
+
+      animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
+        ...animationOptions,
+        delay: delay * 7,
+      }).then(() => updateCounter(2));
+
+      // Mensagem vendedor
+      animate('[data-animate="msg-seller"]', getSlideUpConfig('[data-animate="msg-seller"]'), {
+        ...animationOptions,
+        delay: delay * 8,
+      });
+
+      // Mensagem comprador tapioca
+      animate('[data-animate="msg-customer-tapioca"]', getSlideUpConfig('[data-animate="msg-customer-tapioca"]'), {
+        ...animationOptions,
+        delay: delay * 9,
+      });
+
+      // Item tapioca no pedido
+      animate('[data-animate="item-tapioca"]', getSlideUpConfig('[data-animate="item-tapioca"]'), {
+        ...animationOptions,
+        delay: delay * 10,
+      }).then(() => updateCounter(3));
+
+      // Mensagem com imagem
+      animate('[data-animate="msg-image"]', getSlideUpConfig('[data-animate="msg-image"]'), {
+        ...animationOptions,
+        delay: delay * 11,
+      });
+
+      // Texto "Itens adicionados por imagem"
+      animate('[data-animate="text-imagem"]', getSlideUpConfig('[data-animate="text-imagem"]'), {
+        ...animationOptions,
+        delay: delay * 12,
+      });
+
+      // Item açúcar
+      animate('[data-animate="item-acucar"]', getSlideUpConfig('[data-animate="item-acucar"]'), {
+        ...animationOptions,
+        delay: delay * 13,
+      }).then(() => updateCounter(4));
+
+      // Item hortelã
+      animate('[data-animate="item-hortela"]', getSlideUpConfig('[data-animate="item-hortela"]'), {
+        ...animationOptions,
+        delay: delay * 14,
+      }).then(() => updateCounter(5));
+
+      // Calcular tempo total (última animação termina em: delay * 14 + duration)
+      // Após isso, runAnimationSequence() fará fade-out + pausa de 5s
+      const totalTime = (delay * 14 + duration) * 1000;
+      setTimeout(() => runAnimationSequence(), totalTime);
+    };
+
+    // Detectar quando componente entra no viewport e iniciar loop
+    inView(
+      container,
+      () => {
+        runAnimationSequence();
+      },
+      { amount: 0.2 } // Inicia quando 20% do componente está visível
+    );
+  };
+
+  // Inicializar quando o DOM estiver pronto
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMessageOrderAnimation);
+  } else {
+    initMessageOrderAnimation();
+  }
+</script>

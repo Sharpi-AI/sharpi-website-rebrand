@@ -8,7 +8,6 @@
   style="width: 100%; height: 100%; display: block;"></canvas>
 
 <script>
-  // @ts-nocheck
   import * as THREE from "three";
   import { createNoise2D } from "simplex-noise";
 
@@ -27,6 +26,14 @@
   interface TextureData {
     path: string;
     width: number;
+  }
+
+  interface FunnelObject {
+    mesh: THREE.Mesh;
+    startPosition: { x: number; y: number; z: number };
+    offset: number;
+    direction: "left-to-right" | "right-to-left" | "bottom-to-top";
+    cachedOpacity?: number;
   }
 
   const textureDefinitions: TextureData[] = [
@@ -123,24 +130,11 @@
     index: number,
     totalObjects: number,
     scene: THREE.Scene
-  ): {
-    mesh: THREE.Mesh;
-    startPosition: { x: number; y: number; z: number };
-    offset: number;
-    direction: "left-to-right" | "right-to-left";
-  } {
+  ): FunnelObject {
     const material = createBaseMaterial(texture);
     const mesh = new THREE.Mesh(geometry, material);
 
     const x = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
-    // const y = THREE.MathUtils.mapLinear(
-    //   seededRandom(index * (direction === "left-to-right" ? 123 : 789)),
-    //   0,
-    //   1,
-    //   -Y_DISTANCE,
-    //   Y_DISTANCE
-    // );
-
     const y = getImprovedYDistribution(
       index,
       direction,
@@ -168,12 +162,7 @@
     geometry: THREE.PlaneGeometry,
     index: number,
     scene: THREE.Scene
-  ): {
-    mesh: THREE.Mesh;
-    startPosition: { x: number; y: number; z: number };
-    offset: number;
-    direction: "bottom-to-top";
-  } {
+  ): FunnelObject {
     const material = createBaseMaterial(texture);
     const mesh = new THREE.Mesh(geometry, material);
 
@@ -217,13 +206,6 @@
     startY: number,
     noiseOffset: number
   ): number {
-    // const baseY =
-    //   direction === "left-to-right"
-    //     ? THREE.MathUtils.mapLinear(x, -X_DISTANCE, 0, startY, 0)
-    //     : THREE.MathUtils.mapLinear(x, X_DISTANCE, 0, startY, 0);
-
-    // return baseY + noiseOffset;
-
     let normalizedX: number;
     if (direction === "left-to-right") {
       // x vai de -6 para 0, normalizar para 0 a 1
@@ -237,17 +219,11 @@
     // Queremos que a curva passe por (0, startY) e (1, 0)
     // E tenha um ponto de controle que crie a curvatura desejada
 
-    // Fator de curvatura - ajuste este valor para controlar a intensidade da curva
-    const curvatureFactor = 2.0; // Valores maiores = curva mais pronunciada
+    // Fator de curvatura - valores maiores = curva mais pronunciada
+    const curvatureFactor = 2.0;
 
     // Aplicar transformação parabólica
-    // Esta fórmula cria uma curva suave do startY para 0
     const curveY = startY * Math.pow(1 - normalizedX, curvatureFactor);
-
-    // Alternativa mais complexa para maior controle:
-    // const midPointHeight = startY * 0.7; // Altura no meio da curva
-    // const t = normalizedX;
-    // const curveY = startY * (1 - t) * (1 - t) + midPointHeight * 2 * (1 - t) * t + 0 * t * t;
 
     return curveY + noiseOffset;
   }
@@ -285,14 +261,26 @@
     );
   }
 
+  // Type guard to check if object is desktop type
+  function isDesktopObject(
+    object: FunnelObject
+  ): object is FunnelObject & { direction: "left-to-right" | "right-to-left" } {
+    return (
+      object.direction === "left-to-right" ||
+      object.direction === "right-to-left"
+    );
+  }
+
+  // Type guard to check if object is mobile type
+  function isMobileObject(
+    object: FunnelObject
+  ): object is FunnelObject & { direction: "bottom-to-top" } {
+    return object.direction === "bottom-to-top";
+  }
+
   // Animate individual object (desktop)
   function updateObject(
-    object: {
-      mesh: THREE.Mesh;
-      startPosition: { x: number; y: number; z: number };
-      offset: number;
-      direction: "left-to-right" | "right-to-left";
-    },
+    object: FunnelObject & { direction: "left-to-right" | "right-to-left" },
     index: number,
     progress: number
   ): void {
@@ -308,14 +296,18 @@
     const y = calculateYPosition(direction, x, startPosition.y, yOffset);
 
     const scale = calculateScale(direction, x);
-    const opacity = THREE.MathUtils.mapLinear(Math.abs(x), 1.5, 0, 1, 0.01);
+    const opacity = THREE.MathUtils.clamp(
+      THREE.MathUtils.mapLinear(Math.abs(x), 1.5, 0, 1, 0.01),
+      0.01,
+      1
+    );
 
-    if (opacity < 1) {
+    // Only update material if opacity changed significantly (threshold: 0.01)
+    if (object.cachedOpacity === undefined || Math.abs(object.cachedOpacity - opacity) > 0.01) {
       (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
-    } else {
-      (mesh.material as THREE.MeshBasicMaterial).opacity = 1;
+      (mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
+      object.cachedOpacity = opacity;
     }
-    (mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
 
     mesh.position.x = x;
     mesh.position.y = y;
@@ -324,12 +316,7 @@
 
   // Animate individual object (mobile)
   function updateMobileObject(
-    object: {
-      mesh: THREE.Mesh;
-      startPosition: { x: number; y: number; z: number };
-      offset: number;
-      direction: "bottom-to-top";
-    },
+    object: FunnelObject & { direction: "bottom-to-top" },
     index: number,
     progress: number
   ): void {
@@ -351,16 +338,23 @@
       ) + xOffset;
 
     const scale = calculateMobileScale(y);
-    const opacity = THREE.MathUtils.mapLinear(
-      Math.abs(y),
-      MOBILE_Y_DISTANCE * 0.5,
-      MOBILE_Y_DISTANCE,
-      1,
-      0
+    const opacity = Math.max(
+      THREE.MathUtils.mapLinear(
+        Math.abs(y),
+        MOBILE_Y_DISTANCE * 0.5,
+        MOBILE_Y_DISTANCE,
+        1,
+        0
+      ),
+      0.1
     );
 
-    (mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(opacity, 0.1);
-    (mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
+    // Only update material if opacity changed significantly (threshold: 0.01)
+    if (object.cachedOpacity === undefined || Math.abs(object.cachedOpacity - opacity) > 0.01) {
+      (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
+      (mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
+      object.cachedOpacity = opacity;
+    }
 
     mesh.position.x = x;
     mesh.position.y = y;
@@ -445,12 +439,7 @@
       index: number;
     }
 
-    let objects: Array<{
-      mesh: THREE.Mesh;
-      startPosition: { x: number; y: number; z: number };
-      offset: number;
-      direction: "left-to-right" | "right-to-left" | "bottom-to-top";
-    }> = [];
+    let objects: FunnelObject[] = [];
 
     const createGeometry = (
       width: number,
@@ -534,7 +523,7 @@
             i,
             scene
           );
-          objects.push(mobileObject as any);
+          objects.push(mobileObject);
         }
       }
     }
@@ -543,25 +532,86 @@
     createObjectsForMode(isMobile ? "mobile" : "desktop");
 
     let startTime = Date.now();
+    let pausedTime = 0;
+    let animationFrameId: number | null = null;
+    let isAnimating = false;
 
     function animate() {
+      if (!isAnimating) return;
+
       const currentTime = Date.now();
-      const elapsed = currentTime - startTime;
+      const elapsed = currentTime - startTime - pausedTime;
       const progress = (elapsed / LOOP_DURATION) % 1;
 
       objects.forEach((object, index) => {
-        if (isMobile) {
-          updateMobileObject(object as any, index, progress);
-        } else {
-          updateObject(object as any, index, progress);
+        if (isMobileObject(object)) {
+          updateMobileObject(object, index, progress);
+        } else if (isDesktopObject(object)) {
+          updateObject(object, index, progress);
         }
       });
 
       renderer.render(scene, camera);
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     }
 
-    animate();
+    function pause() {
+      if (isAnimating && animationFrameId !== null) {
+        isAnimating = false;
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+        pausedTime = Date.now() - startTime - pausedTime;
+      }
+    }
+
+    function resume() {
+      if (!isAnimating) {
+        isAnimating = true;
+        startTime = Date.now() - pausedTime;
+        animate();
+      }
+    }
+
+    // IntersectionObserver to pause/resume animation when canvas is not visible
+    const intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            resume();
+          } else {
+            pause();
+          }
+        });
+      },
+      { threshold: 0.1 } // Start animation when at least 10% of canvas is visible
+    );
+
+    intersectionObserver.observe(canvas);
+
+    // Page Visibility API to pause/resume when user switches tabs
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        pause();
+      } else {
+        // Check if canvas is in viewport before resuming
+        const rect = canvas.getBoundingClientRect();
+        const isInViewport =
+          rect.top < window.innerHeight && rect.bottom > 0;
+        if (isInViewport) {
+          resume();
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Start animation initially only if canvas is visible
+    const rect = canvas.getBoundingClientRect();
+    const isInitiallyVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    if (isInitiallyVisible) {
+      isAnimating = true;
+      animate();
+    }
 
     let currentWidth = width;
     let currentHeight = height;
@@ -599,21 +649,40 @@
       );
     }
 
+    // Debounce resize handler to avoid excessive calls
+    let resizeTimeout: number | null = null;
+    function debouncedResize() {
+      if (resizeTimeout !== null) {
+        clearTimeout(resizeTimeout);
+      }
+      resizeTimeout = window.setTimeout(() => {
+        onWindowResize();
+        resizeTimeout = null;
+      }, 150);
+    }
+
     if (typeof ResizeObserver !== "undefined") {
       const resizeObserver = new ResizeObserver(() => {
-        onWindowResize();
+        debouncedResize();
       });
       resizeObserver.observe(canvas);
     }
 
-    window.addEventListener("resize", onWindowResize);
+    window.addEventListener("resize", debouncedResize);
 
     window.addEventListener("orientationchange", () => {
+      // Use shorter timeout for orientation change since it's a major layout shift
       setTimeout(onWindowResize, 100);
     });
 
     return () => {
-      window.removeEventListener("resize", onWindowResize);
+      pause();
+      if (resizeTimeout !== null) {
+        clearTimeout(resizeTimeout);
+      }
+      intersectionObserver.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("resize", debouncedResize);
       window.removeEventListener("orientationchange", onWindowResize);
       renderer.dispose();
       scene.clear();
