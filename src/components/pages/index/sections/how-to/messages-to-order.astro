@@ -16,7 +16,7 @@ import DownloadIcon from "@/components/icons/download.astro";
   </div>
 
   <!-- Main Content -->
-  <div class="relative w-full h-full flex flex-col md:flex-row gap-4 md:gap-20 items-center justify-center p-4 md:p-8">
+  <div class="relative w-full h-full flex flex-col md:flex-row gap-4 md:gap-20 items-center justify-between md:justify-center p-4 md:p-8">
 
     <!-- Left Panel: Conversa -->
     <div
@@ -88,7 +88,7 @@ import DownloadIcon from "@/components/icons/download.astro";
       </div>
 
       <!-- Seller response -->
-      <div class="flex flex-col items-end w-full opacity-0 overflow-hidden" data-animate="msg-seller" style="max-height: 0;">
+      <div class="hidden md:flex flex-col items-end w-full opacity-0 overflow-hidden" data-animate="msg-seller" style="max-height: 0;">
         <div
           class="bg-[#dcf5d8] border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg pl-4 pr-2 py-3 flex items-center justify-between h-[40px] w-[252px]"
         >
@@ -108,7 +108,7 @@ import DownloadIcon from "@/components/icons/download.astro";
 
       <!-- Customer response -->
       <div class="flex flex-col gap-1.5 w-full">
-        <div class="flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-customer-tapioca" style="max-height: 0;">
+        <div class="hidden md:flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-customer-tapioca" style="max-height: 0;">
           <div
             class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[267px]"
           >
@@ -122,7 +122,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         </div>
 
         <!-- Image message -->
-        <div class="flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-image" style="max-height: 0;">
+        <div class="hidden md:flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-image" style="max-height: 0;">
           <div class="relative min-h-[202px] w-[220px] rounded-[22px] overflow-clip">
             <!-- Blurred background -->
             <img src="/assets/medias/index/how-to/products/image-message-bg.png" alt="" class="absolute inset-0 w-full h-full object-cover blur-lg filter" />
@@ -248,7 +248,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         </div>
 
         <!-- Item 3: Tapioca Fina -->
-        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-tapioca" style="max-height: 0;">
+        <div class="hidden md:flex bg-white rounded-xl p-2 flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-tapioca" style="max-height: 0;">
           <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
@@ -279,14 +279,14 @@ import DownloadIcon from "@/components/icons/download.astro";
         </div>
 
 
-        <div class="flex items-center justify-between h-7 opacity-0 overflow-hidden" data-animate="text-imagem" style="max-height: 0;">
+        <div class="hidden md:flex items-center justify-between h-7 opacity-0 overflow-hidden" data-animate="text-imagem" style="max-height: 0;">
           <p class="text-[12px] text-[#2e2e2e] tracking-[-0.24px] leading-[0.9]">
             Itens adicionados por imagem
           </p>
         </div>
 
         <!-- Item 4: Açúcar Mascavo -->
-        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-acucar" style="max-height: 0;">
+        <div class="hidden md:flex bg-white rounded-xl p-2 flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-acucar" style="max-height: 0;">
           <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
@@ -317,7 +317,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         </div>
 
         <!-- Item 5: Hortelã -->
-        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-hortela" style="max-height: 0;">
+        <div class="hidden md:flex bg-white rounded-xl p-2 flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-hortela" style="max-height: 0;">
           <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
@@ -359,6 +359,9 @@ import DownloadIcon from "@/components/icons/download.astro";
   const initMessageOrderAnimation = () => {
     const container = document.querySelector("#messages-to-order-container");
     if (!container) return;
+
+    // Detectar se é mobile ou desktop
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
     // Função para obter altura real do elemento
     const getElementHeight = (selector: string): string => {
@@ -451,90 +454,133 @@ import DownloadIcon from "@/components/icons/download.astro";
     };
 
     const startEntryAnimations = () => {
-      // Painel Conversa - Esquerda
-      animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
-        ...animationOptions,
-        delay: delay,
-      });
+      if (isMobile) {
+        // Sequência mobile (apenas 3 mensagens e 2 itens)
+        animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
+          ...animationOptions,
+          delay: delay,
+        });
 
-      animate('[data-animate="msg-1"]', getSlideUpConfig('[data-animate="msg-1"]'), {
-        ...animationOptions,
-        delay: delay * 2,
-      });
+        animate('[data-animate="msg-1"]', getSlideUpConfig('[data-animate="msg-1"]'), {
+          ...animationOptions,
+          delay: delay * 2,
+        });
 
-      animate('[data-animate="msg-2"]', getSlideUpConfig('[data-animate="msg-2"]'), {
-        ...animationOptions,
-        delay: delay * 3,
-      });
+        animate('[data-animate="msg-2"]', getSlideUpConfig('[data-animate="msg-2"]'), {
+          ...animationOptions,
+          delay: delay * 3,
+        });
 
-      animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
-        ...animationOptions,
-        delay: delay * 4,
-      });
+        animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
+          ...animationOptions,
+          delay: delay * 4,
+        });
 
-      // Painel Pedido - Direita
-      animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
-        ...animationOptions,
-        delay: delay * 5,
-      });
+        // Painel Pedido - Direita
+        animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
+          ...animationOptions,
+          delay: delay * 5,
+        });
 
-      // Items com atualização do contador
-      animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
-        ...animationOptions,
-        delay: delay * 6,
-      }).then(() => updateCounter(1));
+        // Items com atualização do contador (apenas 2 itens em mobile)
+        animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
+          ...animationOptions,
+          delay: delay * 6,
+        }).then(() => updateCounter(1));
 
-      animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
-        ...animationOptions,
-        delay: delay * 7,
-      }).then(() => updateCounter(2));
+        animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
+          ...animationOptions,
+          delay: delay * 7,
+        }).then(() => updateCounter(2));
 
-      // Mensagem vendedor
-      animate('[data-animate="msg-seller"]', getSlideUpConfig('[data-animate="msg-seller"]'), {
-        ...animationOptions,
-        delay: delay * 8,
-      });
+        // Calcular tempo total para mobile (última animação termina em: delay * 7 + duration)
+        const totalTime = (delay * 7 + duration) * 1000;
+        setTimeout(() => runAnimationSequence(), totalTime);
+      } else {
+        // Sequência desktop (todas as mensagens e itens)
+        animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
+          ...animationOptions,
+          delay: delay,
+        });
 
-      // Mensagem comprador tapioca
-      animate('[data-animate="msg-customer-tapioca"]', getSlideUpConfig('[data-animate="msg-customer-tapioca"]'), {
-        ...animationOptions,
-        delay: delay * 9,
-      });
+        animate('[data-animate="msg-1"]', getSlideUpConfig('[data-animate="msg-1"]'), {
+          ...animationOptions,
+          delay: delay * 2,
+        });
 
-      // Item tapioca no pedido
-      animate('[data-animate="item-tapioca"]', getSlideUpConfig('[data-animate="item-tapioca"]'), {
-        ...animationOptions,
-        delay: delay * 10,
-      }).then(() => updateCounter(3));
+        animate('[data-animate="msg-2"]', getSlideUpConfig('[data-animate="msg-2"]'), {
+          ...animationOptions,
+          delay: delay * 3,
+        });
 
-      // Mensagem com imagem
-      animate('[data-animate="msg-image"]', getSlideUpConfig('[data-animate="msg-image"]'), {
-        ...animationOptions,
-        delay: delay * 11,
-      });
+        animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
+          ...animationOptions,
+          delay: delay * 4,
+        });
 
-      // Texto "Itens adicionados por imagem"
-      animate('[data-animate="text-imagem"]', getSlideUpConfig('[data-animate="text-imagem"]'), {
-        ...animationOptions,
-        delay: delay * 12,
-      });
+        // Painel Pedido - Direita
+        animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
+          ...animationOptions,
+          delay: delay * 5,
+        });
 
-      // Item açúcar
-      animate('[data-animate="item-acucar"]', getSlideUpConfig('[data-animate="item-acucar"]'), {
-        ...animationOptions,
-        delay: delay * 13,
-      }).then(() => updateCounter(4));
+        // Items com atualização do contador
+        animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
+          ...animationOptions,
+          delay: delay * 6,
+        }).then(() => updateCounter(1));
 
-      // Item hortelã
-      animate('[data-animate="item-hortela"]', getSlideUpConfig('[data-animate="item-hortela"]'), {
-        ...animationOptions,
-        delay: delay * 14,
-      }).then(() => updateCounter(5));
+        animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
+          ...animationOptions,
+          delay: delay * 7,
+        }).then(() => updateCounter(2));
 
-      // Calcular tempo total (última animação termina em: delay * 14 + duration)
-      // Após isso, runAnimationSequence() fará fade-out + pausa de 5s
-      const totalTime = (delay * 14 + duration) * 1000;
-      setTimeout(() => runAnimationSequence(), totalTime);
+        // Mensagem vendedor
+        animate('[data-animate="msg-seller"]', getSlideUpConfig('[data-animate="msg-seller"]'), {
+          ...animationOptions,
+          delay: delay * 8,
+        });
+
+        // Mensagem comprador tapioca
+        animate('[data-animate="msg-customer-tapioca"]', getSlideUpConfig('[data-animate="msg-customer-tapioca"]'), {
+          ...animationOptions,
+          delay: delay * 9,
+        });
+
+        // Item tapioca no pedido
+        animate('[data-animate="item-tapioca"]', getSlideUpConfig('[data-animate="item-tapioca"]'), {
+          ...animationOptions,
+          delay: delay * 10,
+        }).then(() => updateCounter(3));
+
+        // Mensagem com imagem
+        animate('[data-animate="msg-image"]', getSlideUpConfig('[data-animate="msg-image"]'), {
+          ...animationOptions,
+          delay: delay * 11,
+        });
+
+        // Texto "Itens adicionados por imagem"
+        animate('[data-animate="text-imagem"]', getSlideUpConfig('[data-animate="text-imagem"]'), {
+          ...animationOptions,
+          delay: delay * 12,
+        });
+
+        // Item açúcar
+        animate('[data-animate="item-acucar"]', getSlideUpConfig('[data-animate="item-acucar"]'), {
+          ...animationOptions,
+          delay: delay * 13,
+        }).then(() => updateCounter(4));
+
+        // Item hortelã
+        animate('[data-animate="item-hortela"]', getSlideUpConfig('[data-animate="item-hortela"]'), {
+          ...animationOptions,
+          delay: delay * 14,
+        }).then(() => updateCounter(5));
+
+        // Calcular tempo total para desktop (última animação termina em: delay * 14 + duration)
+        const totalTime = (delay * 14 + duration) * 1000;
+        setTimeout(() => runAnimationSequence(), totalTime);
+      }
     };
 
     // Detectar quando componente entra no viewport e iniciar loop
