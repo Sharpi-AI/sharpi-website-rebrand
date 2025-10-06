@@ -1,4 +1,13 @@
-<svg width="85" height="33" viewBox="0 0 85 33" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon transition-all duration-300">
+---
+interface Props {
+  class?: string;
+
+}
+
+const { class: className } = Astro.props;
+---
+
+<svg width="85" height="33" viewBox="0 0 85 33" fill="none" xmlns="http://www.w3.org/2000/svg" class={`logo-icon transition-all duration-300 ${className}`}>
   <path d="M17.1895 6.41302C17.1895 7.13733 17.7766 7.72448 18.5009 7.72448C19.2252 7.72448 19.8124 7.13733 19.8124 6.41302C19.8124 5.68873 19.2252 5.10156 18.5009 5.10156C17.7766 5.10156 17.1895 5.68873 17.1895 6.41302Z" class="logo-path" fill="white" fill-opacity="0.9"/>
   <path d="M17.1895 9.35443C17.1895 10.0787 17.7766 10.6659 18.5009 10.6659C19.2252 10.6659 19.8124 10.0787 19.8124 9.35443C19.8124 8.63013 19.2252 8.04297 18.5009 8.04297C17.7766 8.04297 17.1895 8.63013 17.1895 9.35443Z" class="logo-path" fill="white" fill-opacity="0.9"/>
   <path d="M27.25 16.4951C27.25 17.2194 27.8371 17.8065 28.5614 17.8065C29.2856 17.8065 29.8729 17.2194 29.8729 16.4951C29.8729 15.7708 29.2856 15.1836 28.5614 15.1836C27.8371 15.1836 27.25 15.7708 27.25 16.4951Z" class="logo-path" fill="white" fill-opacity="0.9"/>
