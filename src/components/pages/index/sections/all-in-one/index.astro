@@ -81,7 +81,7 @@ import OrbitSystem from "./orbit-system/index.astro";
     const whiteColor: [number, number, number] = [255, 255, 255];
     const babyBlueColor: [number, number, number] = [204, 228, 243]; // #CCE4F3
 
-    window.lenis.on("scroll", () => {
+    const updateColor = () => {
       const progress = calculateProgress(allInOneSection);
 
       let newColor: string;
@@ -97,7 +97,13 @@ import OrbitSystem from "./orbit-system/index.astro";
       }
 
       pageContent.style.backgroundColor = newColor;
-    });
+    };
+
+    // Update color on scroll
+    window.lenis.on("scroll", updateColor);
+
+    // Update color on page load
+    updateColor();
   };
 
   if (document.readyState === "loading") {

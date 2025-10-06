@@ -20,7 +20,7 @@
 
     <div class="flex flex-col gap-3">
       <div
-        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 transition-all duration-400 ease-out w-[173px] max-w-[300px]"
+        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-x-10 scale-75 transition-all duration-400 ease-out w-[173px] max-w-[300px]"
         style="transition-delay: 0ms;"
       >
         <div
@@ -61,7 +61,7 @@
       </div>
 
       <div
-        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 transition-all duration-400 ease-out w-fit max-w-[300px]"
+        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-x-10 scale-75 transition-all duration-400 ease-out w-fit max-w-[300px]"
         style="transition-delay: 100ms;"
       >
         <div
@@ -98,7 +98,7 @@
       </div>
 
       <div
-        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 transition-all duration-400 ease-out w-[200px] max-w-[300px]"
+        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-x-10 scale-75 transition-all duration-400 ease-out w-[200px] max-w-[300px]"
         style="transition-delay: 200ms;"
       >
         <div
@@ -276,7 +276,9 @@
       sphereCount: 300,
       initialRadius: 3.6,
       sphereSize: 0.01,
-      rotationSpeed: 0.1,
+      // rotationSpeed: 0,
+      rotationSpeed: 0.05,
+      rotationOffset: 0.55 * Math.PI,
       color: DEFAULT_SETTINGS.particleColor,
       enabled: true,
       isAnimating: true,
@@ -284,7 +286,8 @@
       // Essential text props
       textItems: orbitingTextItems1,
       showTexts: true,
-      textOffset: 0.3,
+      textOffset: 0,
+      // textOrbitRadius: 3.6,
 
       // Animation stages (synchronized with global timing)
       stage1Duration: 3,
@@ -314,7 +317,10 @@
       sphereCount: 220,
       initialRadius: 2.2,
       sphereSize: 0.01,
-      rotationSpeed: 0.1,
+      
+      rotationSpeed: 0.05,
+      // rotationSpeed: 0,
+      rotationOffset: 0.4 * Math.PI,
       color: DEFAULT_SETTINGS.particleColor,
       enabled: true,
       isAnimating: true,
@@ -322,7 +328,8 @@
       // Essential text props
       textItems: orbitingTextItems2,
       showTexts: true,
-      textOffset: 0.25,
+      textOffset: 0,
+      // textOrbitRadius: 2.2,
 
       // Animation stages (synchronized with global timing)
       stage1Duration: 3,
@@ -450,21 +457,29 @@
       if (stage === "stage4") {
         container.classList.remove("opacity-0");
         container.classList.add("opacity-100");
-        // Show cards with staggered animation
+        // Show cards with staggered animation - emerging from behind the blob
         cards.forEach((card) => {
-          card.classList.remove("-translate-x-5", "opacity-0");
-          card.classList.add("translate-x-0", "opacity-100");
+          card.classList.remove("translate-x-10", "scale-75", "opacity-0");
+          card.classList.add("translate-x-0", "scale-100", "opacity-100");
         });
       } else if (lastStageForCards === "stage4" && stage === "returning") {
-        // Hide cards when leaving stage4
+        // Hide cards when leaving stage4 - going back into the blob
         cards.forEach((card) => {
-          card.classList.remove("translate-x-0", "opacity-100");
-          card.classList.add("-translate-x-5", "opacity-0");
+          card.classList.remove("translate-x-0", "scale-100", "opacity-100");
+          card.classList.add("translate-x-10", "scale-75", "opacity-0");
         });
         setTimeout(() => {
           container.classList.remove("opacity-100");
           container.classList.add("opacity-0");
         }, 400);
+      } else if (stage !== "stage4") {
+        // Ensure container is hidden when not in stage4
+        container.classList.remove("opacity-100");
+        container.classList.add("opacity-0");
+        cards.forEach((card) => {
+          card.classList.remove("translate-x-0", "scale-100", "opacity-100");
+          card.classList.add("translate-x-10", "scale-75", "opacity-0");
+        });
       }
 
       lastStageForCards = stage;

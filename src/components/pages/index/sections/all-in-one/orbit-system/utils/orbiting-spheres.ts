@@ -13,6 +13,7 @@ export interface OrbitingSpheresConfig {
   orbitRadius?: number;
   sphereSize?: number;
   rotationSpeed?: number;
+  rotationOffset?: number;
   color?: string;
   enabled?: boolean;
 
@@ -103,6 +104,7 @@ export class OrbitingSpheres {
       orbitRadius: 3,
       sphereSize: 0.02,
       rotationSpeed: 0.1,
+      rotationOffset: 0,
       color: "#888888",
       enabled: true,
       textItems: [],
@@ -134,6 +136,7 @@ export class OrbitingSpheres {
     this.currentAnimatedRadius = this.config.initialRadius;
 
     this.group = new Group();
+    this.group.rotation.z = this.config.rotationOffset;
     this.textContainer = document.getElementById('orbit-texts-container');
     this.initializeSpheres();
     this.initializeTextStates();
@@ -594,6 +597,8 @@ export class OrbitingSpheres {
         // Track loop count when returning to stage1
         if (globalStage === 'stage1' && previousStage === 'returning') {
           this.loopCount += 1;
+          // Reset rotation to initial value when loop restarts
+          this.group.rotation.z = this.config.rotationOffset;
         }
 
         // Notify animation complete when reaching completed stage
