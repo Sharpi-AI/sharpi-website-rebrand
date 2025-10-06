@@ -20,6 +20,7 @@ export interface LensOptions {
   resolution?: number;
   backsideResolution?: number;
   background?: string;
+  backgroundScale?: number;
   enabled?: boolean;
 }
 
@@ -73,7 +74,8 @@ export class Lens {
       resolution: this.isMobile ? mobileResolution : desktopResolution,
       background: '#ffffff',
       enabled: true,
-      ...options
+      backgroundScale: 1,
+      ...options,
     };
 
     // Create scenes
@@ -173,11 +175,19 @@ export class Lens {
       const vFov = (this.camera.fov * Math.PI) / 180;
       const height = 2 * Math.tan(vFov / 2) * distance;
       const width = height * this.camera.aspect;
-      this.backgroundMesh.scale.set(width, height, 1);
+      this.backgroundMesh.scale.set(
+        width * this.options.backgroundScale,
+        height * this.options.backgroundScale,
+        1
+      );
     } else if (this.camera instanceof THREE.OrthographicCamera) {
       const width = Math.abs(this.camera.right - this.camera.left);
       const height = Math.abs(this.camera.top - this.camera.bottom);
-      this.backgroundMesh.scale.set(width, height, 1);
+      this.backgroundMesh.scale.set(
+        width * this.options.backgroundScale,
+        height * this.options.backgroundScale,
+        1
+      );
     }
   }
 
@@ -266,6 +276,28 @@ export class Lens {
 
     // Render background mesh with captured texture
     renderer.autoClear = false;
+
+    // Update background scale with current camera before rendering
+    if (camera instanceof THREE.PerspectiveCamera) {
+      const distance = Math.abs(this.backgroundMesh.position.z);
+      const vFov = (camera.fov * Math.PI) / 180;
+      const height = 2 * Math.tan(vFov / 2) * distance;
+      const width = height * camera.aspect;
+      this.backgroundMesh.scale.set(
+        width * this.options.backgroundScale,
+        height * this.options.backgroundScale,
+        1
+      );
+    } else if (camera instanceof THREE.OrthographicCamera) {
+      const width = Math.abs(camera.right - camera.left);
+      const height = Math.abs(camera.top - camera.bottom);
+      this.backgroundMesh.scale.set(
+        width * this.options.backgroundScale,
+        height * this.options.backgroundScale,
+        1
+      );
+    }
+
     renderer.render(this.backgroundScene, camera);
     renderer.autoClear = true;
   }

@@ -3,9 +3,19 @@
 ---
 
 <div id="orbit-system-container" class="absolute inset-0">
-  <canvas id="orbit-system-canvas" class="w-full h-full" aria-hidden="true"
+  <canvas
+    id="orbit-canvas"
+    class="absolute inset-0 w-full h-full"
+    style="z-index: 1;"
+    aria-hidden="true"
   ></canvas>
-  <div id="orbit-texts-container" class="absolute inset-0 pointer-events-none">
+  <canvas
+    id="blob-canvas"
+    class="absolute inset-0 w-full h-full"
+    style="z-index: 3;"
+    aria-hidden="true"
+  ></canvas>
+  <div id="orbit-texts-container" class="absolute inset-0 pointer-events-none" style="z-index: 2;">
   </div>
   <div
     id="cloned-cards-container"
@@ -160,26 +170,42 @@
     const container = document.getElementById(
       "orbit-system-container"
     ) as HTMLElement;
-    const canvas = document.getElementById(
-      "orbit-system-canvas"
+    const orbitCanvas = document.getElementById(
+      "orbit-canvas"
+    ) as HTMLCanvasElement;
+    const blobCanvas = document.getElementById(
+      "blob-canvas"
     ) as HTMLCanvasElement;
 
-    if (!container || !canvas) return;
+    if (!container || !orbitCanvas || !blobCanvas) return;
 
     const width = container.clientWidth;
     const height = container.clientHeight;
     const pixelRatio = Math.min(window.devicePixelRatio, 2);
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
+    // Renderer for orbiting spheres (background layer)
+    const orbitRenderer = new THREE.WebGLRenderer({
+      canvas: orbitCanvas,
       antialias: true,
       alpha: true,
     });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(pixelRatio);
-    renderer.setClearColor(0x000000, 0);
-    renderer.toneMapping = THREE.NoToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    orbitRenderer.setSize(width, height);
+    orbitRenderer.setPixelRatio(pixelRatio);
+    orbitRenderer.setClearColor(0x000000, 0);
+    orbitRenderer.toneMapping = THREE.NoToneMapping;
+    orbitRenderer.toneMappingExposure = 1.0;
+
+    // Renderer for blob/lens particle system (foreground layer)
+    const blobRenderer = new THREE.WebGLRenderer({
+      canvas: blobCanvas,
+      antialias: true,
+      alpha: true,
+    });
+    blobRenderer.setSize(width, height);
+    blobRenderer.setPixelRatio(pixelRatio);
+    blobRenderer.setClearColor(0x000000, 0);
+    blobRenderer.toneMapping = THREE.NoToneMapping;
+    blobRenderer.toneMappingExposure = 1.0;
 
     const referenceHeight = 604;
     const referenceFOV = 50;
@@ -197,7 +223,9 @@
     camera.position.set(0, 0, cameraZAdjustment);
     camera.lookAt(0, 0, 0);
 
-    const scene = new THREE.Scene();
+    // Separate scenes for layering
+    const orbitScene = new THREE.Scene();
+    const blobScene = new THREE.Scene();
 
     const animatedParticleSystem = new LensParticleSystem({
       stage1Duration: 3,
@@ -235,6 +263,7 @@
       lensCursorBacksideResolution:
         DEFAULT_SETTINGS.lensCursorBacksideResolution,
       lensCursorBackground: "#CCE4F3",
+      lensCursorBackgroundScale: 0.2,
 
       pulseEnabled: true,
       pulseMinScale: 0.98,
@@ -250,7 +279,7 @@
       onStageChange: () => {},
     });
 
-    scene.add(animatedParticleSystem.getGroup());
+    blobScene.add(animatedParticleSystem.getGroup());
 
     const orbitingTextItems1 = [
       {
@@ -355,9 +384,9 @@
 
     const orbit2 = new OrbitingSpheres(orbit2Config);
 
-    // Add orbits to scene
-    scene.add(orbit1.getGroup());
-    scene.add(orbit2.getGroup());
+    // Add orbits to orbit scene (background layer)
+    orbitScene.add(orbit1.getGroup());
+    orbitScene.add(orbit2.getGroup());
 
     // Set camera reference for text positioning
     orbit1.setCamera(camera);
@@ -526,8 +555,11 @@
       orbit1.update(deltaTime, globalElapsed, globalStage);
       orbit2.update(deltaTime, globalElapsed, globalStage);
 
-      // Render the scene with lens effects
-      animatedParticleSystem.render(renderer, camera, scene);
+      // Render orbits (background layer)
+      orbitRenderer.render(orbitScene, camera);
+
+      // Render blob with lens effects (foreground layer)
+      animatedParticleSystem.render(blobRenderer, camera, blobScene);
 
       // Continue animation loop only if still in viewport
       if (isInViewport && currentAnimationState === 'active') {
@@ -546,9 +578,21 @@
           isInViewport = entry.isIntersecting;
 
           if (!wasInViewport && isInViewport) {
-            // Entering viewport
+            // Reset animation completely
+            globalAnimationStartTime = Date.now();
+            lastTime = 0; // Reset lastTime to prevent huge deltaTime on first frame
+
+            // Reset orbit rotations to initial positions
+            const orbit1Rotation = 0.55 * Math.PI;
+            const orbit2Rotation = 0.4 * Math.PI;
+
+            orbit1.getGroup().rotation.z = orbit1Rotation;
+            orbit2.getGroup().rotation.z = orbit2Rotation;
+
+            console.log('🔄 Reset orbits - orbit1:', orbit1Rotation, 'orbit2:', orbit2Rotation);
+
             currentAnimationState = 'entering';
-            console.log('👀 Entering viewport - starting animation');
+            console.log('👀 Entering viewport - resetting animation from start');
             resumeAnimation();
           } else if (wasInViewport && !isInViewport) {
             // Leaving viewport
@@ -586,9 +630,12 @@
         camera.aspect = newWidth / newHeight;
         camera.updateProjectionMatrix();
 
-        renderer.setSize(newWidth, newHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
+        orbitRenderer.setSize(newWidth, newHeight);
+        orbitRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        blobRenderer.setSize(newWidth, newHeight);
+        blobRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
         resizeTimeout = null;
       }, 100);
     };
@@ -620,8 +667,9 @@
       orbit1.dispose();
       orbit2.dispose();
 
-      // Dispose renderer
-      renderer.dispose();
+      // Dispose renderers
+      orbitRenderer.dispose();
+      blobRenderer.dispose();
 
       currentAnimationState = 'idle';
       isInViewport = false;

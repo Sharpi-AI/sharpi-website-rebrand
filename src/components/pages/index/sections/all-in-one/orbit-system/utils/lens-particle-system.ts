@@ -41,6 +41,7 @@ export interface LensParticleSystemOptions {
   lensCursorResolution?: number;
   lensCursorBacksideResolution?: number;
   lensCursorBackground?: string;
+  lensCursorBackgroundScale?: number;
 
   // Particle system settings
   particleSettings: ParticleSystemSettings;
@@ -173,6 +174,7 @@ export class LensParticleSystem {
       resolution: this.options.lensCursorResolution,
       backsideResolution: this.options.lensCursorBacksideResolution,
       background: this.options.lensCursorBackground,
+      backgroundScale: this.options.lensCursorBackgroundScale,
       enabled: true
     });
 
