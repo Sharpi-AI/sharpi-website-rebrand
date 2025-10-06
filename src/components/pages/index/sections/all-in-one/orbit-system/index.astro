@@ -30,8 +30,8 @@
 
     <div class="flex flex-col gap-3">
       <div
-        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-x-10 scale-75 transition-all duration-400 ease-out w-[173px] max-w-[300px]"
-        style="transition-delay: 0ms;"
+        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-y-20 scale-75 transition-all duration-400 ease-out w-[173px] max-w-[300px]"
+        style="transition-delay: 0ms; transform-origin: left center;"
       >
         <div
           class="flex-shrink-0 size-9 flex items-center justify-center rounded-md"
@@ -71,8 +71,8 @@
       </div>
 
       <div
-        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-x-10 scale-75 transition-all duration-400 ease-out w-fit max-w-[300px]"
-        style="transition-delay: 100ms;"
+        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-y-20 scale-75 transition-all duration-400 ease-out w-fit max-w-[300px]"
+        style="transition-delay: 100ms; transform-origin: left center;"
       >
         <div
           class="flex-shrink-0 size-9 flex items-center justify-center rounded-md"
@@ -108,8 +108,8 @@
       </div>
 
       <div
-        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-x-10 scale-75 transition-all duration-400 ease-out w-[200px] max-w-[300px]"
-        style="transition-delay: 200ms;"
+        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-y-20 scale-75 transition-all duration-400 ease-out w-[200px] max-w-[300px]"
+        style="transition-delay: 200ms; transform-origin: left center;"
       >
         <div
           class="flex-shrink-0 size-9 flex items-center justify-center rounded-md"
@@ -270,7 +270,7 @@
       pulseMaxScale: 1.02,
       pulseSpeed: 0.0005,
 
-      smoothingFactor: 15,
+      smoothingFactor: 2.5,
 
       useGlobalTiming: true,
 
@@ -475,6 +475,7 @@
 
     // Track last stage for cloned cards visibility
     let lastStageForCards = "idle";
+    let showCardsTimeout: number | null = null;
 
     // Function to update cloned cards visibility
     function updateClonedCardsVisibility(stage: AnimationStage) {
@@ -484,30 +485,51 @@
       const cards = container.querySelectorAll(".cloned-card");
 
       if (stage === "stage4") {
-        container.classList.remove("opacity-0");
-        container.classList.add("opacity-100");
-        // Show cards with staggered animation - emerging from behind the blob
-        cards.forEach((card) => {
-          card.classList.remove("translate-x-10", "scale-75", "opacity-0");
-          card.classList.add("translate-x-0", "scale-100", "opacity-100");
-        });
+        // Wait 500ms before showing cards after stage4 starts
+        showCardsTimeout = window.setTimeout(() => {
+          container.classList.remove("opacity-0");
+          container.classList.add("opacity-100");
+          // Show cards with staggered animation - emerging from behind the blob
+          cards.forEach((card) => {
+            // Reset transition delay to use HTML defaults (0ms, 100ms, 200ms)
+            (card as HTMLElement).style.transitionDelay = '';
+            card.classList.remove("translate-y-20", "scale-75", "opacity-0");
+            card.classList.add("translate-y-0", "scale-100", "opacity-100");
+          });
+        }, 500);
       } else if (lastStageForCards === "stage4" && stage === "returning") {
-        // Hide cards when leaving stage4 - going back into the blob
-        cards.forEach((card) => {
-          card.classList.remove("translate-x-0", "scale-100", "opacity-100");
-          card.classList.add("translate-x-10", "scale-75", "opacity-0");
+        // Cancel pending show animation if any
+        if (showCardsTimeout !== null) {
+          window.clearTimeout(showCardsTimeout);
+          showCardsTimeout = null;
+        }
+        // Hide cards when leaving stage4 - going back into the blob (in reverse order)
+        cards.forEach((card, index) => {
+          // Apply inverted delay: last card exits first (200ms, 100ms, 0ms)
+          const invertedDelay = (cards.length - 1 - index) * 100;
+          (card as HTMLElement).style.transitionDelay = `${invertedDelay}ms`;
+          card.classList.remove("translate-y-0", "opacity-100");
+          card.classList.add("translate-y-20", "opacity-0");
         });
         setTimeout(() => {
           container.classList.remove("opacity-100");
           container.classList.add("opacity-0");
         }, 400);
       } else if (stage !== "stage4") {
+        // Cancel pending show animation if any
+        if (showCardsTimeout !== null) {
+          window.clearTimeout(showCardsTimeout);
+          showCardsTimeout = null;
+        }
         // Ensure container is hidden when not in stage4
         container.classList.remove("opacity-100");
         container.classList.add("opacity-0");
-        cards.forEach((card) => {
-          card.classList.remove("translate-x-0", "scale-100", "opacity-100");
-          card.classList.add("translate-x-10", "scale-75", "opacity-0");
+        cards.forEach((card, index) => {
+          // Apply inverted delay for consistency
+          const invertedDelay = (cards.length - 1 - index) * 100;
+          (card as HTMLElement).style.transitionDelay = `${invertedDelay}ms`;
+          card.classList.remove("translate-y-0", "opacity-100");
+          card.classList.add("translate-y-20", "opacity-0");
         });
       }
 

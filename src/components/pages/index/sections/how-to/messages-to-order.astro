@@ -360,6 +360,11 @@ import DownloadIcon from "@/components/icons/download.astro";
     const container = document.querySelector("#messages-to-order-container");
     if (!container) return;
 
+    // Variáveis de controle
+    let animationTimeouts: number[] = [];
+    let isAnimating = false;
+    let currentAnimations: any[] = [];
+
     // Detectar se é mobile ou desktop
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
@@ -405,12 +410,42 @@ import DownloadIcon from "@/components/icons/download.astro";
       easing: [0.22, 1, 0.36, 1], // easeOutCubic
     };
 
+    // Função para parar e resetar animação completamente
+    const stopAndResetAnimation = () => {
+      // Cancelar todos timeouts pendentes
+      animationTimeouts.forEach(id => window.clearTimeout(id));
+      animationTimeouts = [];
+
+      // Parar animações em andamento
+      currentAnimations.forEach(anim => {
+        if (anim && typeof anim.stop === 'function') {
+          anim.stop();
+        }
+      });
+      currentAnimations = [];
+
+      // Resetar todos elementos ao estado inicial
+      document.querySelectorAll('[data-animate]').forEach(el => {
+        (el as HTMLElement).style.opacity = '0';
+        (el as HTMLElement).style.maxHeight = '0';
+        (el as HTMLElement).style.overflow = 'hidden';
+      });
+
+      // Resetar contador
+      updateCounter(0);
+
+      isAnimating = false;
+    };
+
     // Função que executa sequência completa de animações
     const runAnimationSequence = () => {
+      if (isAnimating) return; // Prevenir múltiplas animações simultâneas
+      isAnimating = true;
       // Primeiro aguardar 5 segundos, depois fazer fade-out
-      setTimeout(() => {
+      const timeoutId = window.setTimeout(() => {
         fadeOutAndReset();
       }, 5000);
+      animationTimeouts.push(timeoutId);
     };
 
     const fadeOutAndReset = () => {
@@ -423,9 +458,11 @@ import DownloadIcon from "@/components/icons/download.astro";
       // Se houver elementos visíveis, fazer fade-out
       if (visibleElements.length > 0) {
         // Fazer fade-out de todos os elementos simultaneamente
-        const fadeOutPromises = visibleElements.map(el =>
-          animate(el, { opacity: 0 }, { duration: fadeOutDuration, easing: 'ease-out' })
-        );
+        const fadeOutPromises = visibleElements.map(el => {
+          const anim = animate(el, { opacity: 0 }, { duration: fadeOutDuration, easing: 'ease-out' });
+          currentAnimations.push(anim);
+          return anim;
+        });
 
         // Aguardar todos os fade-outs completarem
         Promise.all(fadeOutPromises).then(() => {
@@ -449,6 +486,11 @@ import DownloadIcon from "@/components/icons/download.astro";
         (el as HTMLElement).style.overflow = 'hidden';
       });
 
+      // Limpar arrays de controle antes de reiniciar
+      animationTimeouts = [];
+      currentAnimations = [];
+      isAnimating = false;
+
       // Iniciar animações de entrada imediatamente
       startEntryAnimations();
     };
@@ -456,130 +498,174 @@ import DownloadIcon from "@/components/icons/download.astro";
     const startEntryAnimations = () => {
       if (isMobile) {
         // Sequência mobile (apenas 3 mensagens e 2 itens)
-        animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
-          ...animationOptions,
-          delay: delay,
-        });
+        currentAnimations.push(
+          animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
+            ...animationOptions,
+            delay: delay,
+          })
+        );
 
-        animate('[data-animate="msg-1"]', getSlideUpConfig('[data-animate="msg-1"]'), {
-          ...animationOptions,
-          delay: delay * 2,
-        });
+        currentAnimations.push(
+          animate('[data-animate="msg-1"]', getSlideUpConfig('[data-animate="msg-1"]'), {
+            ...animationOptions,
+            delay: delay * 2,
+          })
+        );
 
-        animate('[data-animate="msg-2"]', getSlideUpConfig('[data-animate="msg-2"]'), {
-          ...animationOptions,
-          delay: delay * 3,
-        });
+        currentAnimations.push(
+          animate('[data-animate="msg-2"]', getSlideUpConfig('[data-animate="msg-2"]'), {
+            ...animationOptions,
+            delay: delay * 3,
+          })
+        );
 
-        animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
-          ...animationOptions,
-          delay: delay * 4,
-        });
+        currentAnimations.push(
+          animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
+            ...animationOptions,
+            delay: delay * 4,
+          })
+        );
 
         // Painel Pedido - Direita
-        animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
-          ...animationOptions,
-          delay: delay * 5,
-        });
+        currentAnimations.push(
+          animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
+            ...animationOptions,
+            delay: delay * 5,
+          })
+        );
 
         // Items com atualização do contador (apenas 2 itens em mobile)
-        animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
-          ...animationOptions,
-          delay: delay * 6,
-        }).then(() => updateCounter(1));
+        currentAnimations.push(
+          animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
+            ...animationOptions,
+            delay: delay * 6,
+          }).then(() => updateCounter(1))
+        );
 
-        animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
-          ...animationOptions,
-          delay: delay * 7,
-        }).then(() => updateCounter(2));
+        currentAnimations.push(
+          animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
+            ...animationOptions,
+            delay: delay * 7,
+          }).then(() => updateCounter(2))
+        );
 
         // Calcular tempo total para mobile (última animação termina em: delay * 7 + duration)
         const totalTime = (delay * 7 + duration) * 1000;
-        setTimeout(() => runAnimationSequence(), totalTime);
+        const timeoutId = window.setTimeout(() => runAnimationSequence(), totalTime);
+        animationTimeouts.push(timeoutId);
       } else {
         // Sequência desktop (todas as mensagens e itens)
-        animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
-          ...animationOptions,
-          delay: delay,
-        });
+        currentAnimations.push(
+          animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
+            ...animationOptions,
+            delay: delay,
+          })
+        );
 
-        animate('[data-animate="msg-1"]', getSlideUpConfig('[data-animate="msg-1"]'), {
-          ...animationOptions,
-          delay: delay * 2,
-        });
+        currentAnimations.push(
+          animate('[data-animate="msg-1"]', getSlideUpConfig('[data-animate="msg-1"]'), {
+            ...animationOptions,
+            delay: delay * 2,
+          })
+        );
 
-        animate('[data-animate="msg-2"]', getSlideUpConfig('[data-animate="msg-2"]'), {
-          ...animationOptions,
-          delay: delay * 3,
-        });
+        currentAnimations.push(
+          animate('[data-animate="msg-2"]', getSlideUpConfig('[data-animate="msg-2"]'), {
+            ...animationOptions,
+            delay: delay * 3,
+          })
+        );
 
-        animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
-          ...animationOptions,
-          delay: delay * 4,
-        });
+        currentAnimations.push(
+          animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
+            ...animationOptions,
+            delay: delay * 4,
+          })
+        );
 
         // Painel Pedido - Direita
-        animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
-          ...animationOptions,
-          delay: delay * 5,
-        });
+        currentAnimations.push(
+          animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
+            ...animationOptions,
+            delay: delay * 5,
+          })
+        );
 
         // Items com atualização do contador
-        animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
-          ...animationOptions,
-          delay: delay * 6,
-        }).then(() => updateCounter(1));
+        currentAnimations.push(
+          animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
+            ...animationOptions,
+            delay: delay * 6,
+          }).then(() => updateCounter(1))
+        );
 
-        animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
-          ...animationOptions,
-          delay: delay * 7,
-        }).then(() => updateCounter(2));
+        currentAnimations.push(
+          animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
+            ...animationOptions,
+            delay: delay * 7,
+          }).then(() => updateCounter(2))
+        );
 
         // Mensagem vendedor
-        animate('[data-animate="msg-seller"]', getSlideUpConfig('[data-animate="msg-seller"]'), {
-          ...animationOptions,
-          delay: delay * 8,
-        });
+        currentAnimations.push(
+          animate('[data-animate="msg-seller"]', getSlideUpConfig('[data-animate="msg-seller"]'), {
+            ...animationOptions,
+            delay: delay * 8,
+          })
+        );
 
         // Mensagem comprador tapioca
-        animate('[data-animate="msg-customer-tapioca"]', getSlideUpConfig('[data-animate="msg-customer-tapioca"]'), {
-          ...animationOptions,
-          delay: delay * 9,
-        });
+        currentAnimations.push(
+          animate('[data-animate="msg-customer-tapioca"]', getSlideUpConfig('[data-animate="msg-customer-tapioca"]'), {
+            ...animationOptions,
+            delay: delay * 9,
+          })
+        );
 
         // Item tapioca no pedido
-        animate('[data-animate="item-tapioca"]', getSlideUpConfig('[data-animate="item-tapioca"]'), {
-          ...animationOptions,
-          delay: delay * 10,
-        }).then(() => updateCounter(3));
+        currentAnimations.push(
+          animate('[data-animate="item-tapioca"]', getSlideUpConfig('[data-animate="item-tapioca"]'), {
+            ...animationOptions,
+            delay: delay * 10,
+          }).then(() => updateCounter(3))
+        );
 
         // Mensagem com imagem
-        animate('[data-animate="msg-image"]', getSlideUpConfig('[data-animate="msg-image"]'), {
-          ...animationOptions,
-          delay: delay * 11,
-        });
+        currentAnimations.push(
+          animate('[data-animate="msg-image"]', getSlideUpConfig('[data-animate="msg-image"]'), {
+            ...animationOptions,
+            delay: delay * 11,
+          })
+        );
 
         // Texto "Itens adicionados por imagem"
-        animate('[data-animate="text-imagem"]', getSlideUpConfig('[data-animate="text-imagem"]'), {
-          ...animationOptions,
-          delay: delay * 12,
-        });
+        currentAnimations.push(
+          animate('[data-animate="text-imagem"]', getSlideUpConfig('[data-animate="text-imagem"]'), {
+            ...animationOptions,
+            delay: delay * 12,
+          })
+        );
 
         // Item açúcar
-        animate('[data-animate="item-acucar"]', getSlideUpConfig('[data-animate="item-acucar"]'), {
-          ...animationOptions,
-          delay: delay * 13,
-        }).then(() => updateCounter(4));
+        currentAnimations.push(
+          animate('[data-animate="item-acucar"]', getSlideUpConfig('[data-animate="item-acucar"]'), {
+            ...animationOptions,
+            delay: delay * 13,
+          }).then(() => updateCounter(4))
+        );
 
         // Item hortelã
-        animate('[data-animate="item-hortela"]', getSlideUpConfig('[data-animate="item-hortela"]'), {
-          ...animationOptions,
-          delay: delay * 14,
-        }).then(() => updateCounter(5));
+        currentAnimations.push(
+          animate('[data-animate="item-hortela"]', getSlideUpConfig('[data-animate="item-hortela"]'), {
+            ...animationOptions,
+            delay: delay * 14,
+          }).then(() => updateCounter(5))
+        );
 
         // Calcular tempo total para desktop (última animação termina em: delay * 14 + duration)
         const totalTime = (delay * 14 + duration) * 1000;
-        setTimeout(() => runAnimationSequence(), totalTime);
+        const timeoutId = window.setTimeout(() => runAnimationSequence(), totalTime);
+        animationTimeouts.push(timeoutId);
       }
     };
 
@@ -587,10 +673,36 @@ import DownloadIcon from "@/components/icons/download.astro";
     inView(
       container,
       () => {
-        runAnimationSequence();
+        // Entrou no viewport - resetar completamente e começar do zero
+        stopAndResetAnimation();
+        resetAndStartAnimation();
+
+        // Retornar callback para quando sair do viewport
+        return () => {
+          // Saiu do viewport - parar e resetar
+          stopAndResetAnimation();
+        };
       },
       { amount: 0.2 } // Inicia quando 20% do componente está visível
     );
+
+    // Listener para mudanças de aba
+    document.addEventListener("howToSelectorChanged", (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { activeSelector } = customEvent.detail;
+
+      if (activeSelector === 'conversa') {
+        // Aba conversa ativada - resetar completamente e começar do zero
+        stopAndResetAnimation();
+        // Pequeno delay para garantir que o reset foi aplicado antes de reiniciar
+        window.setTimeout(() => {
+          resetAndStartAnimation();
+        }, 50);
+      } else {
+        // Outra aba ativada - parar animação
+        stopAndResetAnimation();
+      }
+    });
   };
 
   // Inicializar quando o DOM estiver pronto

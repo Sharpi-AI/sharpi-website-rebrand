@@ -1,8 +1,8 @@
 ---
-import { Image } from "astro:assets";
 import TabSelector from "./tab-selector.astro";
 import MessagesToOrder from "./messages-to-order.astro";
-import audioImg from "@/assets/how-to/audio.png";
+import audioImgMobile from "@/assets/how-to/audio-mobile.png";
+import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
 ---
 
 <section
@@ -45,11 +45,21 @@ import audioImg from "@/assets/how-to/audio.png";
         class="absolute z-0 w-full h-full inset-0 rounded-[20px] opacity-0 transition-opacity duration-300"
         data-tab-content="audio"
       >
-        <Image
-          class="w-full h-full object-cover rounded-[20px]"
-          src={audioImg}
-          alt="Interface de áudio da Sharpi"
-        />
+        <picture>
+          <source
+            media="(min-width: 768px)"
+            srcset={audioImgDesktop.src}
+          />
+          <source
+            media="(max-width: 767px)"
+            srcset={audioImgMobile.src}
+          />
+          <img
+            class="w-full h-full object-cover rounded-[20px]"
+            src={audioImgDesktop.src}
+            alt="Interface de áudio da Sharpi"
+          />
+        </picture>
       </div>
 
       <div
