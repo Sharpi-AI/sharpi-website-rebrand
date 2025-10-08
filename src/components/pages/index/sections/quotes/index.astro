@@ -17,6 +17,7 @@
 
   <div class="z-0 w-full max-w-7xl  rounded-[20px] overflow-hidden ">
     <video
+      id="quotes-video"
       src="/assets/medias/index/quotes/quotes.mp4"
       autoplay
       loop
@@ -26,3 +27,34 @@
     </video>
   </div>
 </section>
+
+<script>
+  import { inView } from "motion";
+
+  const initQuotesVideo = () => {
+    const video = document.querySelector<HTMLVideoElement>("#quotes-video");
+
+    if (video) {
+      inView(
+        video,
+        () => {
+          video.currentTime = 0;
+          video.play().catch(() => {
+
+          });
+
+          return () => {
+            video.pause();
+          };
+        },
+        { amount: 0.2 }
+      );
+    }
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initQuotesVideo);
+  } else {
+    initQuotesVideo();
+  }
+</script>

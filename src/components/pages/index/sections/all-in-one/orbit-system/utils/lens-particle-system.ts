@@ -58,6 +58,9 @@ export interface LensParticleSystemOptions {
   // Global timing control
   useGlobalTiming?: boolean;
 
+  // Responsive scaling
+  responsiveScale?: number;
+
   // Callbacks
   onStageChange?: (stage: AnimationStage) => void;
   onAnimationComplete?: () => void;
@@ -94,6 +97,12 @@ export class LensParticleSystem {
   private returnTimeout: number | null = null;
 
   constructor(options: LensParticleSystemOptions) {
+    // Detect if mobile internally
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+    // Extract responsiveScale before merging options
+    const responsiveScale = options.responsiveScale ?? 1.0;
+
     this.options = {
       // Animation defaults with longer durations for smoother experience
       stage1Duration: 3,
@@ -142,8 +151,38 @@ export class LensParticleSystem {
       // Global timing defaults
       useGlobalTiming: false,
 
+      // Responsive scale
+      responsiveScale: 1.0,
+
       ...options
     };
+
+    // Apply responsiveScale to relevant values only if mobile
+    if (isMobile) {
+      this.options.stage1Scale *= responsiveScale;
+      this.options.stage2Scale *= responsiveScale;
+      this.options.stage3Scale *= responsiveScale;
+      this.options.stage4Scale *= responsiveScale;
+      this.options.finalScale *= responsiveScale;
+      this.options.initialScale *= responsiveScale;
+      this.options.lensCursorSize *= responsiveScale;
+
+      // Apply responsiveScale to particle settings particleSize
+      if (this.options.particleSettings) {
+        this.options.particleSettings = {
+          ...this.options.particleSettings,
+          particleSize: (this.options.particleSettings.particleSize ?? 0) * responsiveScale,
+        };
+      }
+    }
+
+    // Pass responsiveScale to particle settings so ParticleSystem can handle radius scaling
+    if (this.options.particleSettings) {
+      this.options.particleSettings = {
+        ...this.options.particleSettings,
+        responsiveScale: responsiveScale,
+      };
+    }
 
     this.targetScale = this.options.initialScale;
     this.currentScale = this.options.initialScale;
@@ -179,7 +218,7 @@ export class LensParticleSystem {
     });
 
     // Create particle system
-    this.particleSystem = new ParticleSystem({...this.options.particleSettings, autoRotateSpeedY: 8}, 1.0);
+    this.particleSystem = new ParticleSystem({...this.options.particleSettings, autoRotateSpeedY: 8});
 
     // Add particle system to lens scene
     this.lens.addChild(this.particleSystem.getGroup());

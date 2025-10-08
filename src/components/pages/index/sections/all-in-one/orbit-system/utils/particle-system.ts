@@ -8,7 +8,6 @@ export class ParticleSystem {
   private particles: Particle[] = [];
   private settings: ParticleSystemSettings;
   private currentArrangementType: ArrangementType;
-  private scale: number;
 
   // Transition state management
   private isTransitioning: boolean = false;
@@ -16,10 +15,9 @@ export class ParticleSystem {
   private transitionDuration: number = 1.5; // seconds
   private previousPositions: ParticlePosition[] = [];
 
-  constructor(settings: ParticleSystemSettings, scale: number = 1.0) {
+  constructor(settings: ParticleSystemSettings) {
     this.settings = { ...settings };
     this.currentArrangementType = settings.arrangementType;
-    this.scale = scale;
     this.group = new Group();
 
     this.initializeParticles();
@@ -29,10 +27,15 @@ export class ParticleSystem {
     // Clear existing particles
     this.clearParticles();
 
-    // Generate particle positions
+    // Detect if mobile internally and apply responsiveScale only if mobile
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const responsiveScale = this.settings.responsiveScale ?? 1.0;
+    const effectiveScale = isMobile ? responsiveScale : 1.0;
+
+    // Generate particle positions with scale applied
     const particlePositions = generateParticlePositions(this.settings.arrangementType, {
       particleCount: this.settings.particleCount,
-      radius: 0.7,
+      radius: this.settings.radius * effectiveScale,
       numLines: this.settings.numLines,
       particlesPerLine: this.settings.particlesPerLine,
       numRings: this.settings.numRings,
@@ -126,10 +129,15 @@ export class ParticleSystem {
         this.isTransitioning = false;
         this.initializeParticles();
       } else {
-        // Generate target positions for transition
+        // Detect if mobile internally and apply responsiveScale only if mobile
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+        const responsiveScale = this.settings.responsiveScale ?? 1.0;
+        const effectiveScale = isMobile ? responsiveScale : 1.0;
+
+        // Generate target positions for transition with scale applied
         const targetPositions = generateParticlePositions(this.settings.arrangementType, {
           particleCount: this.settings.particleCount,
-          radius: this.settings.radius,
+          radius: this.settings.radius * effectiveScale,
           numLines: this.settings.numLines,
           particlesPerLine: this.settings.particlesPerLine,
           numRings: this.settings.numRings,

@@ -12,31 +12,56 @@ import Button from "@/components/ui/button/index.astro";
     color: white !important;
   }
 
-  .scrolled .logo-icon {
-    mix-blend-mode: normal !important;
+  @media (min-width: 768px) {
+    .scrolled .logo-icon .logo-path {
+      fill: #4c43fc !important;
+      fill-opacity: 1 !important;
+    }
   }
 
-  .scrolled .logo-icon .logo-path {
-    fill: #4c43fc !important;
-    fill-opacity: 1 !important;
+  .scrolled .header-nav {
+    background-color: #4A2DF6C2 !important;
+  }
+
+  /* Mobile: esconder botões quando não scrollado */
+  @media (max-width: 767px) {
+    .header-nav {
+      width: 105px;
+      transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .mobile-hidden-button {
+      display: none;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95);
+      transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+
+    .show-buttons .mobile-hidden-button {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
   }
 </style>
 
 <div class="sticky top-0 max-h-0 z-50 overflow-visible w-full">
   <header
     id="header-container"
-    class="w-full p-2 md:p-4 flex items-center justify-between transition-transform duration-200 ease-in-out"
+    class="w-full p-0 md:p-4 flex items-center justify-between transition-transform duration-200 ease-in-out"
   >
     <div class="p-4 grid grid-cols-3 w-full">
       <div class=" items-center hidden md:flex">
         <a href="/#hero" aria-label="Ir para o início">
-          <Logo />
+          <Logo class="origin-left scale-125" />
         </a>
       </div>
 
       <div class="col-start-1 col-span-3  md:col-span-1 md:col-start-2 w-full flex items-center justify-center">
         <div
-          class="w-full md:w-fit flex items-center justify-between bg-[#4A2DF6C2] md:bg-black/20 rounded-xl md:rounded-lg md:h-10 p-3 md:p-1 gap-8"
+          class="header-nav w-full md:w-fit flex items-center justify-between bg-[#4A2DF6C2] md:bg-black/20 rounded-xl md:rounded-lg md:h-10 p-3 md:p-1 md:gap-8 transition-colors duration-300"
           style={{
             backdropFilter: "blur(22px)",
           }}
@@ -45,7 +70,7 @@ import Button from "@/components/ui/button/index.astro";
             <Button
               href="/#hero"
               variant="link"
-              class="px-0  md:px-4.5 md:pt-0.5"
+              class="px-0  md:px-4.5 md:pt-1"
               title="Home"
             >
               <Logo class="block md:hidden" />
@@ -63,7 +88,7 @@ import Button from "@/components/ui/button/index.astro";
               href="/carreiras"
               target="_blank"
               variant="link"
-              class="hidden md:flex px-4.5 pt-0.5"
+              class="hidden md:flex px-4.5 pt-1"
               title="Carreiras"
             >
               Carreiras
@@ -76,10 +101,10 @@ import Button from "@/components/ui/button/index.astro";
             target="_blank"
             rel="noopener"
             variant="link"
-            class=" md:hidden px-4.5 pt-0.5"
+            class="mobile-hidden-button md:hidden px-4.5 pt-1"
             title="Carreiras"
           >
-            Login
+            Entrar
           </Button>
 
             <Button
@@ -87,9 +112,10 @@ import Button from "@/components/ui/button/index.astro";
               target="_blank"
               rel="noopener"
               title="Agende uma demo"
+              class="mobile-hidden-button"
               >
               <span class="sr-only">Agende uma demo</span>
-              
+
               <svg
               width="126"
               height="13"
@@ -112,7 +138,7 @@ import Button from "@/components/ui/button/index.astro";
           target="_blank"
           rel="noopener"
           variant="ghost"
-          class="entrar-button transition-colors duration-300"
+          class="entrar-button transition-colors duration-300 pt-1"
           title="Entrar na Sharpi"
         >
           Entrar
@@ -146,19 +172,64 @@ import Button from "@/components/ui/button/index.astro";
     );
   }
 
+  let lastScrollState = false;
+  let isAnimating = false;
+
   const updateHeaderColors = () => {
     const heroSection = document.getElementById("hero");
     const headerContainer = document.getElementById("header-container");
+    const headerNav = document.querySelector(".header-nav") as HTMLElement;
 
-    if (!heroSection || !headerContainer) return;
+    if (!heroSection || !headerContainer || !headerNav) return;
 
     const heroBottom = heroSection.offsetTop + heroSection.offsetHeight / 2;
     const scrollY = window.scrollY;
+    const isScrolled = scrollY > heroBottom;
+    const isMobile = window.innerWidth < 768;
 
-    if (scrollY > heroBottom) {
-      headerContainer.classList.add("scrolled");
+    // Animar width em mobile com sequência
+    if (isMobile) {
+      const maxWidth = window.innerWidth - 32; // 100vw - 32px (padding)
+
+      // Detectar mudança de estado
+      if (isScrolled !== lastScrollState && !isAnimating) {
+        isAnimating = true;
+
+        if (isScrolled) {
+          // Expandindo: primeiro width, depois botões
+          headerNav.style.width = `${maxWidth}px`;
+          headerContainer.classList.add("scrolled");
+
+          // Aguardar transição de width terminar
+          const handleTransitionEnd = (e: TransitionEvent) => {
+            if (e.propertyName === 'width') {
+              headerNav.removeEventListener('transitionend', handleTransitionEnd);
+              headerContainer.classList.add("show-buttons");
+              isAnimating = false;
+            }
+          };
+          headerNav.addEventListener('transitionend', handleTransitionEnd);
+        } else {
+          // Contraindo: primeiro botões, depois width
+          headerContainer.classList.remove("show-buttons");
+
+          // Aguardar fade out dos botões (300ms)
+          setTimeout(() => {
+            headerNav.style.width = '105px';
+            headerContainer.classList.remove("scrolled");
+            isAnimating = false;
+          }, 300);
+        }
+
+        lastScrollState = isScrolled;
+      }
     } else {
-      headerContainer.classList.remove("scrolled");
+      // Desktop: apenas atualizar classes
+      if (isScrolled) {
+        headerContainer.classList.add("scrolled");
+      } else {
+        headerContainer.classList.remove("scrolled");
+      }
     }
   };
 

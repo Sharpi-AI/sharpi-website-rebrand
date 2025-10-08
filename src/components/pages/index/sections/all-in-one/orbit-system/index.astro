@@ -183,6 +183,11 @@
     const height = container.clientHeight;
     const pixelRatio = Math.min(window.devicePixelRatio, 2);
 
+    // Responsive scale: reduce size on mobile devices
+    const isMobile = window.innerWidth < 768;
+    const responsiveScale = isMobile ? 0.7 : 1.0;
+    const orbitsResponsiveScale = isMobile ? 0.5 : 1.0;
+
     // Renderer for orbiting spheres (background layer)
     const orbitRenderer = new THREE.WebGLRenderer({
       canvas: orbitCanvas,
@@ -274,7 +279,13 @@
 
       useGlobalTiming: true,
 
-      particleSettings: DEFAULT_SETTINGS,
+      responsiveScale: responsiveScale,
+
+      particleSettings: {
+        ...DEFAULT_SETTINGS,
+        particleSize: DEFAULT_SETTINGS.particleSize,
+        radius: DEFAULT_SETTINGS.radius,
+      },
 
       onStageChange: () => {},
     });
@@ -306,8 +317,9 @@
       initialRadius: 3.6,
       sphereSize: 0.01,
       // rotationSpeed: 0,
-      rotationSpeed: 0.05,
+      rotationSpeed: 0.03,
       rotationOffset: 0.55 * Math.PI,
+      rotationOffsetMobile: 1.2 * Math.PI,
       color: DEFAULT_SETTINGS.particleColor,
       enabled: true,
       isAnimating: true,
@@ -337,6 +349,8 @@
       textFadeInDuration: 0.2,
       textFadeOutDuration: 0.3,
 
+      responsiveScale: orbitsResponsiveScale,
+
       onStageChange: () => {},
     };
 
@@ -346,10 +360,11 @@
       sphereCount: 220,
       initialRadius: 2.2,
       sphereSize: 0.01,
-      
-      rotationSpeed: 0.05,
+
+      rotationSpeed: 0.03,
       // rotationSpeed: 0,
-      rotationOffset: 0.4 * Math.PI,
+      rotationOffset: 0.8 * Math.PI,
+      rotationOffsetMobile: 0.2 * Math.PI,
       color: DEFAULT_SETTINGS.particleColor,
       enabled: true,
       isAnimating: true,
@@ -378,6 +393,9 @@
       hideTextsByStage: { 0: "stage2", 1: "stage3" },
       textFadeInDuration: 0.2,
       textFadeOutDuration: 0.3,
+
+      responsiveScale: orbitsResponsiveScale,
+
 
       onStageChange: () => {},
     };
@@ -604,9 +622,9 @@
             globalAnimationStartTime = Date.now();
             lastTime = 0; // Reset lastTime to prevent huge deltaTime on first frame
 
-            // Reset orbit rotations to initial positions
-            const orbit1Rotation = 0.55 * Math.PI;
-            const orbit2Rotation = 0.4 * Math.PI;
+            // Reset orbit rotations to initial positions (considering mobile)
+            const orbit1Rotation = isMobile ? orbit1Config.rotationOffsetMobile : orbit1Config.rotationOffset;
+            const orbit2Rotation = isMobile ? (orbit2Config.rotationOffsetMobile || orbit2Config.rotationOffset) : orbit2Config.rotationOffset;
 
             orbit1.getGroup().rotation.z = orbit1Rotation;
             orbit2.getGroup().rotation.z = orbit2Rotation;

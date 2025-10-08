@@ -92,6 +92,16 @@ const notifications = [
           { duration: 0 }
         );
 
+        // Reset opacity of all cards
+        wrappers.forEach((wrapper) => {
+          const card = wrapper.querySelector(
+            '[id^="notification-card-"]'
+          ) as HTMLElement;
+          if (card) {
+            card.style.opacity = "1";
+          }
+        });
+
         // Animate each notification one by one
         for (let i = 0; i < wrappers.length; i++) {
           const currentWrapper = wrappers[i] as HTMLElement;
@@ -105,6 +115,7 @@ const notifications = [
           ) as HTMLElement;
           if (currentCard) {
             currentCard.style.backgroundColor = "#FFFFFF";
+            currentCard.style.opacity = "1";
           }
 
           // Animate current notification sliding up from bottom
@@ -127,8 +138,8 @@ const notifications = [
             await Promise.all(
               previousNotifications.map((wrapper, prevIndex) => {
                 const stackLevel = i - prevIndex; // How many levels up
-                const stackOffset = -stackLevel * 15; // Reduced from 60px to 25px for subtlety
-                const stackScale = Math.max(0.85, 1 - stackLevel * 0.04); // Reduced scaling for subtlety
+                const stackOffset = -stackLevel * 10; // Reduced from 60px to 25px for subtlety
+                const stackScale = Math.max(0.85, 1 - stackLevel * 0.05); // Reduced scaling for subtlety
                 const stackOpacity =
                   stackLevel >= 4 ? 0 : Math.max(0, 1 - stackLevel * 0.25); // 5th card (index 4) becomes invisible
 
@@ -149,7 +160,9 @@ const notifications = [
                     hexColor = "#FFFFFF40";
                   }
                   card.style.backgroundColor = hexColor;
-                }
+                  card.style.opacity = stackOpacity.toString();
+
+                } 
 
                 return animate(
                   wrapper,

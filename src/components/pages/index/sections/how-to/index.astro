@@ -89,9 +89,10 @@ import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
 </section>
 
 <script>
+  import { inView } from "motion";
+
   const initTabContent = () => {
     const switchTabContent = (activeTab: string) => {
-      // Esconder todos os conteúdos das tabs
       const allTabContents =
         document.querySelectorAll<HTMLElement>("[data-tab-content]");
 
@@ -118,6 +119,7 @@ import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
         // Reproduzir vídeo se existir
         const video = activeContent.querySelector("video") as HTMLVideoElement;
         if (video) {
+          video.currentTime = 0; // Resetar vídeo para o início
           video.play().catch(() => {
             // Ignorar erro se autoplay falhar
           });
@@ -151,7 +153,7 @@ import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
 
     window.addEventListener("resize", handleResize);
 
-    // Inicializar com a tab ativa
+    
     const initialActiveSelector =
       document
         .querySelector('[data-active="true"]')
@@ -159,6 +161,35 @@ import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
 
     switchTabContent(initialActiveSelector);
     handleResize();
+
+    
+    const tabFilesElement = document.querySelector<HTMLElement>("#tab-files");
+    if (tabFilesElement) {
+      inView(
+        tabFilesElement,
+        () => {
+          
+          const video = tabFilesElement.querySelector("video") as HTMLVideoElement;
+          if (video && tabFilesElement.style.opacity === "1") {
+            
+            video.currentTime = 0;
+            video.play().catch(() => {
+              
+            });
+          }
+
+          
+          return () => {
+          
+            const video = tabFilesElement.querySelector("video") as HTMLVideoElement;
+            if (video) {
+              video.pause();
+            }
+          };
+        },
+        { amount: 0.2 }
+      );
+    }
   };
 
   if (document.readyState === "loading") {

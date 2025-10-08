@@ -26,6 +26,11 @@ import ReactivationCard from "./reactivation.astro";
             <RecommendationCard/>
           </div>
         </li>
+        <li class="splide__slide">
+          <div class="shining-border">
+            <ReactivationCard/>
+          </div>
+        </li>
         <li class="splide__slide">  
           <div class="shining-border">
             <NotificationsCard/>
@@ -36,11 +41,7 @@ import ReactivationCard from "./reactivation.astro";
             <FollowUpCard/>
           </div>
         </li>
-        <li class="splide__slide">
-          <div class="shining-border">
-            <ReactivationCard/>
-          </div>
-        </li>
+      
       </ul>
     </div>
   </div>
@@ -48,7 +49,7 @@ import ReactivationCard from "./reactivation.astro";
 
 <style>
   .shining-border {
-    padding: 1px;
+    padding: 2px;
     position: relative;
     overflow: hidden;
     border-radius: 21px;
@@ -75,10 +76,10 @@ import ReactivationCard from "./reactivation.astro";
     content: "";
     position: absolute;
     z-index: -1;
-    left: 1px;
-    top: 1px;
-    width: calc(100% - 2px);
-    height: calc(100% - 2px);
+    left: 2px;
+    top: 2px;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
     background: #F0F0F0;
     border-radius: 20px;
   }
@@ -101,6 +102,8 @@ import ReactivationCard from "./reactivation.astro";
       arrows: false,
       isNavigation: true,
       autoWidth: true,
+      // drag: "free",
+      wheel: true,
       gap: 20,
       breakpoints: {
         640: {

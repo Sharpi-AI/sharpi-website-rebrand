@@ -12,21 +12,21 @@ const { title, message, media, index, type } = Astro.props;
 
 <div
   id={`notification-card-${index}`}
-  class="relative z-0 w-full rounded-xl shadow-lg backdrop-blur-lg py-3 px-2.5 mb-2 pointer-events-none"
+  class="relative z-0 w-full rounded-[14px] origin-top shadow-lg backdrop-blur-lg py-3 px-2.5 mb-2 pointer-events-none"
   data-index={index}
   style="background-color: #FFFFFF40;"
 >
   <div class="relative z-10 flex items-start gap-3">
-    <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-zinc-200 rounded overflow-hidden">
-      {media && type === "video" && <video src={media} autoplay loop muted playsinline class="w-full h-full  object-cover"/>}
-      {media && type === "image" && <img src={media} alt={title} class="w-full h-full  object-cover"/>}
+    <div class="flex-shrink-0  bg-zinc-200 rounded overflow-hidden">
+      {media && type === "video" && <video src={media} autoplay loop muted playsinline class="size-4.5  object-cover"/>}
+      {media && type === "image" && <img src={media} alt={title} class="w-4.5 h-5.5  object-cover"/>}
     </div>
 
     <div class="flex-1 min-w-0 space-y-1">
-      <h4 class="text-sm leading-none font-light text-[#90908E] truncate">
+      <h4 class="text-[10.5px] leading-none font-light text-[#90908E] truncate">
         {title}
       </h4>
-      <p class="text-sm leading-none font-medium text-[##2D2D2D] line-clamp-2">
+      <p class="text-[10.5px] leading-none font-medium text-[#2D2D2D] line-clamp-2">
         {message}
       </p>
     </div>

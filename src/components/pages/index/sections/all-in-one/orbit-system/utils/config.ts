@@ -124,6 +124,9 @@ export interface ParticleSystemSettings {
   orbitingTextColor2: string;
   orbitingTextSize2: number;
   orbitingTextOffset2: number;
+
+  // Responsive
+  responsiveScale?: number;
 }
 
 // Default configuration values

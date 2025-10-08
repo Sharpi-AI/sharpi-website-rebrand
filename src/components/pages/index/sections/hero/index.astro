@@ -39,10 +39,12 @@ import CalendarIcon from "@/components/icons/calendar.astro";
   </div>
 
   <div
+    id="hero-video-container"
     class="absolute z-0 inset-0 w-full h-full p-0 md:p-4 pointer-events-none"
   >
-    <div class="w-full h-full bg-black/10 md:rounded-2xl">
+    <div id="hero-video-wrapper" class="w-full h-full bg-black/10 md:rounded-2xl">
       <video
+        id="hero-video"
         src="/assets/medias/index/hero/hero-bg.mp4"
         class="w-full h-full object-cover rounded-2xl opacity-30 pointer-events-none"
         autoplay
@@ -78,6 +80,9 @@ import CalendarIcon from "@/components/icons/calendar.astro";
   function updateHeroGradient() {
     const heroSection = document.querySelector("section");
     const gradient = document.getElementById("hero-gradient");
+    const videoContainer = document.getElementById("hero-video-container");
+    const videoWrapper = document.getElementById("hero-video-wrapper");
+    const video = document.getElementById("hero-video");
 
     if (!heroSection || !gradient) return;
 
@@ -86,6 +91,7 @@ import CalendarIcon from "@/components/icons/calendar.astro";
 
     const scrollProgress = Math.min(scrollY / (heroHeight * 0.4), 1);
 
+    // Atualizar gradient
     const gradientHeight = 25 + scrollProgress * 75;
     const opacity = 0.3 + scrollProgress * 0.7;
 
@@ -94,6 +100,18 @@ import CalendarIcon from "@/components/icons/calendar.astro";
 
     gradient.style.background =
       "linear-gradient(to bottom, transparent, white)";
+
+    // Animar padding e border-radius apenas em desktop
+    if (videoContainer && videoWrapper && video && window.innerWidth >= 768) {
+      // Padding: de 16px (p-4 = 1rem = 16px) para 0px
+      const padding = 16 * (1 - scrollProgress);
+      videoContainer.style.padding = `${padding}px`;
+
+      // Border-radius: de 16px (rounded-2xl) para 0px
+      const borderRadius = 16 * (1 - scrollProgress);
+      videoWrapper.style.borderRadius = `${borderRadius}px`;
+      video.style.borderRadius = `${borderRadius}px`;
+    }
   }
 
   function initHeroAnimations() {

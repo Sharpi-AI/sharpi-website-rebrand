@@ -1,4 +1,4 @@
-import { Group, Vector3, SphereGeometry, Mesh, MeshBasicMaterial, Scene, Camera } from 'three';
+import { Group, Vector3, SphereGeometry, Mesh, MeshBasicMaterial, Camera } from 'three';
 
 export type AnimationStage = 'idle' | 'stage1' | 'stage2' | 'stage3' | 'stage4' | 'completed' | 'returning';
 
@@ -14,6 +14,7 @@ export interface OrbitingSpheresConfig {
   sphereSize?: number;
   rotationSpeed?: number;
   rotationOffset?: number;
+  rotationOffsetMobile?: number;
   color?: string;
   enabled?: boolean;
 
@@ -47,6 +48,9 @@ export interface OrbitingSpheresConfig {
   textFadeDuration?: number;
   textFadeInDuration?: number;
   textFadeOutDuration?: number;
+
+  // Responsive scaling
+  responsiveScale?: number;
 
   // Callbacks
   onStageChange?: (stage: AnimationStage) => void;
@@ -99,6 +103,12 @@ export class OrbitingSpheres {
   private returnTimeout: number | null = null;
 
   constructor(config: OrbitingSpheresConfig = {}) {
+    // Detect if mobile internally
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+    // Extract responsiveScale before merging config
+    const responsiveScale = config.responsiveScale ?? 1.0;
+
     this.config = {
       sphereCount: 12,
       orbitRadius: 3,
@@ -129,8 +139,25 @@ export class OrbitingSpheres {
       textFadeDuration: 0.5,
       textFadeInDuration: 0.2,
       textFadeOutDuration: 0.3,
+      responsiveScale: 1.0,
       ...config
     };
+
+    // Apply mobile rotation offset if applicable
+    if (isMobile && config.rotationOffsetMobile !== undefined) {
+      this.config.rotationOffset = config.rotationOffsetMobile;
+    }
+
+    // Apply responsiveScale to relevant values only if mobile
+    if (isMobile) {
+      this.config.initialRadius *= responsiveScale;
+      this.config.sphereSize *= responsiveScale;
+      this.config.stage1Radius *= responsiveScale;
+      this.config.stage2Radius *= responsiveScale;
+      this.config.stage3Radius *= responsiveScale;
+      this.config.stage4Radius *= responsiveScale;
+      this.config.finalRadius *= responsiveScale;
+    }
 
     this.targetRadius = this.config.initialRadius;
     this.currentAnimatedRadius = this.config.initialRadius;
@@ -145,7 +172,9 @@ export class OrbitingSpheres {
 
   private initializeSpheres(): void {
     // Clear existing spheres
-    this.spheres.forEach(sphere => this.group.remove(sphere));
+    for (const sphere of this.spheres) {
+      this.group.remove(sphere);
+    }
     this.spheres = [];
 
     // Create new spheres
@@ -164,13 +193,13 @@ export class OrbitingSpheres {
   private initializeTextStates(): void {
     const textCount = this.config.textItems.length;
     if (textCount > 0) {
-      this.textOpacities = new Array(textCount).fill(1);
-      this.textScales = new Array(textCount).fill(1);
-      this.isTextFadingOutArray = new Array(textCount).fill(false);
-      this.isTextFadingInArray = new Array(textCount).fill(false);
-      this.hasTextsFadedArray = new Array(textCount).fill(false);
-      this.textPositions = new Array(textCount).fill(null).map(() => new Vector3(0, 0, 0));
-      this.originalTextPositions = new Array(textCount).fill(null).map(() => new Vector3(0, 0, 0));
+      this.textOpacities = Array.from({ length: textCount }, () => 1);
+      this.textScales = Array.from({ length: textCount }, () => 1);
+      this.isTextFadingOutArray = Array.from({ length: textCount }, () => false);
+      this.isTextFadingInArray = Array.from({ length: textCount }, () => false);
+      this.hasTextsFadedArray = Array.from({ length: textCount }, () => false);
+      this.textPositions = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
+      this.originalTextPositions = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
       this.updateTextPositions();
     }
   }
@@ -182,8 +211,7 @@ export class OrbitingSpheres {
     this.clearTextElements();
 
     // Create DOM elements for each text item
-    for (let i = 0; i < this.config.textItems.length; i++) {
-      const textItem = this.config.textItems[i];
+    for (const [i, textItem] of this.config.textItems.entries()) {
       const textElement = this.createTextElement(textItem, i);
       this.textElements.push(textElement);
       this.textContainer.appendChild(textElement);
@@ -222,11 +250,11 @@ export class OrbitingSpheres {
 
   private clearTextElements(): void {
     if (this.textContainer) {
-      this.textElements.forEach(element => {
+      for (const element of this.textElements) {
         if (element.parentNode) {
           element.parentNode.removeChild(element);
         }
-      });
+      }
     }
     this.textElements = [];
   }
@@ -277,8 +305,6 @@ export class OrbitingSpheres {
       const container = document.getElementById('orbit-system-container');
       if (!container) return;
 
-      const containerRect = container.getBoundingClientRect();
-
       // Apply position relative to container
       element.style.left = `${screenPosition.x}px`;
       element.style.top = `${screenPosition.y}px`;
@@ -288,11 +314,11 @@ export class OrbitingSpheres {
   }
 
   private updateSpherePositions(): void {
-    for (let i = 0; i < this.spheres.length; i++) {
+    for (const [i, sphere] of this.spheres.entries()) {
       const angle = (i / this.config.sphereCount) * Math.PI * 2;
       const x = Math.cos(angle) * this.currentAnimatedRadius;
       const y = Math.sin(angle) * this.currentAnimatedRadius;
-      this.spheres[i].position.set(x, y, 0);
+      sphere.position.set(x, y, 0);
     }
   }
 
@@ -301,12 +327,12 @@ export class OrbitingSpheres {
 
     const textRadius = this.currentAnimatedRadius + this.config.textOffset;
 
-    for (let i = 0; i < this.config.textItems.length; i++) {
+    for (const [i] of this.config.textItems.entries()) {
       // Calculate angle based on current group rotation to keep texts aligned with spheres
       const baseAngle = (i / this.config.textItems.length) * Math.PI * 2;
       const currentRotation = this.group.rotation.z;
       const angle = baseAngle + currentRotation;
-      
+
       const x = Math.cos(angle) * textRadius;
       const y = Math.sin(angle) * textRadius;
 
@@ -367,11 +393,11 @@ export class OrbitingSpheres {
     // Reset individual text states
     const textCount = this.config.textItems.length;
     if (textCount > 0) {
-      this.textOpacities = new Array(textCount).fill(1);
-      this.textScales = new Array(textCount).fill(1);
-      this.isTextFadingOutArray = new Array(textCount).fill(false);
-      this.isTextFadingInArray = new Array(textCount).fill(false);
-      this.hasTextsFadedArray = new Array(textCount).fill(false);
+      this.textOpacities = Array.from({ length: textCount }, () => 1);
+      this.textScales = Array.from({ length: textCount }, () => 1);
+      this.isTextFadingOutArray = Array.from({ length: textCount }, () => false);
+      this.isTextFadingInArray = Array.from({ length: textCount }, () => false);
+      this.hasTextsFadedArray = Array.from({ length: textCount }, () => false);
 
       // Reset positions to original positions
       if (this.originalTextPositions.length > 0) {
@@ -435,8 +461,8 @@ export class OrbitingSpheres {
 
     // Handle individual text fade logic
     if (this.config.hideTextsByStage && this.config.textItems.length > 0) {
-      Object.entries(this.config.hideTextsByStage).forEach(([textIndexStr, stage]) => {
-        const textIndex = parseInt(textIndexStr);
+      for (const [textIndexStr, stage] of Object.entries(this.config.hideTextsByStage)) {
+        const textIndex = Number.parseInt(textIndexStr, 10);
         if (textIndex >= 0 && textIndex < this.config.textItems.length) {
           // Handle fade OUT for this specific text
           if (this.currentStage === stage && !this.hasTextsFadedArray[textIndex] && !this.isTextFadingOutArray[textIndex]) {
@@ -493,7 +519,7 @@ export class OrbitingSpheres {
             }
           }
         }
-      });
+      }
     }
 
     // Smooth radius interpolation using easing
@@ -508,12 +534,6 @@ export class OrbitingSpheres {
     this.updateSpherePositions();
     this.updateTextPositions();
     this.updateTextElementsPosition();
-
-    // Stage progression logic - only for local timing
-    if (!this.isUsingGlobalTiming && this.config.isAnimating) {
-      // Legacy local timing logic would go here if needed
-      console.warn('Local timing not implemented - use global timing system');
-    }
   }
 
   public getGroup(): Group {
@@ -561,14 +581,14 @@ export class OrbitingSpheres {
     this.clearTextElements();
 
     // Dispose geometries and materials
-    this.spheres.forEach(sphere => {
+    for (const sphere of this.spheres) {
       if (sphere.geometry) {
         sphere.geometry.dispose();
       }
       if (sphere.material && 'dispose' in sphere.material) {
         sphere.material.dispose();
       }
-    });
+    }
 
     // Clear arrays
     this.spheres = [];
@@ -581,7 +601,7 @@ export class OrbitingSpheres {
     this.originalTextPositions = [];
   }
 
-  private handleGlobalTiming(globalElapsed: number, globalStage: AnimationStage): void {
+  private handleGlobalTiming(_globalElapsed: number, globalStage: AnimationStage): void {
     // Update current stage if it changed
     if (this.currentStage !== globalStage) {
       const previousStage = this.currentStage;
