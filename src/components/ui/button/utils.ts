@@ -31,7 +31,7 @@ export function buttonVariants({
   const variantClasses = {
     default: ["text-white", "bg-black/12", "hover:bg-[#4C43FC]"],
     ghost: ["text-white", "bg-[#4C43FC]/0", "hover:bg-[#4C43FC]"],
-    link: ["text-white", "pb-0.5", "bg-[#4C43FC]/0", "hover:underline"],
+    link: ["text-white", "pb-0.5", "bg-[#4C43FC]/0"],
   };
 
   const sizeClasses = {

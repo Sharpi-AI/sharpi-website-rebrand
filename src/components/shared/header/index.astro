@@ -19,6 +19,18 @@ import Button from "@/components/ui/button/index.astro";
     }
   }
 
+  /* Mobile: logo azul quando minimizado (não scrollado) */
+  @media (max-width: 767px) {
+    .logo-icon .logo-path {
+      fill: #2200EA !important;
+      fill-opacity: 1 !important;
+    }
+
+    .scrolled .logo-icon .logo-path {
+      fill: white !important;
+    }
+  }
+
   .scrolled .header-nav {
     background-color: #4A2DF6C2 !important;
   }
@@ -26,8 +38,18 @@ import Button from "@/components/ui/button/index.astro";
   /* Mobile: esconder botões quando não scrollado */
   @media (max-width: 767px) {
     .header-nav {
-      width: 105px;
-      transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      width:  92px;
+      padding-block: 6px;
+      padding-left: 4px;
+      
+      transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1), padding 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .scrolled .header-nav {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      padding-left: 4px;
+      padding-right: 12px;
     }
 
     .mobile-hidden-button {
@@ -61,7 +83,7 @@ import Button from "@/components/ui/button/index.astro";
 
       <div class="col-start-1 col-span-3  md:col-span-1 md:col-start-2 w-full flex items-center justify-center">
         <div
-          class="header-nav w-full md:w-fit flex items-center justify-between bg-[#4A2DF6C2] md:bg-black/20 rounded-xl md:rounded-lg md:h-10 p-3 md:p-1 md:gap-8 transition-colors duration-300"
+          class="header-nav w-full md:w-fit flex items-center justify-between bg-[#4A2DF6C2] md:bg-black/20 rounded-xl md:rounded-lg md:h-10 p-3 pl-1 md:p-1 md:gap-8 transition-colors duration-300"
           style={{
             backdropFilter: "blur(22px)",
           }}
@@ -215,7 +237,7 @@ import Button from "@/components/ui/button/index.astro";
 
           // Aguardar fade out dos botões (300ms)
           setTimeout(() => {
-            headerNav.style.width = '105px';
+            headerNav.style.width = '92px';
             headerContainer.classList.remove("scrolled");
             isAnimating = false;
           }, 300);

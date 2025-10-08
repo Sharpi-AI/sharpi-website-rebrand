@@ -45,14 +45,20 @@ import CalendarIcon from "@/components/icons/calendar.astro";
     <div id="hero-video-wrapper" class="w-full h-full bg-black/10 md:rounded-2xl">
       <video
         id="hero-video"
-        src="/assets/medias/index/hero/hero-bg.mp4"
-        class="w-full h-full object-cover rounded-2xl opacity-30 pointer-events-none"
+        class="w-full h-full object-cover rounded-2xl pointer-events-none"
         autoplay
         loop
         muted
+        playsinline
         disablepictureinpicture
         controlslist="nodownload nofullscreen noremoteplayback"
-        preload="metadata"></video>
+        preload="auto"
+        src="/assets/medias/index/hero/hero-bg.webm"
+      >
+        <source src="/assets/medias/index/hero/hero-bg.webm" type="video/webm">
+        
+        <source src="/assets/medias/index/hero/hero-bg.mov" type="video/quicktime">
+      </video>
     </div>
   </div>
 
