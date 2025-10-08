@@ -9,14 +9,18 @@ import Numbers from "@/components/pages/index/sections/numbers/index.astro";
 import HowTo from "@/components/pages/index/sections/how-to/index.astro";
 import AllInOne from "@/components/pages/index/sections/all-in-one/index.astro";
 import Quotes from "@/components/pages/index/sections/quotes/index.astro";
+
+import Header from "@/components/shared/header/index.astro";
+
 ---
 
 <Layout>
+  <Header />
   <Hero />
   <Customers />
   <HowTo />
   <AllInOne />
-  <div class="relative z-0 pb-20">
+  <div class="relative z-0 md:pt-20">
     <Quotes />
   </div>
   <Benefits />

@@ -4,29 +4,29 @@ import NotificationCard from "./notification-card.astro";
 const notifications = [
   {
     id: 1,
-    title: "Nova mensagem",
-    message: "Você recebeu uma nova proposta de orçamento para análise",
+    title: "Enviado para o ERP",
+    message: "250+ pedidos múltiplos",
     media: "/assets/medias/index/hero/analizing.mp4",
     type: "video",
   },
   {
     id: 2,
-    title: "Pedido aprovado",
-    message: "Pedido #1247 foi aprovado e está sendo processado",
+    title: "Cotação enviada",
+    message: "Cliente revisou no whatsapp",
     media: "/assets/medias/index/hero/notification-01.png",
     type: "image",
   },
   {
     id: 3,
     title: "Pedido faturado",
-    message: "Produto XYZ-123 está com estoque abaixo do limite mínimo",
+    message: "20xc Leite e mais 13 itens.",
     media: "/assets/medias/index/hero/analizing.mp4",
     type: "video",
   },
   {
     id: 4,
     title: "Pedido faturado",
-    message: "Dados do cliente foram atualizados com sucesso",
+    message: "+100 pedidos múltiplos",
     media: "/assets/medias/index/hero/notification-02.png",
     type: "image",
   },
@@ -39,7 +39,7 @@ const notifications = [
       notifications.map((notification, index) => (
         <div
           id={`notification-wrapper-${index}`}
-          class="absolute bottom-0 inset-x-0 "
+          class="absolute bottom-0 inset-x-0 flex justify-center"
           data-index={index}
           data-id={notification.id}
         >

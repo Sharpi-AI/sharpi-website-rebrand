@@ -229,7 +229,7 @@ const mosaicImages = [
   </div>
 
   <!-- Mobile Version -->
-  <div class="relative block md:hidden px-2.5 w-full">
+  <div class="relative block md:hidden  w-full">
     <div
       class="splide relative aspect-[308/356] flex items-center justify-center"
       id="testimonials-carousel"
@@ -248,8 +248,8 @@ const mosaicImages = [
         <ul class="splide__list">
           {
             testimonials.map((testimonial) => (
-              <li class="splide__slide w-fit origin-center scale-95 duration-200 transition-transform ease-out [.is-active&]:duration-500 [.is-active&]:scale-100">
-                <div class="w-[308px] aspect-[308/356] bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)]">
+              <li class="splide__slide w-fit flex items-center [.is-active&_>_div]:h-[356px]">
+                <div class="w-[308px] h-[322px] bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)] scale-100 duration-400 transition-all ">
                   <div class="flex flex-col gap-8 p-4 justify-between flex-1">
                     <div class="flex gap-3 items-center">
                       <div class="size-8 shrink-0 bg-gray-200 rounded-full overflow-hidden">
@@ -345,7 +345,11 @@ const mosaicImages = [
     const splideContainer = document.getElementById("testimonials-carousel");
     if (!splideContainer) return;
 
-    const padding = Math.max(0, (window.innerWidth - 308 - 20) / 2);
+    // Calculate padding to show peek of adjacent cards
+    // Show ~40px of adjacent cards on each side
+    const peekAmount = 40;
+    const cardWidth = 308;
+    const padding = Math.max(peekAmount, (window.innerWidth - cardWidth - peekAmount * 2) / 2);
 
     const testimonialsSplide = new Splide("#testimonials-carousel", {
       perMove: 1,
