@@ -12,7 +12,10 @@ import DownloadIcon from "@/components/icons/download.astro";
     class="absolute inset-0 pointer-events-none rounded-[21px]"
     aria-hidden="true"
   >
-    <div class="absolute bg-gradient-to-br from-[#E8E5FF] to-[#F5F5F5] inset-0 rounded-[21px] opacity-70"></div>
+    <video class="absolute w-full h-full inset-0 object-cover rounded-[21px]" autoplay loop muted playsinline>
+      <source src="/assets/medias/index/how-to/messages-bg.webm" type="video/webm">
+      <source src="/assets/medias/index/how-to/messages-bg.mov" type="video/quicktime">
+    </video>
   </div>
 
   <!-- Main Content -->
@@ -20,7 +23,8 @@ import DownloadIcon from "@/components/icons/download.astro";
 
     <!-- Left Panel: Conversa -->
     <div
-      class="w-full md:w-[355px]   p-2.5 pt-6 pb-2.5 flex flex-col gap-[18px]"
+      class="w-full md:w-[355px] p-2.5 pt-6 pb-2.5 flex flex-col gap-[18px] relative "
+      data-animate="panel-conversa"
     >
       <!-- Header -->
       <div class="flex flex-col gap-6 w-full">
@@ -31,31 +35,27 @@ import DownloadIcon from "@/components/icons/download.astro";
         <!-- Messages -->
         <div class="flex flex-col gap-1.5 w-full">
           <!-- Message 1 -->
-          <div
-            class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] opacity-0 overflow-hidden"
-            data-animate="msg-1"
-            style="max-height: 0;"
-          >
-            <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
-              Quero fazer um pedido, por favor
-            </p>
-            <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
-              17:13
-            </span>
+          <div class="opacity-0 overflow-hidden" data-animate="msg-1" style="max-height: 0;">
+            <div class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px]">
+              <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
+                Quero fazer um pedido, por favor
+              </p>
+              <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
+                17:13
+              </span>
+            </div>
           </div>
 
           <!-- Message 2 -->
-          <div
-            class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px] opacity-0 overflow-hidden"
-            data-animate="msg-2"
-            style="max-height: 0;"
-          >
-            <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
-              12kg de arroz para risoto
-            </p>
-            <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
-              17:14
-            </span>
+          <div class="opacity-0 overflow-hidden" data-animate="msg-2" style="max-height: 0;">
+            <div class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]">
+              <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
+                12kg de arroz para risoto
+              </p>
+              <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
+                17:14
+              </span>
+            </div>
           </div>
 
           <!-- Message 3 -->
@@ -162,7 +162,8 @@ import DownloadIcon from "@/components/icons/download.astro";
 
     <!-- Right Panel: Pedido -->
     <div
-      class="w-full md:w-[355px]   p-2.5 pt-6 pb-2.5 flex flex-col gap-[18px]"
+      class="w-full md:w-[355px] p-2.5 pt-6 pb-2.5 flex flex-col gap-[18px]"
+      data-animate="panel-pedido"
     >
       <!-- Header with counter -->
       <div class="flex items-center justify-between w-full" data-animate="header-pedido">
@@ -182,8 +183,9 @@ import DownloadIcon from "@/components/icons/download.astro";
       <!-- Order items -->
       <div class="flex flex-col gap-2 w-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <!-- Item 1: Arroz Arbório -->
-        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-arroz" style="max-height: 0;">
-          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+        <div class="opacity-0 overflow-hidden" data-animate="item-arroz" style="max-height: 0;">
+          <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
                 <img src="/assets/medias/index/how-to/products/arroz-arborio.png" alt="Arroz Arbório" class="w-full h-full object-cover" />
@@ -212,11 +214,13 @@ import DownloadIcon from "@/components/icons/download.astro";
 
             <span class="justify-self-end  font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 12</span>
           </div>
+          </div>
         </div>
 
         <!-- Item 2: Mussarela de Castanha -->
-        <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-mussarela" style="max-height: 0;">
-          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+        <div class="opacity-0 overflow-hidden" data-animate="item-mussarela" style="max-height: 0;">
+          <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
                 <img src="/assets/medias/index/how-to/products/mussarela-castanha.png" alt="Mussarela de Castanha" class="w-full h-full object-cover" />
@@ -245,49 +249,62 @@ import DownloadIcon from "@/components/icons/download.astro";
             
             <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">×4</span>
           </div>
+          </div>
         </div>
 
         <!-- Item 3: Tapioca Fina -->
-        <div class="hidden md:flex bg-white rounded-xl p-2 flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-tapioca" style="max-height: 0;">
-          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
-            <div class="flex gap-2.5 items-center">
-              <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
-                <img src="/assets/medias/index/how-to/products/tapioca-fina.png" alt="Tapioca Fina" class="w-full h-full object-cover" />
-              </div>
-              <div class="flex flex-col gap-1">
-                <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
-                  Tapioca Fina 400G
-                </p>
-                <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
-                  <span>1 UN</span>
-                  <span>R$ 20</span>
+        <div class="hidden md:block   opacity-0 overflow-hidden" data-animate="item-tapioca" style="max-height: 0;">
+          <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
+            
+          
+            <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+              <div class="flex gap-2.5 items-center">
+                <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
+                  <img src="/assets/medias/index/how-to/products/tapioca-fina.png" alt="Tapioca Fina" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
+                    Tapioca Fina 400G
+                  </p>
+                  <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
+                    <span>1 UN</span>
+                    <span>R$ 20</span>
+                  </div>
                 </div>
               </div>
+              <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 20</p>
             </div>
-            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 20</p>
-          </div>
-          <div class="grid grid-cols-3 items-center justify-between opacity-60">
-            <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
-              <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">C</span>
+            <div class="grid grid-cols-3 items-center justify-between opacity-60">
+              <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
+                <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">C</span>
+              </div>
+              <div class="flex-1 flex justify-self-center items-center justify-center gap-1.5 px-2">
+                <StartIcon  color="#232222" size={12} class="shrink-0"/>
+                <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">da fininha</span>
+              </div>
+              <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 1</span>
             </div>
-            <div class="flex-1 flex justify-self-center items-center justify-center gap-1.5 px-2">
-              <StartIcon  color="#232222" size={12} class="shrink-0"/>
-              <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">da fininha</span>
-            </div>
-            <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 1</span>
           </div>
         </div>
 
 
-        <div class="hidden md:flex items-center justify-between h-7 opacity-0 overflow-hidden" data-animate="text-imagem" style="max-height: 0;">
+        <div class="hidden md:flex items-center gap-2 h-7 opacity-0 overflow-hidden" data-animate="text-imagem" style="max-height: 0;">
           <p class="text-[12px] text-[#2e2e2e] tracking-[-0.24px] leading-[0.9]">
             Itens adicionados por imagem
           </p>
+          <video
+            data-animate="video-loading"
+            src="/assets/medias/index/how-to/loading-particles.mp4"
+            autoplay loop muted playsinline
+            class="size-6 mix-blend-darken object-cover"
+            style="opacity: 0;"
+          ></video>
         </div>
 
         <!-- Item 4: Açúcar Mascavo -->
-        <div class="hidden md:flex bg-white rounded-xl p-2 flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-acucar" style="max-height: 0;">
-          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+        <div class="hidden md:block opacity-0 overflow-hidden" data-animate="item-acucar" style="max-height: 0;">
+          <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
                 <img src="/assets/medias/index/how-to/products/acucar-mascavo.png" alt="Açúcar Mascavo" class="w-full h-full object-cover" />
@@ -314,11 +331,13 @@ import DownloadIcon from "@/components/icons/download.astro";
             </div>
             <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 22</span>
           </div>
+          </div>
         </div>
 
         <!-- Item 5: Hortelã -->
-        <div class="hidden md:flex bg-white rounded-xl p-2 flex-col gap-1.5 opacity-0 overflow-hidden" data-animate="item-hortela" style="max-height: 0;">
-          <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
+        <div class="hidden md:block opacity-0 overflow-hidden" data-animate="item-hortela" style="max-height: 0;">
+          <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
                 <img src="/assets/medias/index/how-to/products/hortela.png" alt="Hortelã" class="w-full h-full object-cover" />
@@ -346,6 +365,7 @@ import DownloadIcon from "@/components/icons/download.astro";
             </div>
 
             <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 5</span>
+          </div>
           </div>
         </div>
       </div>
@@ -412,6 +432,8 @@ import DownloadIcon from "@/components/icons/download.astro";
 
     // Função para parar e resetar animação completamente
     const stopAndResetAnimation = () => {
+      console.log('🛑 stopAndResetAnimation chamada');
+
       // Cancelar todos timeouts pendentes
       animationTimeouts.forEach(id => window.clearTimeout(id));
       animationTimeouts = [];
@@ -424,17 +446,51 @@ import DownloadIcon from "@/components/icons/download.astro";
       });
       currentAnimations = [];
 
-      // Resetar todos elementos ao estado inicial
-      document.querySelectorAll('[data-animate]').forEach(el => {
-        (el as HTMLElement).style.opacity = '0';
-        (el as HTMLElement).style.maxHeight = '0';
-        (el as HTMLElement).style.overflow = 'hidden';
+      // Aguardar um frame para Motion liberar propriedades
+      requestAnimationFrame(() => {
+        console.log('🔄 Reset dentro de requestAnimationFrame (stopAndReset)');
+
+        // Resetar todos elementos ao estado inicial
+        document.querySelectorAll('[data-animate]').forEach(el => {
+          const element = el as HTMLElement;
+          const animateKey = element.getAttribute('data-animate');
+
+          console.log(`  Resetando ${animateKey}:`, element);
+          console.log(`    Estado Antes:`, {
+            opacity: element.style.opacity,
+            maxHeight: element.style.maxHeight,
+            transform: element.style.transform,
+            overflow: element.style.overflow
+          });
+
+          if (animateKey === 'panel-conversa') {
+            if (window.innerWidth >= 768) {
+              element.style.transform = 'translateX(220px)';
+            }
+            element.style.opacity = '1'; // Setar explicitamente como visível
+          } else if (animateKey === 'panel-pedido') {
+            // Não controlar opacidade - itens internos já controlam
+          } else {
+            element.style.opacity = '0';
+            element.style.maxHeight = '0';
+            element.style.overflow = 'visible'; // Permitir fade in
+            element.style.transform = ''; // Limpar transform do Motion
+          }
+
+          console.log(`    Estado Depois:`, {
+            opacity: element.style.opacity,
+            maxHeight: element.style.maxHeight,
+            transform: element.style.transform,
+            overflow: element.style.overflow
+          });
+        });
+
+        // Resetar contador
+        updateCounter(0);
+
+        isAnimating = false;
+        console.log('✅ Reset completo (stopAndReset)');
       });
-
-      // Resetar contador
-      updateCounter(0);
-
-      isAnimating = false;
     };
 
     // Função que executa sequência completa de animações
@@ -451,9 +507,17 @@ import DownloadIcon from "@/components/icons/download.astro";
     const fadeOutAndReset = () => {
       const fadeOutDuration = 0.5;
 
-      const visibleElements = Array.from(document.querySelectorAll('[data-animate]')).filter(
-        el => (el as HTMLElement).style.opacity !== '0'
-      );
+      const visibleElements = Array.from(document.querySelectorAll('[data-animate]')).filter(el => {
+        const element = el as HTMLElement;
+        const animateKey = element.getAttribute('data-animate');
+
+        // Excluir painéis do fade out
+        if (animateKey === 'panel-conversa' || animateKey === 'panel-pedido') {
+          return false;
+        }
+
+        return element.style.opacity !== '0';
+      });
 
       // Se houver elementos visíveis, fazer fade-out
       if (visibleElements.length > 0) {
@@ -476,28 +540,79 @@ import DownloadIcon from "@/components/icons/download.astro";
     };
 
     const resetAndStartAnimation = () => {
+      console.log('▶️ resetAndStartAnimation chamada');
+
       // Resetar contador
       updateCounter(0);
 
-      // Resetar todos elementos para estado inicial
-      document.querySelectorAll('[data-animate]').forEach(el => {
-        (el as HTMLElement).style.opacity = '0';
-        (el as HTMLElement).style.maxHeight = '0';
-        (el as HTMLElement).style.overflow = 'hidden';
+      // Aguardar um frame para Motion liberar propriedades
+      requestAnimationFrame(() => {
+        console.log('🔄 Reset dentro de requestAnimationFrame (resetAndStart)');
+
+        // Resetar todos elementos para estado inicial
+        document.querySelectorAll('[data-animate]').forEach(el => {
+          const element = el as HTMLElement;
+          const animateKey = element.getAttribute('data-animate');
+
+          console.log(`  Resetando ${animateKey}:`, element);
+          console.log(`    Estado Antes:`, {
+            opacity: element.style.opacity,
+            maxHeight: element.style.maxHeight,
+            transform: element.style.transform,
+            overflow: element.style.overflow
+          });
+
+          if (animateKey === 'panel-conversa') {
+            if (window.innerWidth >= 768) {
+              element.style.transform = 'translateX(220px)';
+            }
+            element.style.opacity = '1'; // Setar explicitamente como visível
+          } else if (animateKey === 'panel-pedido') {
+            // Não controlar opacidade - itens internos já controlam
+          } else {
+            element.style.opacity = '0';
+            element.style.maxHeight = '0';
+            element.style.overflow = 'visible'; // Permitir fade in
+            element.style.transform = ''; // Limpar transform do Motion
+          }
+
+          console.log(`    Estado Depois:`, {
+            opacity: element.style.opacity,
+            maxHeight: element.style.maxHeight,
+            transform: element.style.transform,
+            overflow: element.style.overflow
+          });
+        });
+
+        // Limpar arrays de controle antes de reiniciar
+        animationTimeouts = [];
+        currentAnimations = [];
+        isAnimating = false;
+
+        console.log('✅ Reset completo, iniciando animações (resetAndStart)');
+
+        // Iniciar animações de entrada imediatamente
+        startEntryAnimations();
       });
-
-      // Limpar arrays de controle antes de reiniciar
-      animationTimeouts = [];
-      currentAnimations = [];
-      isAnimating = false;
-
-      // Iniciar animações de entrada imediatamente
-      startEntryAnimations();
     };
 
     const startEntryAnimations = () => {
+      console.log('🎬 startEntryAnimations iniciada', { isMobile, isAnimating });
+
       if (isMobile) {
+        console.log('📱 Sequência MOBILE');
         // Sequência mobile (apenas 3 mensagens e 2 itens)
+
+        currentAnimations.push(
+          animate('[data-animate="panel-conversa"]', {
+            opacity: [0, 1],
+          }, {
+            duration: duration,
+            easing: [0.22, 1, 0.36, 1],
+            delay: delay ,
+          })
+        );
+
         currentAnimations.push(
           animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
             ...animationOptions,
@@ -519,18 +634,11 @@ import DownloadIcon from "@/components/icons/download.astro";
           })
         );
 
-        currentAnimations.push(
-          animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
-            ...animationOptions,
-            delay: delay * 4,
-          })
-        );
-
-        // Painel Pedido - Direita
+        // Painel Pedido - Direita (opacidade controlada pelos itens internos)
         currentAnimations.push(
           animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
             ...animationOptions,
-            delay: delay * 5,
+            delay: delay * 4,
           })
         );
 
@@ -538,8 +646,15 @@ import DownloadIcon from "@/components/icons/download.astro";
         currentAnimations.push(
           animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
             ...animationOptions,
-            delay: delay * 6,
+            delay: delay * 5,
           }).then(() => updateCounter(1))
+        );
+
+        currentAnimations.push(
+          animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
+            ...animationOptions,
+            delay: delay * 6,
+          })
         );
 
         currentAnimations.push(
@@ -554,6 +669,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         const timeoutId = window.setTimeout(() => runAnimationSequence(), totalTime);
         animationTimeouts.push(timeoutId);
       } else {
+        console.log('💻 Sequência DESKTOP');
         // Sequência desktop (todas as mensagens e itens)
         currentAnimations.push(
           animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
@@ -576,18 +692,22 @@ import DownloadIcon from "@/components/icons/download.astro";
           })
         );
 
+        // Animar painel de conversa para posição final (desktop)
         currentAnimations.push(
-          animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
-            ...animationOptions,
+          animate('[data-animate="panel-conversa"]', {
+            x: [220, 0],
+          }, {
+            duration: duration,
+            easing: [0.22, 1, 0.36, 1],
             delay: delay * 4,
           })
         );
 
-        // Painel Pedido - Direita
+        // Painel Pedido - Direita (opacidade controlada pelos itens internos)
         currentAnimations.push(
           animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
             ...animationOptions,
-            delay: delay * 5,
+            delay: delay * 4,
           })
         );
 
@@ -595,8 +715,15 @@ import DownloadIcon from "@/components/icons/download.astro";
         currentAnimations.push(
           animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
             ...animationOptions,
-            delay: delay * 6,
+            delay: delay * 5,
           }).then(() => updateCounter(1))
+        );
+
+        currentAnimations.push(
+          animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
+            ...animationOptions,
+            delay: delay * 6,
+          })
         );
 
         currentAnimations.push(
@@ -646,11 +773,22 @@ import DownloadIcon from "@/components/icons/download.astro";
           })
         );
 
-        // Item açúcar
+        // Vídeo de loading (fade in ~1s após texto para simular processamento)
+        currentAnimations.push(
+          animate('[data-animate="video-loading"]', {
+            opacity: [0, 1],
+          }, {
+            duration: duration * 0.5, // Duração mais rápida para fade
+            easing: 'ease-in',
+            delay: delay * 12 + 1, // 1 segundo após o texto aparecer
+          })
+        );
+
+        // Item açúcar (~2s após o vídeo aparecer)
         currentAnimations.push(
           animate('[data-animate="item-acucar"]', getSlideUpConfig('[data-animate="item-acucar"]'), {
             ...animationOptions,
-            delay: delay * 13,
+            delay: delay * 12 + 3, // 1s para vídeo + 2s de processamento
           }).then(() => updateCounter(4))
         );
 
@@ -658,12 +796,23 @@ import DownloadIcon from "@/components/icons/download.astro";
         currentAnimations.push(
           animate('[data-animate="item-hortela"]', getSlideUpConfig('[data-animate="item-hortela"]'), {
             ...animationOptions,
-            delay: delay * 14,
+            delay: delay * 12 + 4, // 1 delay após açúcar
           }).then(() => updateCounter(5))
         );
 
-        // Calcular tempo total para desktop (última animação termina em: delay * 14 + duration)
-        const totalTime = (delay * 14 + duration) * 1000;
+        // Fade out do vídeo de loading (antes do fadeOut geral para evitar problemas com mix-blend-darken)
+        currentAnimations.push(
+          animate('[data-animate="video-loading"]', {
+            opacity: [1, 0],
+          }, {
+            duration: duration * 0.3,
+            easing: 'ease-out',
+            delay: delay * 12 + 4.5, // Durante/após item hortelã
+          })
+        );
+
+        // Calcular tempo total para desktop (última animação termina em: delay * 12 + 4 + duration)
+        const totalTime = (delay * 12 + 4 + duration) * 1000;
         const timeoutId = window.setTimeout(() => runAnimationSequence(), totalTime);
         animationTimeouts.push(timeoutId);
       }
