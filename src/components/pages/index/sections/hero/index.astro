@@ -83,6 +83,24 @@ import CalendarIcon from "@/components/icons/calendar.astro";
 <script>
   import { animate } from "motion";
 
+  function resetVideoStyles() {
+    const videoContainer = document.getElementById("hero-video-container");
+    const videoWrapper = document.getElementById("hero-video-wrapper");
+    const video = document.getElementById("hero-video");
+
+    if (!videoContainer || !videoWrapper || !video) return;
+
+    if (window.innerWidth < 768) {
+      // Mobile: remover estilos inline
+      videoContainer.style.padding = '';
+      videoWrapper.style.borderRadius = '';
+      video.style.borderRadius = '';
+    } else {
+      // Desktop: recalcular com scroll atual
+      updateHeroGradient();
+    }
+  }
+
   function updateHeroGradient() {
     const heroSection = document.querySelector("section");
     const gradient = document.getElementById("hero-gradient");
@@ -161,6 +179,15 @@ import CalendarIcon from "@/components/icons/calendar.astro";
   } else {
     window.addEventListener("scroll", updateHeroGradient);
   }
+
+  // Tratar resize com debounce
+  let resizeTimeout: number;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = window.setTimeout(() => {
+      resetVideoStyles();
+    }, 100);
+  });
 
   updateHeroGradient();
 
