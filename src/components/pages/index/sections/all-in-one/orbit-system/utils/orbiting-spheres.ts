@@ -98,6 +98,11 @@ export class OrbitingSpheres {
   // Text position states for movement animation
   private textPositions: Vector3[] = [];
   private originalTextPositions: Vector3[] = [];
+  
+  // Propriedades para suavização
+  private textPositionsSmooth: Vector3[] = [];
+  private textPositionsTarget: Vector3[] = [];
+  private smoothingFactor: number = 0.15; // Ajuste conforme necessário
 
   // Timers for auto-loop
   private returnTimeout: number | null = null;
@@ -115,6 +120,7 @@ export class OrbitingSpheres {
       sphereSize: 0.02,
       rotationSpeed: 0.1,
       rotationOffset: 0,
+      rotationOffsetMobile: 0,
       color: "#888888",
       enabled: true,
       textItems: [],
@@ -200,6 +206,11 @@ export class OrbitingSpheres {
       this.hasTextsFadedArray = Array.from({ length: textCount }, () => false);
       this.textPositions = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
       this.originalTextPositions = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
+      
+      // Inicializar posições suavizadas
+      this.textPositionsSmooth = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
+      this.textPositionsTarget = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
+      
       this.updateTextPositions();
     }
   }
@@ -284,11 +295,11 @@ export class OrbitingSpheres {
     const heightHalf = containerRect.height / 2;
 
     // Convert from normalized device coordinates to screen coordinates
-    // The vector.x and vector.y are already in normalized device coordinates (-1 to 1)
-    return {
-      x: (vector.x * widthHalf) + widthHalf,
-      y: -(vector.y * heightHalf) + heightHalf
-    };
+    // Arredondar para evitar sub-pixel rendering
+    const x = Math.round((vector.x * widthHalf) + widthHalf);
+    const y = Math.round(-(vector.y * heightHalf) + heightHalf);
+
+    return { x, y };
   }
 
   private updateTextElementsPosition(): void {
@@ -305,9 +316,13 @@ export class OrbitingSpheres {
       const container = document.getElementById('orbit-system-container');
       if (!container) return;
 
-      // Apply position relative to container
-      element.style.left = `${screenPosition.x}px`;
-      element.style.top = `${screenPosition.y}px`;
+      // Arredondar coordenadas para evitar sub-pixel rendering
+      const roundedX = Math.round(screenPosition.x);
+      const roundedY = Math.round(screenPosition.y);
+
+      // Aplicar posição com arredondamento
+      element.style.left = `${roundedX}px`;
+      element.style.top = `${roundedY}px`;
       element.style.transform = `translate(-50%, -50%) scale(${this.textScales[i]})`;
       element.style.opacity = this.textOpacities[i].toString();
     }
@@ -338,6 +353,15 @@ export class OrbitingSpheres {
 
       const newPosition = new Vector3(x, y, 0);
 
+      // Initialize smooth positions if not exists
+      if (!this.textPositionsSmooth[i]) {
+        this.textPositionsSmooth[i] = newPosition.clone();
+        this.textPositionsTarget[i] = newPosition.clone();
+      }
+
+      // Update target position
+      this.textPositionsTarget[i] = newPosition;
+
       // Update positions only for texts not currently animating or faded out
       const isThisTextFading = this.isTextFadingOutArray[i] || this.isTextFadingInArray[i] || this.hasTextsFadedArray[i];
       if (!isThisTextFading) {
@@ -347,6 +371,19 @@ export class OrbitingSpheres {
       // Only update original positions when text is not fading out or faded out
       if (!this.isTextFadingOutArray[i] && !this.hasTextsFadedArray[i]) {
         this.originalTextPositions[i] = newPosition.clone();
+      }
+    }
+  }
+
+  // Adicione este método para suavizar as posições dos textos
+  private smoothTextPositions(deltaTime: number): void {
+    if (!this.config.showTexts || this.textElements.length === 0) return;
+
+    for (let i = 0; i < this.textPositionsSmooth.length; i++) {
+      if (this.textPositionsSmooth[i] && this.textPositionsTarget[i]) {
+        // Interpolação suave usando lerp
+        this.textPositionsSmooth[i].lerp(this.textPositionsTarget[i], this.smoothingFactor * deltaTime * 60);
+        this.textPositions[i] = this.textPositionsSmooth[i];
       }
     }
   }
@@ -402,6 +439,8 @@ export class OrbitingSpheres {
       // Reset positions to original positions
       if (this.originalTextPositions.length > 0) {
         this.textPositions = this.originalTextPositions.map(pos => pos.clone());
+        this.textPositionsSmooth = this.originalTextPositions.map(pos => pos.clone());
+        this.textPositionsTarget = this.originalTextPositions.map(pos => pos.clone());
       }
     }
 
@@ -533,6 +572,10 @@ export class OrbitingSpheres {
     // Update positions
     this.updateSpherePositions();
     this.updateTextPositions();
+    
+    // Adicione esta linha para suavizar as posições dos textos
+    this.smoothTextPositions(deltaTime);
+    
     this.updateTextElementsPosition();
   }
 
@@ -599,6 +642,8 @@ export class OrbitingSpheres {
     this.hasTextsFadedArray = [];
     this.textPositions = [];
     this.originalTextPositions = [];
+    this.textPositionsSmooth = [];
+    this.textPositionsTarget = [];
   }
 
   private handleGlobalTiming(_globalElapsed: number, globalStage: AnimationStage): void {

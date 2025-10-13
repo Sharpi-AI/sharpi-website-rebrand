@@ -59,7 +59,7 @@ import DownloadIcon from "@/components/icons/download.astro";
           </div>
 
           <!-- Message 3 -->
-          <div class="flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-3" style="max-height: 0;">
+          <div class="space-y-2  opacity-0 overflow-hidden" data-animate="msg-3" style="max-height: 0;">
             <div
               class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]"
             >
@@ -108,7 +108,7 @@ import DownloadIcon from "@/components/icons/download.astro";
 
       <!-- Customer response -->
       <div class="flex flex-col gap-1.5 w-full">
-        <div class="hidden md:flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-customer-tapioca" style="max-height: 0;">
+        <div class="hidden md:block  space-y-2 opacity-0 overflow-hidden" data-animate="msg-customer-tapioca" style="max-height: 0;">
           <div
             class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[267px]"
           >
@@ -181,9 +181,9 @@ import DownloadIcon from "@/components/icons/download.astro";
       </div>
 
       <!-- Order items -->
-      <div class="flex flex-col gap-2 w-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div class="flex flex-col gap-2 w-full overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <!-- Item 1: Arroz Arbório -->
-        <div class="opacity-0 overflow-hidden" data-animate="item-arroz" style="max-height: 0;">
+        <div class="opacity-0 overflow-visible" data-animate="item-arroz" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
@@ -218,7 +218,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         </div>
 
         <!-- Item 2: Mussarela de Castanha -->
-        <div class="opacity-0 overflow-hidden" data-animate="item-mussarela" style="max-height: 0;">
+        <div class="opacity-0 overflow-visible" data-animate="item-mussarela" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
@@ -253,7 +253,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         </div>
 
         <!-- Item 3: Tapioca Fina -->
-        <div class="hidden md:block   opacity-0 overflow-hidden" data-animate="item-tapioca" style="max-height: 0;">
+        <div class="hidden md:block   opacity-0 overflow-visible" data-animate="item-tapioca" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
             
           
@@ -288,21 +288,21 @@ import DownloadIcon from "@/components/icons/download.astro";
         </div>
 
 
-        <div class="hidden md:flex items-center gap-2 h-7 opacity-0 overflow-hidden" data-animate="text-imagem" style="max-height: 0;">
-          <p class="text-[12px] text-[#2e2e2e] tracking-[-0.24px] leading-[0.9]">
+        <div class="hidden md:flex items-center gap-2 h-7 overflow-visible" data-animate="text-imagem" style="max-height: 0;">
+          <p class="text-[12px] text-[#2e2e2e] tracking-[-0.24px] leading-[0.9] opacity-0" data-animate="text-imagem-p">
             Itens adicionados por imagem
           </p>
           <video
-            data-animate="video-loading"
+            data-video-appear
             src="/assets/medias/index/how-to/loading-particles.mp4"
             autoplay loop muted playsinline
-            class="size-6 mix-blend-darken object-cover"
-            style="opacity: 0;"
+            class="size-6 mix-blend-darken object-cover video-loading opacity-0"
+            
           ></video>
         </div>
 
         <!-- Item 4: Açúcar Mascavo -->
-        <div class="hidden md:block opacity-0 overflow-hidden" data-animate="item-acucar" style="max-height: 0;">
+        <div class="hidden md:block opacity-0 overflow-visible" data-animate="item-acucar" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
@@ -335,7 +335,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         </div>
 
         <!-- Item 5: Hortelã -->
-        <div class="hidden md:block opacity-0 overflow-hidden" data-animate="item-hortela" style="max-height: 0;">
+        <div class="hidden md:block opacity-0 overflow-visible" data-animate="item-hortela" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
@@ -416,6 +416,12 @@ import DownloadIcon from "@/components/icons/download.astro";
       maxHeight: ["0px", getElementHeight(selector)],
     });
 
+    // Função para criar configuração de animação SEM opacity (apenas maxHeight e y)
+    const getSlideUpConfigWithoutOpacity = (selector: string) => ({
+      y: [20, 0],
+      maxHeight: ["0px", getElementHeight(selector)],
+    });
+
     // Função para atualizar contador de itens
     const updateCounter = (value: number) => {
       const counter = document.querySelector('#order-counter');
@@ -470,6 +476,19 @@ import DownloadIcon from "@/components/icons/download.astro";
             element.style.opacity = '1'; // Setar explicitamente como visível
           } else if (animateKey === 'panel-pedido') {
             // Não controlar opacidade - itens internos já controlam
+          } else if (animateKey === 'text-imagem') {
+            // Container de texto+vídeo: resetar maxHeight mas manter visível
+            element.style.maxHeight = '0';
+            element.style.overflow = 'visible';
+            element.style.transform = '';
+            element.style.opacity = '1'; // Garantir visibilidade para os filhos
+          } else if (animateKey === 'text-imagem-p' || animateKey === 'video-loading') {
+            // Text and video children: only reset opacity, clear unwanted properties
+            // video-loading tem fade-out manual específico, não participa do fade-out geral
+            element.style.opacity = '0';
+            element.style.maxHeight = ''; // Limpar propriedades que não devem ser controladas
+            element.style.transform = '';
+            element.style.overflow = '';
           } else {
             element.style.opacity = '0';
             element.style.maxHeight = '0';
@@ -484,6 +503,13 @@ import DownloadIcon from "@/components/icons/download.astro";
             overflow: element.style.overflow
           });
         });
+
+        // Resetar vídeo com data-video-appear (manipulação tradicional)
+        const video = document.querySelector('[data-video-appear]') as HTMLVideoElement;
+        if (video) {
+          video.style.transition = '';
+          video.style.opacity = '0';
+        }
 
         // Resetar contador
         updateCounter(0);
@@ -511,8 +537,10 @@ import DownloadIcon from "@/components/icons/download.astro";
         const element = el as HTMLElement;
         const animateKey = element.getAttribute('data-animate');
 
-        // Excluir painéis do fade out
-        if (animateKey === 'panel-conversa' || animateKey === 'panel-pedido') {
+        // Excluir painéis, container text-imagem e vídeo do fade out
+        // - text-imagem: nunca anima opacity, apenas seus filhos
+        // - video-loading: tem fade-out manual específico (linhas 844-852)
+        if (animateKey === 'panel-conversa' || animateKey === 'panel-pedido' || animateKey === 'text-imagem' || animateKey === 'video-loading') {
           return false;
         }
 
@@ -569,6 +597,19 @@ import DownloadIcon from "@/components/icons/download.astro";
             element.style.opacity = '1'; // Setar explicitamente como visível
           } else if (animateKey === 'panel-pedido') {
             // Não controlar opacidade - itens internos já controlam
+          } else if (animateKey === 'text-imagem') {
+            // Container de texto+vídeo: resetar maxHeight mas manter visível
+            element.style.maxHeight = '0';
+            element.style.overflow = 'visible';
+            element.style.transform = '';
+            element.style.opacity = '1'; // Garantir visibilidade para os filhos
+          } else if (animateKey === 'text-imagem-p' || animateKey === 'video-loading') {
+            // Text and video children: only reset opacity, clear unwanted properties
+            // video-loading tem fade-out manual específico, não participa do fade-out geral
+            element.style.opacity = '0';
+            element.style.maxHeight = ''; // Limpar propriedades que não devem ser controladas
+            element.style.transform = '';
+            element.style.overflow = '';
           } else {
             element.style.opacity = '0';
             element.style.maxHeight = '0';
@@ -703,11 +744,11 @@ import DownloadIcon from "@/components/icons/download.astro";
           })
         );
 
-        // Painel Pedido - Direita (opacidade controlada pelos itens internos)
+        // Painel Pedido - Direita (aparece após painel conversa terminar de deslizar)
         currentAnimations.push(
           animate('[data-animate="header-pedido"]', getSlideUpConfig('[data-animate="header-pedido"]'), {
             ...animationOptions,
-            delay: delay * 4,
+            delay: delay * 5,
           })
         );
 
@@ -715,21 +756,21 @@ import DownloadIcon from "@/components/icons/download.astro";
         currentAnimations.push(
           animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
             ...animationOptions,
-            delay: delay * 5,
+            delay: delay * 6,
           }).then(() => updateCounter(1))
         );
 
         currentAnimations.push(
           animate('[data-animate="msg-3"]', getSlideUpConfig('[data-animate="msg-3"]'), {
             ...animationOptions,
-            delay: delay * 6,
+            delay: delay * 7,
           })
         );
 
         currentAnimations.push(
           animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
             ...animationOptions,
-            delay: delay * 7,
+            delay: delay * 8,
           }).then(() => updateCounter(2))
         );
 
@@ -737,7 +778,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         currentAnimations.push(
           animate('[data-animate="msg-seller"]', getSlideUpConfig('[data-animate="msg-seller"]'), {
             ...animationOptions,
-            delay: delay * 8,
+            delay: delay * 9,
           })
         );
 
@@ -745,7 +786,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         currentAnimations.push(
           animate('[data-animate="msg-customer-tapioca"]', getSlideUpConfig('[data-animate="msg-customer-tapioca"]'), {
             ...animationOptions,
-            delay: delay * 9,
+            delay: delay * 10,
           })
         );
 
@@ -753,7 +794,7 @@ import DownloadIcon from "@/components/icons/download.astro";
         currentAnimations.push(
           animate('[data-animate="item-tapioca"]', getSlideUpConfig('[data-animate="item-tapioca"]'), {
             ...animationOptions,
-            delay: delay * 10,
+            delay: delay * 11,
           }).then(() => updateCounter(3))
         );
 
@@ -761,34 +802,40 @@ import DownloadIcon from "@/components/icons/download.astro";
         currentAnimations.push(
           animate('[data-animate="msg-image"]', getSlideUpConfig('[data-animate="msg-image"]'), {
             ...animationOptions,
-            delay: delay * 11,
-          })
-        );
-
-        // Texto "Itens adicionados por imagem"
-        currentAnimations.push(
-          animate('[data-animate="text-imagem"]', getSlideUpConfig('[data-animate="text-imagem"]'), {
-            ...animationOptions,
             delay: delay * 12,
           })
         );
 
-        // Vídeo de loading (fade in ~1s após texto para simular processamento)
+        // Container "Itens adicionados por imagem" (sem opacity)
         currentAnimations.push(
-          animate('[data-animate="video-loading"]', {
-            opacity: [0, 1],
-          }, {
-            duration: duration * 0.5, // Duração mais rápida para fade
-            easing: 'ease-in',
-            delay: delay * 12 + 1, // 1 segundo após o texto aparecer
+          animate('[data-animate="text-imagem"]', getSlideUpConfigWithoutOpacity('[data-animate="text-imagem"]'), {
+            ...animationOptions,
+            delay: delay * 13,
           })
         );
 
-        // Item açúcar (~2s após o vídeo aparecer)
+        // Texto "Itens adicionados por imagem" (apenas opacity)
+        currentAnimations.push(
+          animate('[data-animate="text-imagem-p"]', {
+            opacity: [0, 1],
+          }, {
+            ...animationOptions,
+            delay: delay * 13,
+          }).then(() => {
+            const video = document.querySelector('[data-video-appear]') as HTMLVideoElement;
+            if (video) {
+              video.style.transition = 'opacity 0.5s ease-in-out';
+              video.style.opacity = '1';
+            }
+          })
+        );
+
+
+        // Item açúcar (4s após o vídeo começar)
         currentAnimations.push(
           animate('[data-animate="item-acucar"]', getSlideUpConfig('[data-animate="item-acucar"]'), {
             ...animationOptions,
-            delay: delay * 12 + 3, // 1s para vídeo + 2s de processamento
+            delay: delay * 14 + 4, // 4s de processamento após vídeo começar
           }).then(() => updateCounter(4))
         );
 
@@ -796,23 +843,21 @@ import DownloadIcon from "@/components/icons/download.astro";
         currentAnimations.push(
           animate('[data-animate="item-hortela"]', getSlideUpConfig('[data-animate="item-hortela"]'), {
             ...animationOptions,
-            delay: delay * 12 + 4, // 1 delay após açúcar
-          }).then(() => updateCounter(5))
-        );
-
-        // Fade out do vídeo de loading (antes do fadeOut geral para evitar problemas com mix-blend-darken)
-        currentAnimations.push(
-          animate('[data-animate="video-loading"]', {
-            opacity: [1, 0],
-          }, {
-            duration: duration * 0.3,
-            easing: 'ease-out',
-            delay: delay * 12 + 4.5, // Durante/após item hortelã
+            delay: delay * 14 + 5, // 1 delay após açúcar
+          }).then(() => {
+            updateCounter(5)
+            const video = document.querySelector('[data-video-appear]') as HTMLVideoElement;
+            if (video) {
+              video.style.opacity = '0';
+            }
           })
         );
 
-        // Calcular tempo total para desktop (última animação termina em: delay * 12 + 4 + duration)
-        const totalTime = (delay * 12 + 4 + duration) * 1000;
+        // Fade out do vídeo de loading (antes do fadeOut geral para evitar problemas com mix-blend-darken)
+      
+
+        // Calcular tempo total para desktop (última animação termina em: delay * 14 + 5 + duration)
+        const totalTime = (delay * 14 + 5 + duration) * 1000;
         const timeoutId = window.setTimeout(() => runAnimationSequence(), totalTime);
         animationTimeouts.push(timeoutId);
       }
@@ -860,4 +905,7 @@ import DownloadIcon from "@/components/icons/download.astro";
   } else {
     initMessageOrderAnimation();
   }
+
+
 </script>
+

@@ -76,7 +76,17 @@ video {
   transform-origin: center;
   transition: opacity 0.3s ease, transform 0.3s ease;
   white-space: nowrap;
-
+  
+  /* Otimizações para reduzir tremor */
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* Força o uso de GPU para transformações */
+  transform: translateZ(0);
 }
 
 .orbit-text .icon {
@@ -89,6 +99,16 @@ video {
   align-items: center;
   justify-content: center;
   font-size: 18px;
+  
+  /* Otimizações específicas para SVGs */
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.orbit-text .icon svg {
+  /* Otimizações para SVGs */
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
 }
 
 .orbit-text .text-content {
