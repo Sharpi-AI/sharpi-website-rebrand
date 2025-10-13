@@ -72,18 +72,18 @@ import Button from "@/components/ui/button/index.astro";
 <div class="sticky top-0 max-h-0 z-50 overflow-visible w-full">
   <header
     id="header-container"
-    class="w-full p-0 md:p-4 flex items-center justify-between transition-transform duration-200 ease-in-out"
+    class="w-full p-0 md:p-4 flex items-center justify-between transition-transform duration-200 ease-in-out pointer-events-none"
   >
     <div class="p-4 grid grid-cols-3 w-full">
-      <div class=" items-center hidden md:flex">
-        <a href="/#hero" aria-label="Ir para o início">
+      <div class=" items-center hidden md:flex ">
+        <a href="/#hero" aria-label="Ir para o início" class="pointer-events-auto">
           <Logo class="origin-left scale-125" />
         </a>
       </div>
 
-      <div class="col-start-1 col-span-3  md:col-span-1 md:col-start-2 w-full flex items-center justify-center">
+      <div class="col-start-1 col-span-3  md:col-span-1 md:col-start-2 w-full flex items-center justify-center ">
         <div
-          class="header-nav w-full md:w-fit flex items-center justify-between bg-[#4A2DF6C2] md:bg-black/20 rounded-xl md:rounded-lg md:h-10 p-3 pl-1 md:p-1 md:gap-8 transition-colors duration-300"
+          class="header-nav w-full md:w-fit flex items-center justify-between bg-[#4A2DF6C2] md:bg-black/20 rounded-xl md:rounded-lg md:h-10 p-3 pl-1 md:p-1 md:gap-8 transition-colors duration-300 pointer-events-auto"
           style={{
             backdropFilter: "blur(22px)",
           }}
@@ -154,13 +154,13 @@ import Button from "@/components/ui/button/index.astro";
         </div>
       </div>
 
-      <div class="w-full  items-center justify-end hidden md:flex">
+      <div class="w-full  items-center justify-end hidden md:flex ">
         <Button
           href="https://app.sharpi.com.br"
           target="_blank"
           rel="noopener"
           variant="ghost"
-          class="entrar-button transition-colors duration-300 pt-1"
+          class="entrar-button transition-colors duration-300 pt-1 pointer-events-auto"
           title="Entrar na Sharpi"
         >
           Entrar
