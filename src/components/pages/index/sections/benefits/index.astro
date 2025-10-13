@@ -1,13 +1,8 @@
 ---
-import '@splidejs/splide/css/core';
 import RecommendationCard from "./recommendation.astro";
-
 import FollowUpCard from "./follow-up.astro";
 import NotificationsCard from "./notifications.astro";
 import ReactivationCard from "./reactivation.astro";
-
-
-
 ---
 
 <section id="benefits" class="py-28 px-2.5 w-full flex flex-col items-center justify-center overflow-hidden">
@@ -18,36 +13,67 @@ import ReactivationCard from "./reactivation.astro";
   </h2>
   <p class="text-sm text-center  tracking-[-0.02em] leading-snug text-[#3D3939] mb-10 md:hidden">A IA da Sharpi envia orçamentos 24/7, liberando seu time para focar em relacionamentos que impulsionam o crescimento.</p>
 
-  <div class="splide max-w-7xl w-full" id="benefits-carousel">
-    <div class="splide__track !overflow-visible">
-      <ul class="splide__list">
-        <li class="splide__slide">
-          <div class="shining-border">
-            <RecommendationCard/>
-          </div>
-        </li>
-        <li class="splide__slide">
-          <div class="shining-border">
-            <ReactivationCard/>
-          </div>
-        </li>
-        <li class="splide__slide">  
-          <div class="shining-border">
-            <NotificationsCard/>
-          </div>
-        </li>
-        <li class="splide__slide">
-          <div class="shining-border">
-            <FollowUpCard/>
-          </div>
-        </li>
-      
-      </ul>
+  <div class="carousel-container max-w-7xl w-full">
+    <div class="carousel-track" id="benefits-carousel">
+      <div class="carousel-slide">
+        <div class="shining-border">
+          <RecommendationCard/>
+        </div>
+      </div>
+      <div class="carousel-slide">
+        <div class="shining-border">
+          <ReactivationCard/>
+        </div>
+      </div>
+      <div class="carousel-slide">
+        <div class="shining-border">
+          <NotificationsCard/>
+        </div>
+      </div>
+      <div class="carousel-slide">
+        <div class="shining-border">
+          <FollowUpCard/>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<style>
+<style is:global>
+  .carousel-container {
+    width: 100%;
+    position: relative;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 20px;
+    overflow-x: visible;
+    cursor: grab;
+    user-select: none;
+    will-change: transform;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .carousel-track.is-dragging {
+    cursor: grabbing;
+    transition: none;
+  }
+
+  .carousel-track.is-snapping {
+    transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .carousel-slide {
+    flex: 0 0 auto;
+  }
+
+  @media (max-width: 640px) {
+    .carousel-track {
+      gap: 16px;
+    }
+  }
+
   .shining-border {
     padding: 2px;
     position: relative;
@@ -56,7 +82,7 @@ import ReactivationCard from "./reactivation.astro";
     transition: all 0.3s ease;
   }
 
-  .splide__slide.is-active .shining-border::before {
+  .carousel-slide.is-active .shining-border::before {
     content: "";
     position: absolute;
     z-index: -2;
@@ -72,7 +98,7 @@ import ReactivationCard from "./reactivation.astro";
     animation: bgRotate 4s linear infinite;
   }
 
-  .splide__slide.is-active .shining-border::after {
+  .carousel-slide.is-active .shining-border::after {
     content: "";
     position: absolute;
     z-index: -1;
@@ -89,29 +115,235 @@ import ReactivationCard from "./reactivation.astro";
       transform: rotate(1turn);
     }
   }
+
+  .carousel-slide.is-active #follow-up-text {
+  max-height: 2rem !important;
+  opacity: 1;
+}
+
+.carousel-slide.is-active #follow-up-device {
+  transform: translateY(-20px);
+}
+
+
+.carousel-slide.is-active #follow-up-card {
+  transform: translateY(-20px);
+}
 </style>
 
 <script>
-  import { Splide } from '@splidejs/splide';
+  const initCarousel = () => {
+    const carousel = document.getElementById('benefits-carousel');
+    if (!carousel) return;
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const splide = new Splide('#benefits-carousel', {
-      perMove: 1,
-      speed: 800,
-      pagination: false,
-      arrows: false,
-      isNavigation: true,
-      autoWidth: true,
-      drag: "free",
-      wheel: true,
-      gap: 20,
-      breakpoints: {
-        640: {
-          gap: 16,
-        },
-      },
-    });
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const container = carousel.parentElement;
+    if (!container) return;
 
-    splide.mount();
-  });
+    let currentX = 0;
+    let targetX = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startTranslateX = 0;
+    let velocity = 0;
+    let lastX = 0;
+    let lastTime = Date.now();
+    let rafId = null;
+    let snapTimeout = null;
+
+    // Calculate bounds (allow last slide to reach left edge)
+    const getBounds = () => {
+      if (slides.length === 0) return { min: 0, max: 0 };
+
+      const lastSlide = slides[slides.length - 1];
+      const lastSlideRect = lastSlide.getBoundingClientRect();
+      const carouselRect = carousel.getBoundingClientRect();
+
+      // Calculate how much we need to move for the last slide to reach the left edge
+      const lastSlideOffset = lastSlideRect.left - carouselRect.left;
+
+      return {
+        min: -Math.abs(lastSlideOffset),
+        max: 0
+      };
+    };
+
+    // Get closest slide index (based on left edge)
+    const getClosestSlideIndex = () => {
+      let closestIndex = 0;
+      let closestDistance = Number.POSITIVE_INFINITY;
+
+      for (let i = 0; i < slides.length; i++) {
+        const slide = slides[i];
+        const rect = slide.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const slideLeft = rect.left - containerRect.left;
+        const distance = Math.abs(slideLeft);
+
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = i;
+        }
+      }
+
+      return closestIndex;
+    };
+
+    // Update active slide
+    const updateActiveSlide = () => {
+      const closestIndex = getClosestSlideIndex();
+      for (let i = 0; i < slides.length; i++) {
+        if (i === closestIndex) {
+          slides[i].classList.add('is-active');
+        } else {
+          slides[i].classList.remove('is-active');
+        }
+      }
+    };
+
+    // Apply transform
+    const applyTransform = (x) => {
+      const bounds = getBounds();
+      const clampedX = Math.max(bounds.min, Math.min(bounds.max, x));
+      carousel.style.transform = `translateX(${clampedX}px)`;
+      currentX = clampedX;
+      updateActiveSlide();
+    };
+
+    // Snap to closest slide (align to left edge)
+    const snapToClosest = () => {
+      carousel.classList.add('is-snapping');
+      const closestIndex = getClosestSlideIndex();
+      const slide = slides[closestIndex];
+      const containerRect = container.getBoundingClientRect();
+      const slideRect = slide.getBoundingClientRect();
+      const containerLeft = containerRect.left;
+      const slideLeft = slideRect.left;
+      const offset = containerLeft - slideLeft;
+
+      targetX = currentX + offset;
+      const bounds = getBounds();
+      targetX = Math.max(bounds.min, Math.min(bounds.max, targetX));
+
+      applyTransform(targetX);
+
+      setTimeout(() => {
+        carousel.classList.remove('is-snapping');
+      }, 350);
+    };
+
+    // Momentum animation
+    const animate = () => {
+      if (!isDragging && Math.abs(velocity) > 0.3) {
+        velocity *= 0.92; // Friction
+        targetX += velocity;
+        applyTransform(targetX);
+        rafId = requestAnimationFrame(animate);
+      } else if (!isDragging) {
+        velocity = 0;
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+
+        if (snapTimeout) {
+          clearTimeout(snapTimeout);
+        }
+        snapTimeout = setTimeout(snapToClosest, 50);
+      }
+    };
+
+    // Mouse/Touch drag handlers
+    const handleDragStart = (e) => {
+      isDragging = true;
+      carousel.classList.add('is-dragging');
+
+      const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+      startX = clientX;
+      startTranslateX = currentX;
+      lastX = clientX;
+      lastTime = Date.now();
+      velocity = 0;
+
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      if (snapTimeout) {
+        clearTimeout(snapTimeout);
+        snapTimeout = null;
+      }
+    };
+
+    const handleDragMove = (e) => {
+      if (!isDragging) return;
+
+      e.preventDefault();
+      const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+      const deltaX = clientX - startX;
+      targetX = startTranslateX + deltaX;
+
+      // Calculate velocity
+      const now = Date.now();
+      const deltaTime = now - lastTime;
+      if (deltaTime > 0) {
+        velocity = (clientX - lastX) / deltaTime * 16; // Normalize to 60fps
+      }
+      lastX = clientX;
+      lastTime = now;
+
+      applyTransform(targetX);
+    };
+
+    const handleDragEnd = () => {
+      if (!isDragging) return;
+
+      isDragging = false;
+      carousel.classList.remove('is-dragging');
+
+      // Apply momentum
+      if (Math.abs(velocity) > 1.5) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        snapToClosest();
+      }
+    };
+
+    // Mouse events
+    carousel.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+
+    // Touch events
+    carousel.addEventListener('touchstart', handleDragStart, { passive: true });
+    carousel.addEventListener('touchmove', handleDragMove, { passive: false });
+    carousel.addEventListener('touchend', handleDragEnd);
+
+    // Wheel event (horizontal scroll only)
+    carousel.addEventListener('wheel', (e) => {
+      // Only handle horizontal scroll, let vertical scroll pass through
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+
+        if (snapTimeout) {
+          clearTimeout(snapTimeout);
+        }
+
+        targetX -= e.deltaX;
+        applyTransform(targetX);
+
+        snapTimeout = setTimeout(snapToClosest, 100);
+      }
+    }, { passive: false });
+
+    // Initialize
+    applyTransform(0);
+    slides[0]?.classList.add('is-active');
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCarousel);
+  } else {
+    initCarousel();
+  }
 </script>
