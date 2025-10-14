@@ -1,0 +1,826 @@
+---
+
+import LinguicaImage from "@/assets/how-to/linguica.jpg";
+import FarinhaImage from "@/assets/how-to/farinha.png";
+import CremeDeLeiteImage from "@/assets/how-to/creme-de-leite.png";
+import MateLimaoImage from "@/assets/how-to/mate-limao.webp";
+import { Image } from "astro:assets";
+
+---
+
+<div
+  class="relative w-full h-full rounded-[21px] overflow-clip bg-[#BADBFF] flex items-center justify-center gap-40"
+  id="documents-to-order-container"
+>
+  <!-- PDF Document (Left) -->
+  <div
+    class="relative bg-white h-[428px] rounded-[18px] shadow-[0px_0px_20px_0px_rgba(0,0,0,0.05)] w-[316px] opacity-0"
+    data-name="PDF"
+    data-animate="panel-pdf"
+  >
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#CEE0FE] rounded-full px-3 h-6 flex items-center justify-center">
+      <span class="text-[#573DFF] text-[10px] font-medium whitespace-nowrap">IA Processando Documento</span>
+    </div>
+    <!-- Header -->
+
+    <div id="document-scanner" class="absolute z-50 -left-1 -right-1 top-0 h-8 bg-gradient-to-r from-[#CEE0FE] to-[#8679ff] blur opacity-0" />
+
+    <div
+      class="absolute flex flex-col font-medium justify-center leading-[0] left-[17px] not-italic text-[#3a3939] text-[14px] text-nowrap top-[23px] tracking-[-0.28px] translate-y-[-50%]"
+    >
+      <p class="leading-[20px] whitespace-pre">Pedidos de compra</p>
+    </div>
+    <div
+      class="absolute flex flex-col font-medium justify-center leading-[0] left-[282px] not-italic text-[#8679ff] text-[14px] text-nowrap top-[23px] tracking-[-0.28px] translate-y-[-50%]"
+    >
+      <p class="leading-[20px] whitespace-pre">42</p>
+    </div>
+
+    <!-- Date -->
+    <div
+      class="absolute flex flex-col font-medium justify-center leading-[0] left-[17px] not-italic text-[#3a3a3a] text-[10px] text-nowrap top-[44.5px] tracking-[-0.2px] translate-y-[-50%]"
+    >
+      <p class="leading-none whitespace-pre">12 Ago 2025</p>
+    </div>
+
+    <!-- Supplier -->
+    <div
+      class="absolute flex flex-col font-medium justify-center leading-[0] left-[17px] not-italic text-[#3a3a3a] text-[10px] text-nowrap top-[155.5px] tracking-[-0.2px] translate-y-[-50%]"
+    >
+      <p class="leading-none whitespace-pre">Supermercado GPA</p>
+    </div>
+
+    <!-- Order Number -->
+    <div
+      class="absolute flex flex-col justify-center leading-[0] not-italic right-[17px] text-[#3a3a3a] text-[8px] text-nowrap text-right top-[155px] tracking-[-0.16px] translate-y-[-50%]"
+    >
+      <p class="leading-none whitespace-pre">009276 534 90</p>
+    </div>
+
+    <!-- Line separator 1 -->
+    <div class="absolute h-0 left-[17px] right-[17px] top-[169px]">
+      <div class="absolute bottom-0 left-0 right-0 top-[-0.3px]">
+        <svg
+          width="100%"
+          height="1"
+          viewBox="0 0 282 1"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <line
+            x1="0"
+            y1="0.5"
+            x2="282"
+            y2="0.5"
+            stroke="rgba(0, 0, 0, 0.12)"
+            stroke-width="0.6"></line>
+        </svg>
+      </div>
+    </div>
+
+    <!-- List of branches -->
+    <div
+      class="relative content-stretch flex flex-col gap-[7px] items-start left-[17px] top-[181px] w-[282px]"
+      data-name="List"
+    >
+      <div
+        class="bg-[rgba(235,235,235,0.4)] h-[18px] relative rounded-[6px] shrink-0 w-full"
+      >
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[6px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">Filial Belo Horizonte</p>
+        </div>
+        <div class="absolute h-[6px] left-[114.5px] top-[6px] w-[89px]">
+          <div
+            class="absolute flex flex-col justify-center leading-[0] left-[calc(50%+5.5px)] not-italic text-[#3a3939] text-[8px] text-nowrap top-[3px] tracking-[-0.16px] translate-y-[-50%]"
+          >
+            <p class="leading-[normal] whitespace-pre">40 produtos</p>
+          </div>
+        </div>
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[247px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">R$2.516</p>
+        </div>
+      </div>
+
+      <div
+        class="bg-[rgba(235,235,235,0.4)] h-[18px] relative rounded-[6px] shrink-0 w-full"
+      >
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[6px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">Filial São Paulo</p>
+        </div>
+        <div class="absolute h-[6px] left-[114.5px] top-[6px] w-[89px]">
+          <div
+            class="absolute flex flex-col justify-center leading-[0] left-[calc(50%+5.5px)] not-italic text-[#3a3939] text-[8px] text-nowrap top-[3px] tracking-[-0.16px] translate-y-[-50%]"
+          >
+            <p class="leading-[normal] whitespace-pre">22 produtos</p>
+          </div>
+        </div>
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[247px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">R$2.120</p>
+        </div>
+      </div>
+
+      <div
+        class="bg-[rgba(235,235,235,0.4)] h-[18px] relative rounded-[6px] shrink-0 w-full"
+      >
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[6px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">Filial Rio de Janeiro</p>
+        </div>
+        <div class="absolute h-[6px] left-[114.5px] top-[6px] w-[89px]">
+          <div
+            class="absolute flex flex-col justify-center leading-[0] left-[calc(50%+5.5px)] not-italic text-[#3a3939] text-[8px] text-nowrap top-[3px] tracking-[-0.16px] translate-y-[-50%]"
+          >
+            <p class="leading-[normal] whitespace-pre">18 produtos</p>
+          </div>
+        </div>
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[247px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">R$7.090</p>
+        </div>
+      </div>
+
+      <div
+        class="bg-[rgba(235,235,235,0.4)] h-[18px] relative rounded-[6px] shrink-0 w-full"
+      >
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[6px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">Cadeg</p>
+        </div>
+        <div class="absolute h-[6px] left-[114.5px] top-[6px] w-[89px]">
+          <div
+            class="absolute flex flex-col justify-center leading-[0] left-[calc(50%+5.5px)] not-italic text-[#3a3939] text-[8px] text-nowrap top-[3px] tracking-[-0.16px] translate-y-[-50%]"
+          >
+            <p class="leading-[normal] whitespace-pre">40 produtos</p>
+          </div>
+        </div>
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[247px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">R$1.516</p>
+        </div>
+      </div>
+
+      <div
+        class="bg-[rgba(235,235,235,0.4)] h-[18px] relative rounded-[6px] shrink-0 w-full"
+      >
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[6px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">Mais 38...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment label -->
+    <div
+      class="absolute flex flex-col font-medium justify-center leading-[0] left-[17px] not-italic text-[#3a3a3a] text-[10px] text-nowrap top-[322.5px] tracking-[-0.2px] translate-y-[-50%]"
+    >
+      <p class="leading-none whitespace-pre">Pagamento</p>
+    </div>
+
+    <!-- Line separator 2 -->
+    <div class="absolute h-0 left-[17px] right-[17px] top-[336px]">
+      <div class="absolute bottom-0 left-0 right-0 top-[-0.3px]">
+        <svg
+          width="100%"
+          height="1"
+          viewBox="0 0 282 1"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <line
+            x1="0"
+            y1="0.5"
+            x2="282"
+            y2="0.5"
+            stroke="rgba(0, 0, 0, 0.12)"
+            stroke-width="0.6"></line>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Payment details -->
+    <div
+      class="absolute bg-[rgba(235,235,235,0.4)] h-[18px] left-[17px] rounded-[6px] top-[346px] w-[282px]"
+    >
+      <div
+        class="absolute flex flex-col justify-center leading-[0] left-[6px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+      >
+        <p class="leading-[normal] whitespace-pre">Boleto</p>
+      </div>
+      <!-- <div class="absolute h-[6px] left-[114.5px] top-[6px] w-[89px]">
+        <div
+          class="absolute flex flex-col justify-center leading-[0] left-[calc(50%+5.5px)] not-italic text-[#3a3939] text-[8px] text-nowrap top-[3px] tracking-[-0.16px] translate-y-[-50%]"
+        >
+          <p class="leading-[normal] whitespace-pre">**** 7932</p>
+        </div>
+      </div> -->
+      <div
+        class="absolute flex flex-col justify-center leading-[0] left-[247px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
+      >
+        <p class="leading-[normal] whitespace-pre">60 dias</p>
+      </div>
+    </div>
+
+    <!-- Total -->
+    <div
+      class="absolute content-stretch flex items-end justify-between leading-[0] left-[17px] not-italic text-[#3a3939] text-nowrap top-[391px] w-[282px]"
+    >
+      <div
+        class="flex flex-col justify-center relative shrink-0 text-[10px] tracking-[-0.2px]"
+      >
+        <p class="leading-[normal] text-nowrap whitespace-pre">Total:</p>
+      </div>
+      <div
+        class="flex flex-col font-medium justify-center relative shrink-0 text-[16px] tracking-[-0.32px]"
+      >
+        <p class="leading-[normal] text-nowrap font-medium whitespace-pre">R$10.296,00</p>
+      </div>
+    </div>
+
+    <!-- Gradient overlay -->
+    <div
+      class="absolute bg-gradient-to-b from-[13.636%] from-[rgba(255,255,255,0)] h-[55px] left-[15px] to-[#ffffff] top-[332px] w-[288px]"
+    ></div>
+  </div>
+
+  <!-- Extract Panel (Right) -->
+  <div
+    class="relative bg-[#f8f8f8] border-[0.5px] border-[rgba(0,0,0,0.12)] border-solid box-border content-stretch flex flex-col gap-[7.314px] items-start px-[13.409px] py-4.5 rounded-[21.941px] w-[329.119px] opacity-0"
+    data-name="Extract"
+    data-animate="panel-extract"
+  >
+    <!-- Header with count -->
+    <div
+      class="bg-[#d2d0fe] box-border content-stretch flex gap-[30.94px] items-start px-[14.628px] py-[9.752px] relative rounded-[14.628px] shrink-0 w-full"
+      data-name="Header"
+    >
+      <div
+        class="basis-0 content-stretch flex grow items-center justify-between min-h-px min-w-px relative shrink-0"
+      >
+        <div class="content-stretch flex gap-[7.314px] items-center relative shrink-0">
+          <div
+            class="content-stretch flex flex-col items-start relative shrink-0"
+            data-name="Product Details"
+          >
+            <div
+              class="flex flex-col font-medium justify-center leading-[0] not-italic relative shrink-0 text-[#4900fd] text-[13.409px] text-nowrap tracking-[-0.2682px]"
+            >
+              <p class="leading-[1.33] whitespace-pre">Pedidos extraídos</p>
+            </div>
+          </div>
+        </div>
+        <div
+          class="flex flex-col font-medium justify-center leading-[0] not-italic relative shrink-0 text-[#4900fd] text-[14.628px] text-nowrap tracking-[-0.2926px]"
+        >
+          <p class="leading-[1.33] whitespace-pre">42</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Branch info -->
+    <div
+      class="bg-white box-border content-stretch flex gap-[30.94px] items-start px-[14.628px] py-[9.752px] relative rounded-[14.628px] shrink-0 w-full"
+      data-name="Header"
+    >
+      <div
+        class="basis-0 content-stretch flex grow items-center justify-between min-h-px min-w-px relative shrink-0"
+      >
+        <div class="content-stretch flex gap-[7.314px] items-center relative shrink-0">
+          <div
+            class="content-stretch flex flex-col items-start relative shrink-0"
+            data-name="Product Details"
+          >
+            <div
+              class="flex flex-col font-medium justify-center leading-[0] not-italic relative shrink-0 text-[#3a3a3a] text-[13.409px] text-nowrap tracking-[-0.2682px]"
+            >
+              <p class="leading-[1.33] whitespace-pre">Filial Salvador</p>
+            </div>
+          </div>
+        </div>
+        <div
+          class="flex flex-col justify-center leading-[0] not-italic opacity-60 relative shrink-0 text-[#4900fd] text-[12.19px] text-nowrap tracking-[-0.2438px]"
+        >
+          <p class="leading-[1.33] whitespace-pre">Pedido 12 de 42</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 1: Farinha Integral -->
+    <div
+      class="bg-white box-border content-stretch flex items-center justify-between p-[14.628px] relative rounded-[14.628px] shrink-0 w-full"
+      data-name="Itens Simplificados"
+    >
+      <div
+        class="content-stretch flex gap-[12.682px] items-center relative shrink-0"
+        data-name="Product Info"
+      >
+        <div
+          class="h-[50.73px] relative rounded-[12.682px] shrink-0 w-[53.266px] overflow-hidden"
+          data-name="Product Image"
+        >
+          <Image
+            src={FarinhaImage}
+            alt="Farinha Integral"
+            width={53.266}
+            height={50.73}
+            class="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+        <div
+          class="content-stretch flex flex-col gap-[7.609px] items-start leading-[0] not-italic relative shrink-0 text-[14.628px] tracking-[-0.2926px] w-[148.384px]"
+          data-name="Product Details"
+        >
+          <div
+            class="flex flex-col font-medium justify-center relative shrink-0 text-[#232222] w-full"
+          >
+            <p class="leading-[0.9]">Farinha Integral</p>
+          </div>
+          <div
+            class="flex flex-col justify-center relative shrink-0 text-[#90908e] w-full"
+          >
+            <p class="leading-[0.9]">50kg</p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="content-stretch flex flex-col gap-[7.609px] items-start leading-[0] not-italic relative shrink-0 text-right"
+        data-name="Product Price Info"
+      >
+        <div
+          class="flex flex-col font-medium justify-center opacity-60 relative shrink-0 text-[#232222] text-[10.971px] w-full"
+        >
+          <p class="leading-[0.9]">R$ 18 / Kg.</p>
+        </div>
+        <div
+          class="flex flex-col justify-center opacity-[0.32] relative shrink-0 text-[#90908e] text-[8.533px] tracking-[-0.1707px] w-full"
+        >
+          <p class="leading-[0.9]">Remover</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 2: Creme de Leite -->
+    <div
+      class="bg-white box-border content-stretch flex items-center justify-between p-[14.628px] relative rounded-[14.628px] shrink-0 w-full"
+      data-name="Itens Simplificados"
+    >
+      <div
+        class="content-stretch flex gap-[12.682px] items-center relative shrink-0"
+        data-name="Product Info"
+      >
+        <div
+          class="h-[50.73px] relative rounded-[12.682px] shrink-0 w-[53.266px] overflow-hidden"
+          data-name="Product Image"
+        >
+          <Image
+            src={CremeDeLeiteImage}
+            alt="Creme de Leite"
+            width={53.266}
+            height={50.73}
+            class="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+        <div
+          class="content-stretch flex flex-col gap-[7.609px] items-start leading-[0] not-italic relative shrink-0 text-[14.628px] tracking-[-0.2926px] w-[148.384px]"
+          data-name="Product Details"
+        >
+          <div
+            class="flex flex-col font-medium justify-center relative shrink-0 text-[#232222] w-full"
+          >
+            <p class="leading-[0.9]">Creme de Leite</p>
+          </div>
+          <div
+            class="flex flex-col justify-center relative shrink-0 text-[#90908e] w-full"
+          >
+            <p class="leading-[0.9]">15 Lt</p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="content-stretch flex flex-col gap-[7.609px] items-start leading-[0] not-italic relative shrink-0 text-right"
+        data-name="Product Price Info"
+      >
+        <div
+          class="flex flex-col font-medium justify-center opacity-60 relative shrink-0 text-[#232222] text-[10.971px] w-full"
+        >
+          <p class="leading-[0.9]">R$ 12 / Lt.</p>
+        </div>
+        <div
+          class="flex flex-col justify-center opacity-[0.32] relative shrink-0 text-[#90908e] text-[8.533px] tracking-[-0.1707px] w-full"
+        >
+          <p class="leading-[0.9]">Remover</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 3: Matte c/ limão -->
+    <div
+      class="bg-white box-border content-stretch flex items-center justify-between p-[14.628px] relative rounded-[14.628px] shrink-0 w-full"
+      data-name="Itens Simplificados"
+    >
+      <div
+        class="content-stretch flex gap-[12.682px] items-center relative shrink-0"
+        data-name="Product Info"
+      >
+        <div
+          class="h-[50.73px] relative rounded-[12.682px] shrink-0 w-[53.266px] overflow-hidden"
+          data-name="Product Image"
+        >
+          <Image
+            src={MateLimaoImage}
+            alt="Matte c/ limão"
+            width={53.266}
+            height={50.73}
+            class="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+        <div
+          class="content-stretch flex flex-col gap-[7.609px] items-start leading-[0] not-italic relative shrink-0 text-[14.628px] tracking-[-0.2926px] w-[148.384px]"
+          data-name="Product Details"
+        >
+          <div
+            class="flex flex-col font-medium justify-center relative shrink-0 text-[#232222] w-full"
+          >
+            <p class="leading-[0.9]">Matte c/ limão</p>
+          </div>
+          <div
+            class="flex flex-col justify-center relative shrink-0 text-[#90908e] w-full"
+          >
+            <p class="leading-[0.9]">20 un</p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="content-stretch flex flex-col gap-[7.609px] items-start leading-[0] not-italic relative shrink-0 text-right"
+        data-name="Product Price Info"
+      >
+        <div
+          class="flex flex-col font-medium justify-center opacity-60 relative shrink-0 text-[#232222] text-[10.971px] w-full"
+        >
+          <p class="leading-[0.9]">R$ 24 / Un.</p>
+        </div>
+        <div
+          class="flex flex-col justify-center opacity-[0.32] relative shrink-0 text-[#90908e] text-[8.533px] tracking-[-0.1707px] w-full"
+        >
+          <p class="leading-[0.9]">Remover</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 4: Linguiça -->
+    <div
+      class="bg-white box-border content-stretch flex items-center justify-between p-[14.628px] relative rounded-[14.628px] shrink-0 w-full"
+      data-name="Itens Simplificados"
+    >
+      <div
+        class="content-stretch flex gap-[12.682px] items-center relative shrink-0"
+        data-name="Product Info"
+      >
+        <div
+          class="h-[50.73px] relative rounded-[12.682px] shrink-0 w-[53.266px] overflow-hidden"
+          data-name="Product Image"
+        >
+          <Image
+            src={LinguicaImage}
+            alt="Linguiça"
+            width={53.266}
+            height={50.73}
+            class="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+        <div
+          class="content-stretch flex flex-col gap-[7.609px] items-start leading-[0] not-italic relative shrink-0 text-[14.628px] tracking-[-0.2926px] w-[148.384px]"
+          data-name="Product Details"
+        >
+          <div
+            class="flex flex-col font-medium justify-center relative shrink-0 text-[#232222] w-full"
+          >
+            <p class="leading-[0.9]">Linguiça</p>
+          </div>
+          <div
+            class="flex flex-col justify-center relative shrink-0 text-[#90908e] w-full"
+          >
+            <p class="leading-[0.9]">6 sacos</p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="content-stretch flex flex-col gap-[7.609px] items-start leading-[0] not-italic relative shrink-0 text-right"
+        data-name="Product Price Info"
+      >
+        <div
+          class="flex flex-col font-medium justify-center opacity-60 relative shrink-0 text-[#232222] text-[10.971px] w-full"
+        >
+          <p class="leading-[0.9]">R$ 12 / Saco</p>
+        </div>
+        <div
+          class="flex flex-col justify-center opacity-[0.32] relative shrink-0 text-[#90908e] text-[8.533px] tracking-[-0.1707px] w-full"
+        >
+          <p class="leading-[0.9]">Remover</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client info -->
+    <div
+      class="bg-white box-border content-stretch flex gap-[30.94px] items-start px-[14.628px] py-[9.752px] relative rounded-[14.628px] shrink-0 w-full"
+      data-name="Header"
+    >
+      <div
+        class="basis-0 content-stretch flex grow items-center justify-between min-h-px min-w-px relative shrink-0"
+      >
+        <div class="content-stretch flex gap-[7.314px] items-center relative shrink-0">
+          <div
+            class="content-stretch flex flex-col items-start relative shrink-0"
+            data-name="Product Details"
+          >
+            <div
+              class="flex flex-col font-medium justify-center leading-[0] not-italic relative shrink-0 text-[#3a3a3a] text-[13.409px] text-nowrap tracking-[-0.2682px]"
+            >
+              <p class="leading-[1.33] whitespace-pre">Cliente</p>
+            </div>
+          </div>
+        </div>
+        <div
+          class="flex flex-col justify-center leading-[0] not-italic opacity-60 relative shrink-0 text-[#232222] text-[12.19px] text-nowrap tracking-[-0.2438px]"
+        >
+          <p class="leading-[1.33] whitespace-pre">Supermercado GPA</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer with status and total -->
+    <div
+      class="box-border content-stretch flex items-center justify-between pb-0 pt-[29.255px] px-0 relative shrink-0 w-full"
+    >
+      <div
+        class="bg-[#e0ecff] border-[0.609px] border-[rgba(0,0,0,0.12)] border-solid box-border content-stretch flex gap-[12.19px] items-center justify-center px-[7.314px] h-[18px] relative rounded-[4px] shrink-0"
+        data-name="Days"
+      >
+        <div
+          class="flex flex-col  justify-center leading-[0]  not-italic relative shrink-0 text-[#4900fd] text-[10px] text-nowrap tracking-[-0.4875px]"
+        >
+          <p class="leading-[normal] font-mono whitespace-pre">Extração concluída</p>
+        </div>
+      </div>
+      <div class="content-stretch flex gap-[7.314px] items-end relative shrink-0">
+        <div
+          class="flex flex-col font-medium justify-center leading-[0] not-italic relative shrink-0 text-[#3a3939] text-[17.065px] text-nowrap tracking-[-0.3413px]"
+        >
+          <p class="leading-[normal] whitespace-pre">R$ 10.296,00</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { animate, inView } from "motion";
+
+  const initDocumentsOrderAnimation = () => {
+    const container = document.querySelector("#documents-to-order-container");
+    if (!container) return;
+
+    // Variáveis de controle
+    let animationTimeouts: number[] = [];
+    let isAnimating = false;
+    let currentAnimations: any[] = [];
+
+    const duration = 0.8;
+    const delay = 0.8;
+
+    const animationOptions = {
+      duration: duration,
+      easing: [0.22, 1, 0.36, 1], // easeOutCubic
+    };
+
+    // Função para parar e resetar animação completamente
+    const stopAndResetAnimation = () => {
+      // Cancelar todos timeouts pendentes
+      animationTimeouts.forEach(id => window.clearTimeout(id));
+      animationTimeouts = [];
+
+      // Parar animações em andamento
+      currentAnimations.forEach(anim => {
+        if (anim && typeof anim.stop === 'function') {
+          anim.stop();
+        }
+      });
+      currentAnimations = [];
+
+      // Aguardar um frame para Motion liberar propriedades
+      requestAnimationFrame(() => {
+        // Resetar todos elementos ao estado inicial
+        container.querySelectorAll('[data-animate]').forEach(el => {
+          const element = el as HTMLElement;
+          element.style.opacity = '0';
+          element.style.transform = '';
+        });
+
+        // Resetar scanner
+        const scanner = container.querySelector('#document-scanner');
+        if (scanner) {
+          (scanner as HTMLElement).style.top = '0px';
+          (scanner as HTMLElement).style.opacity = '0';
+        }
+
+        isAnimating = false;
+      });
+    };
+
+    // Função que executa sequência completa de animações
+    const runAnimationSequence = () => {
+      if (isAnimating) return; // Prevenir múltiplas animações simultâneas
+      isAnimating = true;
+
+      // Aguardar 4 segundos após ambos painéis aparecerem, depois fazer fade-out
+      const timeoutId = window.setTimeout(() => {
+        fadeOutAndReset();
+      }, 4000);
+      animationTimeouts.push(timeoutId);
+    };
+
+    const fadeOutAndReset = () => {
+      const fadeOutDuration = 0.5;
+
+      const visibleElements = Array.from(container.querySelectorAll('[data-animate]')).filter(el => {
+        const element = el as HTMLElement;
+        return element.style.opacity !== '0';
+      });
+
+      // Se houver elementos visíveis, fazer fade-out
+      if (visibleElements.length > 0) {
+        // Fazer fade-out de todos os elementos simultaneamente
+        const fadeOutPromises = visibleElements.map(el => {
+          const anim = animate(el as Element, { opacity: 0 }, { duration: fadeOutDuration, easing: [0.4, 0, 0.2, 1] });
+          currentAnimations.push(anim);
+          return anim.finished;
+        });
+
+        // Aguardar todos os fade-outs completarem
+        Promise.all(fadeOutPromises).then(() => {
+          // Após fade-out, resetar e reiniciar
+          resetAndStartAnimation();
+        });
+      } else {
+        // Se não houver elementos visíveis (primeira execução), começar direto
+        resetAndStartAnimation();
+      }
+    };
+
+    const resetAndStartAnimation = () => {
+      // Aguardar um frame para Motion liberar propriedades
+      requestAnimationFrame(() => {
+        // Resetar todos elementos para estado inicial
+        container.querySelectorAll('[data-animate]').forEach(el => {
+          const element = el as HTMLElement;
+          element.style.opacity = '0';
+          element.style.transform = '';
+        });
+
+        // Resetar scanner
+        const scanner = container.querySelector('#document-scanner');
+        if (scanner) {
+          (scanner as HTMLElement).style.top = '0px';
+          (scanner as HTMLElement).style.opacity = '0';
+        }
+
+        // Limpar arrays de controle antes de reiniciar
+        animationTimeouts = [];
+        currentAnimations = [];
+        isAnimating = false;
+
+        // Iniciar animações de entrada imediatamente
+        startEntryAnimations();
+      });
+    };
+
+    const startEntryAnimations = () => {
+      const scannerDuration = 1.2; // Duração de uma varredura completa (ida e volta)
+      const scannerRepetitions = 3; // Número de varreduras
+      const totalScannerTime = scannerDuration * scannerRepetitions;
+
+      // 1. Animar painel PDF (esquerda) - aparece primeiro
+      currentAnimations.push(
+        animate('[data-animate="panel-pdf"]', {
+          opacity: [0, 1],
+          y: [20, 0],
+        }, {
+          ...animationOptions,
+          delay: 0,
+        })
+      );
+
+      // 2. Animar scanner - 3 varreduras (descendo e subindo)
+      const scanner = container.querySelector('#document-scanner');
+      if (scanner) {
+        // Resetar posição inicial do scanner
+        (scanner as HTMLElement).style.top = '0px';
+
+        // Fazer scanner aparecer junto com o PDF
+        currentAnimations.push(
+          animate(scanner, {
+            opacity: [0, 1],
+          }, {
+            duration: 0.3,
+            delay: duration,
+          })
+        );
+
+        // Animar scanner fazendo 3 varreduras completas
+        currentAnimations.push(
+          animate(scanner, {
+            top: [
+              '0px',      // Início
+              '390px',    // Desce até o final
+              '0px',      // Sobe de volta
+              '390px',    // Segunda varredura - desce
+              '0px',      // Sobe de volta
+              '390px',    // Terceira varredura - desce
+              '0px',      // Volta ao topo
+            ],
+          }, {
+            duration: totalScannerTime,
+            easing: 'linear',
+            delay: duration, // Inicia após o PDF aparecer
+          })
+        );
+      }
+
+      // 3. Animar painel Extract (direita) - aparece 1s após o scanner começar
+      const extractDelay = duration + 1; // PDF aparece + 1s
+      currentAnimations.push(
+        animate('[data-animate="panel-extract"]', {
+          opacity: [0, 1],
+          y: [20, 0],
+        }, {
+          ...animationOptions,
+          delay: extractDelay,
+        })
+      );
+
+      // Calcular tempo total (última animação termina quando scanner termina ou extract aparece, o que for maior)
+      const pdfTime = duration;
+      const scannerEndTime = duration + totalScannerTime;
+      const extractEndTime = extractDelay + duration;
+      const totalTime = Math.max(scannerEndTime, extractEndTime) * 1000;
+
+      const timeoutId = window.setTimeout(() => runAnimationSequence(), totalTime);
+      animationTimeouts.push(timeoutId);
+    };
+
+    // Detectar quando componente entra no viewport e iniciar loop
+    inView(
+      container,
+      () => {
+        // Entrou no viewport - resetar completamente e começar do zero
+        stopAndResetAnimation();
+        resetAndStartAnimation();
+
+        // Retornar callback para quando sair do viewport
+        return () => {
+          // Saiu do viewport - parar e resetar
+          stopAndResetAnimation();
+        };
+      },
+      { amount: 0.2 } // Inicia quando 20% do componente está visível
+    );
+
+    // Listener para mudanças de aba
+    document.addEventListener("howToSelectorChanged", (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { activeSelector } = customEvent.detail;
+
+      if (activeSelector === 'files') {
+        // Aba files ativada - resetar completamente e começar do zero
+        stopAndResetAnimation();
+        // Pequeno delay para garantir que o reset foi aplicado antes de reiniciar
+        window.setTimeout(() => {
+          resetAndStartAnimation();
+        }, 50);
+      } else {
+        // Outra aba ativada - parar animação
+        stopAndResetAnimation();
+      }
+    });
+  };
+
+  // Inicializar quando o DOM estiver pronto
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initDocumentsOrderAnimation);
+  } else {
+    initDocumentsOrderAnimation();
+  }
+</script>

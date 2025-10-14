@@ -1,6 +1,7 @@
 ---
 import TabSelector from "./tab-selector.astro";
 import MessagesToOrder from "./messages-to-order.astro";
+import DocumentsToOrder from "./documents-to-order.astro";
 import audioImgMobile from "@/assets/how-to/audio-mobile.png";
 import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
 ---
@@ -67,30 +68,13 @@ import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
         class="absolute z-0 w-full h-full inset-0 rounded-[20px] opacity-0 transition-opacity duration-300"
         data-tab-content="files"
       >
-        <video
-          class="w-full h-full object-cover rounded-[20px]"
-          autoplay
-          loop
-          muted
-          playsinline
-        >
-          <source
-            media="(max-width: 767px)"
-            src="/assets/medias/index/how-to/files-mobile.mp4"
-          />
-          <source
-            media="(min-width: 768px)"
-            src="/assets/medias/index/how-to/files-desktop.mp4"
-          />
-        </video>
+        <DocumentsToOrder />
       </div>
     </div>
   </div>
 </section>
 
 <script>
-  import { inView } from "motion";
-
   const initTabContent = () => {
     const switchTabContent = (activeTab: string) => {
       const allTabContents =
@@ -128,21 +112,7 @@ import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
     };
 
     const handleResize = () => {
-      // Atualizar source do vídeo de files baseado no tamanho da tela
-      const filesVideo =
-        document.querySelector<HTMLVideoElement>("#tab-files video");
-
-      if (filesVideo) {
-        const isMobile = window.innerWidth < 768;
-        const newSrc = isMobile
-          ? "/assets/medias/index/how-to/files-mobile.mp4"
-          : "/assets/medias/index/how-to/files-desktop.mp4";
-
-        if (!filesVideo.src.endsWith(newSrc)) {
-          filesVideo.src = newSrc;
-          filesVideo.load();
-        }
-      }
+      // Resize handler - can be used for responsive adjustments
     };
 
     document.addEventListener("howToSelectorChanged", (e: Event) => {
@@ -153,7 +123,7 @@ import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
 
     window.addEventListener("resize", handleResize);
 
-    
+
     const initialActiveSelector =
       document
         .querySelector('[data-active="true"]')
@@ -161,35 +131,6 @@ import audioImgDesktop from "@/assets/how-to/audio-desktop.png";
 
     switchTabContent(initialActiveSelector);
     handleResize();
-
-    
-    const tabFilesElement = document.querySelector<HTMLElement>("#tab-files");
-    if (tabFilesElement) {
-      inView(
-        tabFilesElement,
-        () => {
-          
-          const video = tabFilesElement.querySelector("video") as HTMLVideoElement;
-          if (video && tabFilesElement.style.opacity === "1") {
-            
-            video.currentTime = 0;
-            video.play().catch(() => {
-              
-            });
-          }
-
-          
-          return () => {
-          
-            const video = tabFilesElement.querySelector("video") as HTMLVideoElement;
-            if (video) {
-              video.pause();
-            }
-          };
-        },
-        { amount: 0.2 }
-      );
-    }
   };
 
   if (document.readyState === "loading") {

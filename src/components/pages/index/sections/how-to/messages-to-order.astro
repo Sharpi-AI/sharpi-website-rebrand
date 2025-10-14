@@ -389,7 +389,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
 
     // Função para obter altura real do elemento
     const getElementHeight = (selector: string): string => {
-      const element = document.querySelector(selector);
+      const element = container.querySelector(selector);
       if (!element) return "500px";
 
       // Temporariamente mostrar elemento para medir
@@ -423,7 +423,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
 
     // Função para atualizar contador de itens
     const updateCounter = (value: number) => {
-      const counter = document.querySelector('#order-counter');
+      const counter = container.querySelector('#order-counter');
       if (counter) counter.textContent = value.toString();
     };
 
@@ -456,7 +456,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
         console.log('🔄 Reset dentro de requestAnimationFrame (stopAndReset)');
 
         // Resetar todos elementos ao estado inicial
-        document.querySelectorAll('[data-animate]').forEach(el => {
+        container.querySelectorAll('[data-animate]').forEach(el => {
           const element = el as HTMLElement;
           const animateKey = element.getAttribute('data-animate');
 
@@ -504,7 +504,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
         });
 
         // Resetar vídeo com data-video-appear (manipulação tradicional)
-        const video = document.querySelector('[data-video-appear]') as HTMLVideoElement;
+        const video = container.querySelector('[data-video-appear]') as HTMLVideoElement;
         if (video) {
           video.style.transition = '';
           video.style.opacity = '0';
@@ -532,7 +532,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
     const fadeOutAndReset = () => {
       const fadeOutDuration = 0.5;
 
-      const visibleElements = Array.from(document.querySelectorAll('[data-animate]')).filter(el => {
+      const visibleElements = Array.from(container.querySelectorAll('[data-animate]')).filter(el => {
         const element = el as HTMLElement;
         const animateKey = element.getAttribute('data-animate');
 
@@ -577,7 +577,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
         console.log('🔄 Reset dentro de requestAnimationFrame (resetAndStart)');
 
         // Resetar todos elementos para estado inicial
-        document.querySelectorAll('[data-animate]').forEach(el => {
+        container.querySelectorAll('[data-animate]').forEach(el => {
           const element = el as HTMLElement;
           const animateKey = element.getAttribute('data-animate');
 
@@ -821,7 +821,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
             ...animationOptions,
             delay: delay * 13,
           }).then(() => {
-            const video = document.querySelector('[data-video-appear]') as HTMLVideoElement;
+            const video = container.querySelector('[data-video-appear]') as HTMLVideoElement;
             if (video) {
               video.style.transition = 'opacity 0.5s ease-in-out';
               video.style.opacity = '1';
@@ -845,7 +845,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
             delay: delay * 14 + 5, // 1 delay após açúcar
           }).then(() => {
             updateCounter(5)
-            const video = document.querySelector('[data-video-appear]') as HTMLVideoElement;
+            const video = container.querySelector('[data-video-appear]') as HTMLVideoElement;
             if (video) {
               video.style.opacity = '0';
             }
