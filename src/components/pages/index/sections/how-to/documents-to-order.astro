@@ -9,12 +9,12 @@ import { Image } from "astro:assets";
 ---
 
 <div
-  class="relative w-full h-full rounded-[21px] overflow-clip bg-[#BADBFF] flex items-center justify-center gap-40"
+  class="relative w-full h-full rounded-[21px] overflow-clip bg-[#BADBFF] flex flex-col md:flex-row items-center justify-center gap-0 md:gap-40 px-4 md:px-0"
   id="documents-to-order-container"
 >
   <!-- PDF Document (Left) -->
   <div
-    class="relative bg-white h-[428px] rounded-[18px] shadow-[0px_0px_20px_0px_rgba(0,0,0,0.05)] w-[316px] opacity-0"
+    class="absolute md:relative left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:inset-auto flex items-center justify-center bg-white h-[428px] rounded-[18px] shadow-[0px_0px_20px_0px_rgba(0,0,0,0.05)] w-full max-w-[316px] mx-auto md:mx-0 opacity-0 shrink-0"
     data-name="PDF"
     data-animate="panel-pdf"
   >
@@ -80,7 +80,7 @@ import { Image } from "astro:assets";
 
     <!-- List of branches -->
     <div
-      class="relative content-stretch flex flex-col gap-[7px] items-start left-[17px] top-[181px] w-[282px]"
+      class="relative content-stretch flex flex-col gap-[7px] items-start top-[24px] w-[282px]"
       data-name="List"
     >
       <div
@@ -257,7 +257,7 @@ import { Image } from "astro:assets";
 
   <!-- Extract Panel (Right) -->
   <div
-    class="relative bg-[#f8f8f8] border-[0.5px] border-[rgba(0,0,0,0.12)] border-solid box-border content-stretch flex flex-col gap-[7.314px] items-start px-[13.409px] py-4.5 rounded-[21.941px] w-[329.119px] opacity-0"
+    class="absolute md:relative left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:inset-auto bg-[#f8f8f8] border-[0.5px] border-[rgba(0,0,0,0.12)] border-solid box-border content-stretch flex flex-col gap-[7.314px] items-start justify-center px-[13.409px] py-4.5 rounded-[21.941px] w-full max-w-[329.119px] h-min mx-auto md:mx-0 opacity-0 shrink-0"
     data-name="Extract"
     data-animate="panel-extract"
   >
@@ -606,6 +606,12 @@ import { Image } from "astro:assets";
       easing: [0.22, 1, 0.36, 1], // easeOutCubic
     };
 
+    // Função para detectar se é mobile
+    const isMobile = () => window.innerWidth < 768;
+
+    // Rastrear estado anterior para detectar mudanças reais de orientação
+    let previousIsMobile = isMobile();
+
     // Função para parar e resetar animação completamente
     const stopAndResetAnimation = () => {
       // Cancelar todos timeouts pendentes
@@ -707,7 +713,7 @@ import { Image } from "astro:assets";
       });
     };
 
-    const startEntryAnimations = () => {
+    const startEntryAnimationsDesktop = () => {
       const scannerDuration = 1.2; // Duração de uma varredura completa (ida e volta)
       const scannerRepetitions = 3; // Número de varreduras
       const totalScannerTime = scannerDuration * scannerRepetitions;
@@ -781,6 +787,139 @@ import { Image } from "astro:assets";
       animationTimeouts.push(timeoutId);
     };
 
+    const startEntryAnimationsMobile = () => {
+      const scannerDuration = 1.2; // Duração de uma varredura completa (ida e volta)
+      const scannerRepetitions = 3; // Número de varreduras
+      const totalScannerTime = scannerDuration * scannerRepetitions;
+
+      // Timings da sequência mobile
+      const pdfAppearTime = duration; // 0.8s - PDF aparece
+      const scannerTime = totalScannerTime; // 3.6s - Scanner faz 3 varreduras
+      const pdfVisibleTime = 1; // 1s - PDF fica visível após scanner
+      const pdfFadeOutTime = 0.5; // 0.5s - PDF desaparece
+      const extractAppearTime = duration; // 0.8s - Extract aparece
+      const extractVisibleTime = 4; // 4s - Extract fica visível
+      const extractFadeOutTime = 0.5; // 0.5s - Extract desaparece
+
+      // 1. Animar painel PDF - aparece primeiro
+      currentAnimations.push(
+        animate(container.querySelector('[data-animate="panel-pdf"]') as Element, {
+          opacity: [0, 1],
+          y: [20, 0],
+        }, {
+          ...animationOptions,
+          delay: 0,
+        })
+      );
+
+      // 2. Animar scanner - 3 varreduras (descendo e subindo)
+      const scanner = container.querySelector('#document-scanner');
+      if (scanner) {
+        // Resetar posição inicial do scanner
+        (scanner as HTMLElement).style.top = '0px';
+
+        // Fazer scanner aparecer junto com o PDF
+        currentAnimations.push(
+          animate(scanner, {
+            opacity: [0, 1],
+          }, {
+            duration: 0.3,
+            delay: duration,
+          })
+        );
+
+        // Animar scanner fazendo 3 varreduras completas
+        currentAnimations.push(
+          animate(scanner, {
+            top: [
+              '0px',      // Início
+              '390px',    // Desce até o final
+              '0px',      // Sobe de volta
+              '390px',    // Segunda varredura - desce
+              '0px',      // Sobe de volta
+              '390px',    // Terceira varredura - desce
+              '0px',      // Volta ao topo
+            ],
+          }, {
+            duration: totalScannerTime,
+            easing: 'linear',
+            delay: duration, // Inicia após o PDF aparecer
+          })
+        );
+      }
+
+      // 3. PDF fica visível por mais 1s, depois faz fade-out
+      const pdfFadeOutStartTime = (pdfAppearTime + scannerTime + pdfVisibleTime) * 1000;
+      const pdfFadeOutTimeoutId = window.setTimeout(() => {
+        const pdfPanel = container.querySelector('[data-animate="panel-pdf"]');
+        if (pdfPanel) {
+          const anim = animate(pdfPanel as Element, {
+            opacity: 0,
+          }, {
+            duration: pdfFadeOutTime,
+            easing: [0.4, 0, 0.2, 1],
+          });
+          currentAnimations.push(anim);
+
+          // Também esconder o scanner junto
+          if (scanner) {
+            const scannerAnim = animate(scanner, {
+              opacity: 0,
+            }, {
+              duration: pdfFadeOutTime,
+              easing: [0.4, 0, 0.2, 1],
+            });
+            currentAnimations.push(scannerAnim);
+          }
+        }
+      }, pdfFadeOutStartTime);
+      animationTimeouts.push(pdfFadeOutTimeoutId);
+
+      // 4. Extract aparece após PDF desaparecer
+      const extractAppearStartTime = (pdfAppearTime + scannerTime + pdfVisibleTime + pdfFadeOutTime) * 1000;
+      const extractAppearTimeoutId = window.setTimeout(() => {
+        currentAnimations.push(
+          animate(container.querySelector('[data-animate="panel-extract"]') as Element, {
+            opacity: [0, 1],
+            y: [20, 0],
+          }, {
+            ...animationOptions,
+            delay: 0,
+          })
+        );
+      }, extractAppearStartTime);
+      animationTimeouts.push(extractAppearTimeoutId);
+
+      // 5. Extract fica visível por 4s, depois faz fade-out
+      const extractFadeOutStartTime = (pdfAppearTime + scannerTime + pdfVisibleTime + pdfFadeOutTime + extractAppearTime + extractVisibleTime) * 1000;
+      const extractFadeOutTimeoutId = window.setTimeout(() => {
+        const extractPanel = container.querySelector('[data-animate="panel-extract"]');
+        if (extractPanel) {
+          const anim = animate(extractPanel as Element, {
+            opacity: 0,
+          }, {
+            duration: extractFadeOutTime,
+            easing: [0.4, 0, 0.2, 1],
+          });
+          currentAnimations.push(anim);
+
+          // Após Extract desaparecer, reiniciar loop
+          anim.finished.then(() => {
+            resetAndStartAnimation();
+          });
+        }
+      }, extractFadeOutStartTime);
+      animationTimeouts.push(extractFadeOutTimeoutId);
+    };
+
+    const startEntryAnimations = () => {
+      if (isMobile()) {
+        startEntryAnimationsMobile();
+      } else {
+        startEntryAnimationsDesktop();
+      }
+    };
+
     // Detectar quando componente entra no viewport e iniciar loop
     inView(
       container,
@@ -797,6 +936,28 @@ import { Image } from "astro:assets";
       },
       { amount: 0.2 } // Inicia quando 20% do componente está visível
     );
+
+    // Listener para resize (detectar mudanças de orientação)
+    let resizeTimeout: number;
+    window.addEventListener('resize', () => {
+      // Debounce para evitar múltiplos checks durante resize
+      clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(() => {
+        const currentIsMobile = isMobile();
+
+        // Só resetar se houve mudança real de mobile para desktop ou vice-versa
+        // Ignora mudanças de altura (causadas pela barra de endereço no mobile)
+        if (currentIsMobile !== previousIsMobile) {
+          previousIsMobile = currentIsMobile;
+
+          // Resetar e reiniciar animação com a lógica correta para o novo tamanho
+          stopAndResetAnimation();
+          window.setTimeout(() => {
+            resetAndStartAnimation();
+          }, 50);
+        }
+      }, 200);
+    });
 
     // Listener para mudanças de aba
     document.addEventListener("howToSelectorChanged", (e: Event) => {
