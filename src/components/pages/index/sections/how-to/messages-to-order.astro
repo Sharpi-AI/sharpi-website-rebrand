@@ -1,9 +1,18 @@
 ---
+import { Image } from "astro:assets";
 
 import PlusIcon from "@/components/icons/plus.astro";
 import StartIcon from "@/components/icons/start.astro";
 import DoubleCheckIcon from "@/components/icons/double-check.astro";
-import DownloadIcon from "@/components/icons/download.astro";
+
+
+
+import PedidoPapel from "@/assets/how-to/pedido-papel.webp";
+import Azeite from "@/assets/how-to/azeite.jpg";
+import Maizena from "@/assets/how-to/maizena.avif";
+import Sabao from "@/assets/how-to/sabao.webp";
+import Manjericao from "@/assets/how-to/manjericao.webp";
+import Laranja from "@/assets/how-to/laranja.webp";
 ---
 
 <div class="relative w-full h-full rounded-[21px] overflow-clip" id="messages-to-order-container">
@@ -50,7 +59,7 @@ import DownloadIcon from "@/components/icons/download.astro";
           <div class="opacity-0 overflow-hidden" data-animate="msg-2" style="max-height: 0;">
             <div class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]">
               <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
-                12kg de arroz para risoto
+                12 garrafas de azeite pra salada 
               </p>
               <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
                 17:14
@@ -64,7 +73,7 @@ import DownloadIcon from "@/components/icons/download.astro";
               class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]"
             >
               <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
-                1kg de muçarela vegana
+                500g maizena
               </p>
               <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
                 17:14
@@ -97,7 +106,7 @@ import DownloadIcon from "@/components/icons/download.astro";
               Vendedor
             </span>
             <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
-              Não precisa de tapioca?
+              Não precisa de sabão em pó?
             </p>
           </div>
           <div class="size-6 flex items-center justify-center">
@@ -113,7 +122,7 @@ import DownloadIcon from "@/components/icons/download.astro";
             class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[267px]"
           >
             <p class="text-[11px] text-[#343434] tracking-[-0.02em] leading-[0.9]">
-              Sim, 400g da fininha por favor
+              Sim, manda 5cx daquela marca que eu peço
             </p>
             <span class="text-[7px] text-[#747474] tracking-[0.05em] leading-[1.33] whitespace-nowrap">
               17:18
@@ -124,14 +133,9 @@ import DownloadIcon from "@/components/icons/download.astro";
         <!-- Image message -->
         <div class="hidden md:flex flex-col gap-2 opacity-0 overflow-hidden" data-animate="msg-image" style="max-height: 0;">
           <div class="relative min-h-[202px] w-[220px] rounded-[22px] overflow-clip">
-            <!-- Blurred background -->
-            <img src="/assets/medias/index/how-to/products/image-message-bg.png" alt="" class="absolute inset-0 w-full h-full object-cover blur-lg filter" />
-            <div class="absolute inset-0 bg-black/10"></div>
-
-            <!-- Play button overlay -->
-            <div class="absolute inset-0 flex items-center justify-center">
-              <DownloadIcon/>
-            </div>
+           
+            <Image src={PedidoPapel} alt="pedido" class="absolute inset-0 w-full h-full object-cover " />
+           
 
             <!-- Bottom text -->
             <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-[192px] flex items-center justify-between">
@@ -182,34 +186,33 @@ import DownloadIcon from "@/components/icons/download.astro";
 
       <!-- Order items -->
       <div class="flex flex-col gap-2 w-full overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        <!-- Item 1: Arroz Arbório -->
         <div class="opacity-0 overflow-visible" data-animate="item-arroz" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
-                <img src="/assets/medias/index/how-to/products/arroz-arborio.png" alt="Arroz Arbório" class="w-full h-full object-cover" />
+                <Image src={Azeite} alt="Azeite para Salada" class="w-full h-full object-cover" />
               </div>
               <div class="flex flex-col gap-1">
                 <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
-                  Arroz Arbório KG
+                  Azeite para Salada 500ml
                 </p>
                 <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
                   <span>12 UN</span>
-                  <span>R$ 20</span>
+                  <span>R$ 18</span>
                 </div>
               </div>
             </div>
-            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 240</p>
+            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 216</p>
           </div>
           <div class="grid grid-cols-3 items-center justify-between opacity-60">
             <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
               <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">A</span>
             </div>
-            
+
             <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2 text-[#232222]">
               <StartIcon color="#232222" size={12} class="shrink-0"/>
-              <span class="text-[11px]  tracking-[-0.02em] leading-[1.2] whitespace-nowrap">Arroz para risoto</span>
+              <span class="text-[11px]  tracking-[-0.02em] leading-[1.2] whitespace-nowrap">garrafas de azeite</span>
             </div>
 
             <span class="justify-self-end  font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 12</span>
@@ -217,25 +220,24 @@ import DownloadIcon from "@/components/icons/download.astro";
           </div>
         </div>
 
-        <!-- Item 2: Mussarela de Castanha -->
         <div class="opacity-0 overflow-visible" data-animate="item-mussarela" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
-                <img src="/assets/medias/index/how-to/products/mussarela-castanha.png" alt="Mussarela de Castanha" class="w-full h-full object-cover" />
+                <Image src={Maizena} alt="Maizena" class="w-full h-full object-cover" />
               </div>
               <div class="flex flex-col gap-1">
                 <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
-                  Mussarela de Castanha de Caju UN
+                  Maizena 500g
                 </p>
                 <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
-                  <span>4 UN</span>
-                  <span>R$ 34,90</span>
+                  <span>1 UN</span>
+                  <span>R$ 8,50</span>
                 </div>
               </div>
             </div>
-            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 139,60</p>
+            <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 8,50</p>
           </div>
           <div class="grid grid-cols-3 items-center justify-between opacity-60">
             <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
@@ -244,45 +246,42 @@ import DownloadIcon from "@/components/icons/download.astro";
 
             <div class="flex-1 flex justify-self-center justify-center items-center gap-1.5 px-2">
               <StartIcon color="#232222" class="shrink-0" size={12}/>
-              <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">Muçarela vegana</span>
+              <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">maizena 500g</span>
             </div>
-            
-            <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">×4</span>
+
+            <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 1</span>
           </div>
           </div>
         </div>
 
-        <!-- Item 3: Tapioca Fina -->
-        <div class="hidden md:block   opacity-0 overflow-visible" data-animate="item-tapioca" style="max-height: 0;">
+        <div class="hidden md:block opacity-0 overflow-visible" data-animate="item-tapioca" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
-            
-          
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
               <div class="flex gap-2.5 items-center">
                 <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
-                  <img src="/assets/medias/index/how-to/products/tapioca-fina.png" alt="Tapioca Fina" class="w-full h-full object-cover" />
+                  <Image src={Sabao} alt="Sabão em Pó" class="w-full h-full object-cover" />
                 </div>
                 <div class="flex flex-col gap-1">
                   <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
-                    Tapioca Fina 400G
+                    Sabão em Pó 1kg
                   </p>
                   <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
-                    <span>1 UN</span>
-                    <span>R$ 20</span>
+                    <span>5 CX</span>
+                    <span>R$ 12</span>
                   </div>
                 </div>
               </div>
-              <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 20</p>
+              <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 60</p>
             </div>
             <div class="grid grid-cols-3 items-center justify-between opacity-60">
               <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
                 <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">C</span>
               </div>
               <div class="flex-1 flex justify-self-center items-center justify-center gap-1.5 px-2">
-                <StartIcon  color="#232222" size={12} class="shrink-0"/>
-                <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">da fininha</span>
+                <StartIcon color="#232222" size={12} class="shrink-0"/>
+                <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">daquela marca</span>
               </div>
-              <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 1</span>
+              <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 5</span>
             </div>
           </div>
         </div>
@@ -301,20 +300,20 @@ import DownloadIcon from "@/components/icons/download.astro";
           ></video>
         </div>
 
-        <!-- Item 4: Açúcar Mascavo -->
+        <!-- Item 4: Manjericão -->
         <div class="hidden md:block opacity-0 overflow-visible" data-animate="item-acucar" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
-                <img src="/assets/medias/index/how-to/products/acucar-mascavo.png" alt="Açúcar Mascavo" class="w-full h-full object-cover" />
+                <Image src={Manjericao} alt="Manjericão" class="w-full h-full object-cover" />
               </div>
               <div class="flex flex-col gap-1">
                 <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
-                  Açúcar Mascavo KG
+                  Manjericão kg
                 </p>
                 <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
-                  <span>22 UN</span>
+                  <span>4 KG</span>
                   <span>R$ 11,50</span>
                 </div>
               </div>
@@ -327,28 +326,28 @@ import DownloadIcon from "@/components/icons/download.astro";
             </div>
             <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2">
               <StartIcon color="#573dff" size={12} class="shrink-0"/>
-              <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">Açúcar Mascavo</span>
+              <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">Manjericão comum</span>
             </div>
-            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 22</span>
+            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 4 KG</span>
           </div>
           </div>
         </div>
 
-        <!-- Item 5: Hortelã -->
+        <!-- Item 5: Laranja -->
         <div class="hidden md:block opacity-0 overflow-visible" data-animate="item-hortela" style="max-height: 0;">
           <div class="bg-white rounded-xl p-2 flex flex-col gap-1.5">
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
-                <img src="/assets/medias/index/how-to/products/hortela.png" alt="Hortelã" class="w-full h-full object-cover" />
+                <Image src={Laranja} alt="Laranja" class="w-full h-full object-cover" />
               </div>
               <div class="flex flex-col gap-1">
                 <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
-                  Hortelã 30g
+                  Laranja kg
                 </p>
                 <div class="flex gap-2 text-[11px] text-[#90908e] tracking-[-0.02em] leading-[0.9]">
-                  <span>5 UN</span>
-                  <span>R$ 4</span>
+                  <span>5 Sacos</span>
+                  <span>R$ 4,50</span>
                 </div>
               </div>
             </div>
@@ -361,10 +360,10 @@ import DownloadIcon from "@/components/icons/download.astro";
 
             <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2">
               <StartIcon color="#573dff" size={12} class="shrink-0"/>
-              <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">"Chá de Hortela"</span>
+              <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">"Laranja p/ suco"</span>
             </div>
 
-            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 5</span>
+            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 5 Sacos</span>
           </div>
           </div>
         </div>

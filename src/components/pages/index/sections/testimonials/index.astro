@@ -10,42 +10,43 @@ import img04 from "@/assets/testimonials/img-04.png";
 const testimonials = [
   {
     id: "testimonials-card-1",
-    name: "Luisa Abrantes",
-    role: "CEO",
-    company: "Mantiqueira Foods",
-    text: "We needed a partner that understands what Accardi Foods needs today and in the future — Sharpi's technology, including their AI, checked all the boxes and delivered a solution we can rely on every day.",
+    name: "Cris Taverna",
+    role: "Diretora Comercial",
+    company: "Multiplás",
+    text: "A Sharpi permitiu que nossas vendedoras ganhassem tempo e se dedicassem ainda mais às prospecções, aumentando o faturamento através das mensagens automáticas, um dos recursos que ela oferece. Com essa agilidade, conseguimos atender novos clientes com maior eficiência e a atenção necessária, fortalecendo nossas relações e ampliando nossa base de clientes.",
     avatar: img04,
   },
+
+  // {
+  //   id: "testimonials-card-3",
+  //   name: "Maria Santos",
+  //   role: "VP of Sales",
+  //   company: "Global Industries",
+  //   text: "The automated follow-ups and intelligent lead scoring have revolutionized how we approach sales. Sharpi is now an essential part of our daily workflow.",
+  //   avatar: img01,
+  // },
   {
     id: "testimonials-card-2",
-    name: "Roberto Silva",
-    role: "Sales Director",
-    company: "TechCorp",
-    text: "Sharpi transformed our sales process completely. The AI recommendations are incredibly accurate and our team productivity increased by 40% in just 3 months.",
+    name: "Ana Julia",
+    role: "Vendedora",
+    company: "Multiplás",
+    text: "Com a Sharpi, consigo lançar mais pedidos e responder mais cotações em menos tempo e com menos erros.",
     avatar: img02,
   },
-  {
-    id: "testimonials-card-3",
-    name: "Maria Santos",
-    role: "VP of Sales",
-    company: "Global Industries",
-    text: "The automated follow-ups and intelligent lead scoring have revolutionized how we approach sales. Sharpi is now an essential part of our daily workflow.",
-    avatar: img01,
-  },
-  {
-    id: "testimonials-card-4",
-    name: "Carlos Mendes",
-    role: "Sales Manager",
-    company: "Innovation Labs",
-    text: "What impressed us most about Sharpi is how quickly it adapted to our sales process. The AI learns fast and provides insights that actually help close deals.",
-    avatar: img03,
-  },
+  // {
+  //   id: "testimonials-card-4",
+  //   name: "Carlos Mendes",
+  //   role: "Sales Manager",
+  //   company: "Innovation Labs",
+  //   text: "What impressed us most about Sharpi is how quickly it adapted to our sales process. The AI learns fast and provides insights that actually help close deals.",
+  //   avatar: img03,
+  // },
   {
     id: "testimonials-card-5",
-    name: "Ana Rodriguez",
-    role: "Business Development",
-    company: "Future Solutions",
-    text: "Sharpi's customer intelligence helped us understand our prospects better than ever before. Our conversion rates improved dramatically since implementation.",
+    name: "Simone",
+    role: "Vendedora",
+    company: "Casas Pedro",
+    text: "A implantação da Sharpi foi um divisor de águas na nossa rotina. Com a IA ajudando no lançamento de pedidos, ganhamos agilidade, reduzimos erros e conseguimos focar em tarefas mais estratégicas. É impressionante como ela aprende rápido e se adapta à nossa operação. Hoje, não imaginamos mais nosso dia a dia sem essa tecnologia. A Sharpi trouxe mais eficiência e confiança para o nosso trabalho.",
     avatar: img04,
   },
 ];
@@ -128,7 +129,7 @@ const mosaicImages = [
       />
     </div>
 
-    <div class="absolute top-[32%] left-[21%] z-10">
+    <div class="absolute top-[34%] left-[22.5%] z-10">
       <Card
         targetScale="0.82"
         cardId="testimonials-card-1"
@@ -153,7 +154,7 @@ const mosaicImages = [
       />
     </div>
 
-    <div class="absolute top-[63.5%] left-[16.75%] z-10">
+    <!-- <div class="absolute top-[63.5%] left-[16.75%] z-10">
       <Card
         targetScale="0.48"
         cardId="testimonials-card-2"
@@ -163,21 +164,21 @@ const mosaicImages = [
         text={testimonials[1].text}
         avatar={testimonials[1].avatar}
       />
-    </div>
+    </div> -->
 
     <div class="absolute top-[63.5%] left-[44%] z-10">
       <Card
         targetScale="0.82"
         cardId="testimonials-card-3"
-        name={testimonials[2].name}
-        role={testimonials[2].role}
-        company={testimonials[2].company}
-        text={testimonials[2].text}
-        avatar={testimonials[2].avatar}
+        name={testimonials[1].name}
+        role={testimonials[1].role}
+        company={testimonials[1].company}
+        text={testimonials[1].text}
+        avatar={testimonials[1].avatar}
       />
     </div>
 
-    <div class="absolute top-[54%] left-[69%] z-10">
+    <!-- <div class="absolute top-[54%] left-[69%] z-10">
       <Card
         targetScale="0.58"
         cardId="testimonials-card-4"
@@ -187,17 +188,17 @@ const mosaicImages = [
         text={testimonials[3].text}
         avatar={testimonials[3].avatar}
       />
-    </div>
+    </div> -->
 
     <div class="absolute top-[35%] left-[60%] z-10">
       <Card
         targetScale="0.48"
         cardId="testimonials-card-5"
-        name={testimonials[4].name}
-        role={testimonials[4].role}
-        company={testimonials[4].company}
-        text={testimonials[4].text}
-        avatar={testimonials[4].avatar}
+        name={testimonials[2].name}
+        role={testimonials[2].role}
+        company={testimonials[2].company}
+        text={testimonials[2].text}
+        avatar={testimonials[2].avatar}
       />
     </div>
 
@@ -248,8 +249,8 @@ const mosaicImages = [
         <ul class="splide__list">
           {
             testimonials.map((testimonial) => (
-              <li class="splide__slide w-fit flex items-center [.is-active&_>_div]:h-[356px]">
-                <div class="w-[308px] h-[322px] bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)] scale-100 duration-400 transition-all ">
+              <li class="splide__slide w-fit flex items-center [.is-active&_>_div]:min-h-[356px]">
+                <div class="group w-[308px] min-h-[322px] hover:max-h-[500px] overflow-hidden bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)] scale-100 duration-400 transition-all ">
                   <div class="flex flex-col gap-8 p-4 justify-between flex-1">
                     <div class="flex gap-3 items-center">
                       <div class="size-8 shrink-0 bg-gray-200 rounded-full overflow-hidden">
@@ -277,7 +278,7 @@ const mosaicImages = [
                       </div>
                     </div>
 
-                    <p class="text-base md:text-sm tracking-[-0.02em] leading-snug mt-auto text-balance">
+                    <p class="text-base md:text-sm tracking-[-0.02em] leading-snug mt-auto text-balance line-clamp-4 group-hover:line-clamp-none">
                       {testimonial.text}
                     </p>
                   </div>
