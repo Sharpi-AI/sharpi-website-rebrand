@@ -1,7 +1,7 @@
 ---
 import DataSourceFunnel from "./input-funnels.astro";
 import ButtonHero from "@/components/ui/button-hero/index.astro";
-import DeviceSimulation from "./device-simulation.astro";
+import NotificationStack from "./notification-stack.astro";
 
 import CalendarIcon from "@/components/icons/calendar.astro";
 ---
@@ -35,7 +35,27 @@ import CalendarIcon from "@/components/icons/calendar.astro";
       </h1>
     </div>
 
-    <DeviceSimulation />
+
+    <div
+      id="hero-device"
+      class="relative z-0 h-full w-[calc(100%-4rem)] md:w-96 rounded-t-[60px] bg-gradient-to-b from-[#ffffff38] to-[#ffffff] overflow-hidden backdrop-blur-sm opacity-0 translate-y-[30px]"
+    >
+      <div class="absolute inset-0 p-6 flex">
+        <div
+          class="absolute top-4 left-1/2 -translate-x-1/2 w-18 h-5 rounded-full bg-white"
+        >
+        </div>
+
+        <div class="w-full relative">
+          <NotificationStack />
+        </div>
+      </div>
+
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[60px]"
+      >
+      </div>
+    </div>
   </div>
 
   <div
@@ -64,7 +84,7 @@ import CalendarIcon from "@/components/icons/calendar.astro";
 
   <div
     id="hero-funnel"
-    class="absolute z-10 md:z-5 inset-0 translate-y-1/3 p-4 opacity-0 pointer-events-none"
+    class="absolute z-10 md:z-5 inset-0  p-4 opacity-0 pointer-events-none"
   >
     <DataSourceFunnel />
   </div>

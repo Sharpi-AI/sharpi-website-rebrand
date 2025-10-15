@@ -6,6 +6,8 @@ import CremeDeLeiteImage from "@/assets/how-to/creme-de-leite.png";
 import MateLimaoImage from "@/assets/how-to/mate-limao.webp";
 import { Image } from "astro:assets";
 
+import ScannerImage from "@/assets/how-to/scanner.png";
+
 ---
 
 <div
@@ -23,7 +25,7 @@ import { Image } from "astro:assets";
     </div>
     <!-- Header -->
 
-    <div id="document-scanner" class="absolute z-50 -left-1 -right-1 top-0 h-8 bg-gradient-to-r from-[#CEE0FE] to-[#8679ff] blur opacity-0" />
+    <Image id="document-scanner" class="absolute z-50 -left-4 min-w-[346px]  top-0  opacity-0 will-change-transform" src={ScannerImage} alt="Document Scanner" />
 
     <div
       class="absolute flex flex-col font-medium justify-center leading-[0] left-[17px] not-italic text-[#3a3939] text-[14px] text-nowrap top-[23px] tracking-[-0.28px] translate-y-[-50%]"
@@ -257,7 +259,7 @@ import { Image } from "astro:assets";
 
   <!-- Extract Panel (Right) -->
   <div
-    class="absolute md:relative left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:inset-auto bg-[#f8f8f8] border-[0.5px] border-[rgba(0,0,0,0.12)] border-solid box-border content-stretch flex flex-col gap-[7.314px] items-start justify-center px-[13.409px] py-4.5 rounded-[21.941px] w-full max-w-[329.119px] h-min mx-auto md:mx-0 opacity-0 shrink-0"
+    class="absolute md:relative left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-80 md:scale-100 md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:inset-auto bg-[#f8f8f8] border-[0.5px] border-[rgba(0,0,0,0.12)] border-solid box-border content-stretch flex flex-col gap-[7.314px] items-start justify-center px-[13.409px] py-4.5 rounded-[21.941px] w-full max-w-[329.119px] h-min mx-auto md:mx-0 opacity-0 shrink-0"
     data-name="Extract"
     data-animate="panel-extract"
   >
@@ -585,6 +587,15 @@ import { Image } from "astro:assets";
     </div>
   </div>
 </div>
+
+<style is:global>
+  #document-scanner {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    contain: layout style paint;
+    -webkit-backface-visibility: hidden;
+  }
+</style>
 
 <script>
   import { animate, inView } from "motion";

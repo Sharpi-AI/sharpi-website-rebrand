@@ -80,6 +80,8 @@ import ReactivationCard from "./reactivation.astro";
     overflow: hidden;
     border-radius: 21px;
     transition: all 0.3s ease;
+    isolation: isolate;
+    contain: layout style paint;
   }
 
   .carousel-slide.is-active .shining-border::before {
@@ -96,6 +98,9 @@ import ReactivationCard from "./reactivation.astro";
     background-position: 0 0, 100% 0, 100% 100%, 0 100%;
     background-image:  linear-gradient(180deg, #3609FF 0%, #F1F1F1 23.56%, #CFD9FF 44.23%, #7EADFF 100%);
     animation: bgRotate 4s linear infinite;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform;
   }
 
   .carousel-slide.is-active .shining-border::after {
@@ -108,11 +113,17 @@ import ReactivationCard from "./reactivation.astro";
     height: calc(100% - 4px);
     background: #F0F0F0;
     border-radius: 20px;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   @keyframes bgRotate {
+    0% {
+      transform: translateZ(0) rotate(0deg);
+    }
     100% {
-      transform: rotate(1turn);
+      transform: translateZ(0) rotate(360deg);
     }
   }
 
@@ -143,6 +154,7 @@ import ReactivationCard from "./reactivation.astro";
     let currentX = 0;
     let targetX = 0;
     let isDragging = false;
+    let hasMoved = false;
     let startX = 0;
     let startTranslateX = 0;
     let velocity = 0;
@@ -151,15 +163,35 @@ import ReactivationCard from "./reactivation.astro";
     let rafId = null;
     let snapTimeout = null;
 
-    // Calculate bounds (allow last slide to reach left edge)
+    // Calculate bounds (desktop: show multiple cards, mobile: allow last slide to reach left edge)
     const getBounds = () => {
       if (slides.length === 0) return { min: 0, max: 0 };
 
-      const lastSlide = slides[slides.length - 1];
-      const lastSlideRect = lastSlide.getBoundingClientRect();
+      const isDesktop = window.innerWidth > 768;
+      const containerRect = container.getBoundingClientRect();
       const carouselRect = carousel.getBoundingClientRect();
 
-      // Calculate how much we need to move for the last slide to reach the left edge
+      if (isDesktop) {
+        // Desktop: limit scroll to when content width exceeds container width
+        const containerWidth = containerRect.width;
+        const carouselWidth = carousel.scrollWidth;
+        const maxScroll = carouselWidth - containerWidth;
+
+        // Only allow scroll if content is wider than container
+        if (maxScroll > 0) {
+          return {
+            min: -maxScroll,
+            max: 0
+          };
+        }
+
+        // Content fits in container, no scroll needed
+        return { min: 0, max: 0 };
+      }
+
+      // Mobile: allow last slide to reach left edge
+      const lastSlide = slides[slides.length - 1];
+      const lastSlideRect = lastSlide.getBoundingClientRect();
       const lastSlideOffset = lastSlideRect.left - carouselRect.left;
 
       return {
@@ -210,11 +242,12 @@ import ReactivationCard from "./reactivation.astro";
       updateActiveSlide();
     };
 
-    // Snap to closest slide (align to left edge)
-    const snapToClosest = () => {
+    // Snap to specific slide by index
+    const snapToSlide = (index: number) => {
+      if (index < 0 || index >= slides.length) return;
+
       carousel.classList.add('is-snapping');
-      const closestIndex = getClosestSlideIndex();
-      const slide = slides[closestIndex];
+      const slide = slides[index];
       const containerRect = container.getBoundingClientRect();
       const slideRect = slide.getBoundingClientRect();
       const containerLeft = containerRect.left;
@@ -230,6 +263,12 @@ import ReactivationCard from "./reactivation.astro";
       setTimeout(() => {
         carousel.classList.remove('is-snapping');
       }, 350);
+    };
+
+    // Snap to closest slide (align to left edge)
+    const snapToClosest = () => {
+      const closestIndex = getClosestSlideIndex();
+      snapToSlide(closestIndex);
     };
 
     // Momentum animation
@@ -254,11 +293,12 @@ import ReactivationCard from "./reactivation.astro";
     };
 
     // Mouse/Touch drag handlers
-    const handleDragStart = (e) => {
+    const handleDragStart = (e: MouseEvent | TouchEvent) => {
       isDragging = true;
+      hasMoved = false;
       carousel.classList.add('is-dragging');
 
-      const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+      const clientX = e.type.includes('mouse') ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX;
       startX = clientX;
       startTranslateX = currentX;
       lastX = clientX;
@@ -275,12 +315,18 @@ import ReactivationCard from "./reactivation.astro";
       }
     };
 
-    const handleDragMove = (e) => {
+    const handleDragMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging) return;
 
       e.preventDefault();
-      const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+      const clientX = e.type.includes('mouse') ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX;
       const deltaX = clientX - startX;
+
+      // Mark as moved if dragged more than 5px
+      if (Math.abs(deltaX) > 5) {
+        hasMoved = true;
+      }
+
       targetX = startTranslateX + deltaX;
 
       // Calculate velocity
@@ -335,6 +381,21 @@ import ReactivationCard from "./reactivation.astro";
         snapTimeout = setTimeout(snapToClosest, 100);
       }
     }, { passive: false });
+
+    // Click handlers for slides (desktop only)
+    slides.forEach((slide, index) => {
+      slide.addEventListener('click', (e) => {
+        const isDesktop = window.innerWidth > 768;
+
+        // Only handle clicks on desktop and if user didn't drag
+        if (!isDesktop || hasMoved) return;
+
+        // Prevent click if currently dragging
+        if (isDragging) return;
+
+        snapToSlide(index);
+      });
+    });
 
     // Initialize
     applyTransform(0);
