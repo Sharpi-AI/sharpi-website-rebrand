@@ -13,13 +13,30 @@
 
   const noise = createNoise2D();
 
-  const X_DISTANCE = 8;
-  const Y_DISTANCE = 3;
+  // Distances calculated dynamically based on viewport size
+  let X_DISTANCE = 8;
+  let Y_DISTANCE = 5;
+  const Y_OFFSET = -1.5; // Controla o deslocamento vertical de todos os objetos (positivo = para cima, negativo = para baixo)
 
   const MOBILE_BREAKPOINT = 768;
   const MOBILE_Y_DISTANCE = 1;
-  const MOBILE_X_VARIANCE = 2;
-  const MOBILE_TEXTURE_COUNT = 8;
+  const MOBILE_Y_OFFSET = -2.5; // Controla o deslocamento vertical no mobile (independente do desktop)
+  const MOBILE_X_VARIANCE = 3.5;
+  const MOBILE_TEXTURE_COUNT = 12;
+
+  // Animation constants
+  const Z_INDEX_SPACING = 0.01;
+  const Z_OFFSET_RIGHT = 100;
+  const OPACITY_CHANGE_THRESHOLD = 0.01;
+  const CURVATURE_FACTOR = 2.0;
+  const MIN_SCALE = 0.2;
+  const MIN_OPACITY = 0.01;
+  const DESKTOP_OPACITY_FADE_START = 3;
+  const MOBILE_OPACITY_FADE_START = 0.75;
+  const MOBILE_MIN_OPACITY = 0.1;
+  const MOBILE_NOISE_SCALE = 0.01;
+  const DESKTOP_NOISE_SCALE = 0.0001;
+  const MOBILE_SCALE_MIN = 0.3;
 
   let isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
 
@@ -56,6 +73,37 @@
     { path: "/assets/medias/index/hero/image-17.png", width: 1.1 },
   ];
 
+  // Calculate dynamic distances based on viewport size
+  function calculateDistances(width: number, height: number): {
+    xDistance: number;
+    yDistance: number;
+  } {
+    // Base distances (for reference viewport ~1920x1080)
+    const BASE_WIDTH = 1440;
+    const BASE_HEIGHT = 900;
+    const BASE_X_DISTANCE = 10;
+    const BASE_Y_DISTANCE = 4;
+
+    // Calculate scaling factors
+    const widthScale = width / BASE_WIDTH;
+    const heightScale = height / BASE_HEIGHT;
+
+    // Scale distances proportionally with limits
+    const xDistance = THREE.MathUtils.clamp(
+      BASE_X_DISTANCE * Math.sqrt(widthScale),
+      6,  // min: telas pequenas
+      12  // max: telas muito grandes
+    );
+
+    const yDistance = THREE.MathUtils.clamp(
+      BASE_Y_DISTANCE * Math.sqrt(heightScale),
+      2,  // min: telas pequenas
+      5   // max: telas muito grandes
+    );
+
+    return { xDistance, yDistance };
+  }
+
   // Seeded random function for deterministic positioning
   function seededRandom(seed: number): number {
     const x = Math.sin(seed) * 10000;
@@ -71,6 +119,20 @@
       opacity: 1,
       color: new THREE.Color(0xffffff),
     });
+  }
+
+  // Create and configure base mesh
+  function createBaseMesh(
+    texture: THREE.Texture,
+    geometry: THREE.PlaneGeometry,
+    position: { x: number; y: number; z: number },
+    scene: THREE.Scene
+  ): THREE.Mesh {
+    const material = createBaseMaterial(texture);
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(position.x, position.y, position.z);
+    scene.add(mesh);
+    return mesh;
   }
 
   function getImprovedYDistribution(
@@ -131,26 +193,17 @@
     totalObjects: number,
     scene: THREE.Scene
   ): FunnelObject {
-    const material = createBaseMaterial(texture);
-    const mesh = new THREE.Mesh(geometry, material);
-
     const x = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
-    const y = getImprovedYDistribution(
-      index,
-      direction,
-      totalObjects,
-      "gaussian"
-    );
+    const y = getImprovedYDistribution(index, direction, totalObjects, "gaussian");
+    const z = direction === "left-to-right"
+      ? Z_INDEX_SPACING * index
+      : Z_INDEX_SPACING * (index + Z_OFFSET_RIGHT);
 
-    const z =
-      direction === "left-to-right" ? 0.0001 * index : 0.0001 * (index + 100);
-
-    mesh.position.set(x, y, z);
-    scene.add(mesh);
+    const mesh = createBaseMesh(texture, geometry, { x, y: y + Y_OFFSET, z }, scene);
 
     return {
       mesh,
-      startPosition: { x, y, z },
+      startPosition: { x, y: y + Y_OFFSET, z },
       offset: seededRandom(index * (direction === "left-to-right" ? 456 : 987)),
       direction,
     };
@@ -163,25 +216,28 @@
     index: number,
     scene: THREE.Scene
   ): FunnelObject {
-    const material = createBaseMaterial(texture);
-    const mesh = new THREE.Mesh(geometry, material);
+    // Criar "faixas" de entrada para melhor distribuição
+    const numLanes = 3; // Número de faixas horizontais
+    const laneIndex = index % numLanes;
 
-    const x = THREE.MathUtils.mapLinear(
-      seededRandom(index * 345),
-      0,
-      1,
-      -MOBILE_X_VARIANCE,
-      MOBILE_X_VARIANCE
-    );
-    const y = -MOBILE_Y_DISTANCE;
-    const z = 0.0001 * index;
+    // Posição X baseada na faixa com variação adicional
+    const laneWidth = (MOBILE_X_VARIANCE * 2) / numLanes;
+    const laneCenter = -MOBILE_X_VARIANCE + (laneIndex + 0.5) * laneWidth;
+    const xVariation = (seededRandom(index * 345) - 0.5) * laneWidth * 0.6;
+    const x = laneCenter + xVariation;
 
-    mesh.position.set(x, y, z);
-    scene.add(mesh);
+    // Criar "ondas" de entrada: cards começam em diferentes posições Y
+    // Isso evita que todos comecem juntos de baixo
+    const waveOffset = (index / MOBILE_TEXTURE_COUNT) * MOBILE_Y_DISTANCE * 0.8;
+    const y = -MOBILE_Y_DISTANCE - waveOffset;
+
+    const z = Z_INDEX_SPACING * index;
+
+    const mesh = createBaseMesh(texture, geometry, { x, y: y + MOBILE_Y_OFFSET, z }, scene);
 
     return {
       mesh,
-      startPosition: { x, y, z },
+      startPosition: { x, y: y + MOBILE_Y_OFFSET, z },
       offset: seededRandom(index * 678),
       direction: "bottom-to-top",
     };
@@ -192,11 +248,8 @@
     direction: "left-to-right" | "right-to-left",
     progress: number
   ): number {
-    if (direction === "left-to-right") {
-      return THREE.MathUtils.mapLinear(progress, 0, 1, -X_DISTANCE, 0);
-    } else {
-      return THREE.MathUtils.mapLinear(progress, 0, 1, X_DISTANCE, 0);
-    }
+    const startX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
+    return THREE.MathUtils.mapLinear(progress, 0, 1, startX, 0);
   }
 
   // Calculate Y position with convergence and noise
@@ -206,24 +259,11 @@
     startY: number,
     noiseOffset: number
   ): number {
-    let normalizedX: number;
-    if (direction === "left-to-right") {
-      // x vai de -6 para 0, normalizar para 0 a 1
-      normalizedX = THREE.MathUtils.mapLinear(x, -6, 0, 0, 1);
-    } else {
-      // x vai de 6 para 0, normalizar para 0 a 1
-      normalizedX = THREE.MathUtils.mapLinear(x, 6, 0, 0, 1);
-    }
+    const startX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
+    const normalizedX = THREE.MathUtils.mapLinear(x, startX, 0, 0, 1);
 
-    // Criar curva parabólica: y = ax² + bx + c
-    // Queremos que a curva passe por (0, startY) e (1, 0)
-    // E tenha um ponto de controle que crie a curvatura desejada
-
-    // Fator de curvatura - valores maiores = curva mais pronunciada
-    const curvatureFactor = 2.0;
-
-    // Aplicar transformação parabólica
-    const curveY = startY * Math.pow(1 - normalizedX, curvatureFactor);
+    // Aplicar transformação parabólica para criar curva de convergência
+    const curveY = startY * Math.pow(1 - normalizedX, CURVATURE_FACTOR);
 
     return curveY + noiseOffset;
   }
@@ -233,11 +273,8 @@
     direction: "left-to-right" | "right-to-left",
     x: number
   ): number {
-    if (direction === "left-to-right") {
-      return THREE.MathUtils.mapLinear(x, -X_DISTANCE, 0, 1, 0.2);
-    } else {
-      return THREE.MathUtils.mapLinear(x, X_DISTANCE, 0, 1, 0.2);
-    }
+    const startX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
+    return THREE.MathUtils.mapLinear(x, startX, 0, 1, MIN_SCALE);
   }
 
   // Mobile-specific calculation functions
@@ -252,12 +289,21 @@
   }
 
   function calculateMobileScale(y: number): number {
-    return THREE.MathUtils.mapLinear(
+    // Usar curva suave (ease-out) para melhor transição de escala
+    const normalizedY = THREE.MathUtils.mapLinear(
       y,
       -MOBILE_Y_DISTANCE,
       MOBILE_Y_DISTANCE,
+      0,
+      1
+    );
+    const easedProgress = 1 - Math.pow(1 - normalizedY, 2);
+    return THREE.MathUtils.mapLinear(
+      easedProgress,
+      0,
       1,
-      0.3
+      1,
+      MOBILE_SCALE_MIN
     );
   }
 
@@ -278,6 +324,28 @@
     return object.direction === "bottom-to-top";
   }
 
+  // Update mesh opacity only if changed significantly
+  function updateMeshOpacity(object: FunnelObject, opacity: number): void {
+    if (
+      object.cachedOpacity === undefined ||
+      Math.abs(object.cachedOpacity - opacity) > OPACITY_CHANGE_THRESHOLD
+    ) {
+      (object.mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
+      (object.mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
+      object.cachedOpacity = opacity;
+    }
+  }
+
+  // Calculate noise offset for animation
+  function calculateNoiseOffset(
+    progress: number,
+    index: number,
+    scale: number
+  ): number {
+    const noiseInput = progress * Math.PI * 2;
+    return noise(Math.cos(noiseInput) + index, Math.sin(noiseInput)) * scale;
+  }
+
   // Animate individual object (desktop)
   function updateObject(
     object: FunnelObject & { direction: "left-to-right" | "right-to-left" },
@@ -288,29 +356,20 @@
     const uniqueProgress = (progress + offset) % 1;
 
     const x = calculateXPosition(direction, uniqueProgress);
-
-    const noiseInput = uniqueProgress * Math.PI * 2;
-    const yOffset =
-      noise(Math.cos(noiseInput) + index, Math.sin(noiseInput)) * 0.0001;
-
+    const yOffset = calculateNoiseOffset(uniqueProgress, index, DESKTOP_NOISE_SCALE);
     const y = calculateYPosition(direction, x, startPosition.y, yOffset);
 
     const scale = calculateScale(direction, x);
     const opacity = THREE.MathUtils.clamp(
-      THREE.MathUtils.mapLinear(Math.abs(x), 1.5, 0, 1, 0.01),
-      0.01,
+      THREE.MathUtils.mapLinear(Math.abs(x), DESKTOP_OPACITY_FADE_START, 0, 1, MIN_OPACITY),
+      MIN_OPACITY,
       1
     );
 
-    // Only update material if opacity changed significantly (threshold: 0.01)
-    if (object.cachedOpacity === undefined || Math.abs(object.cachedOpacity - opacity) > 0.01) {
-      (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
-      (mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
-      object.cachedOpacity = opacity;
-    }
+    updateMeshOpacity(object, opacity);
 
     mesh.position.x = x;
-    mesh.position.y = y;
+    mesh.position.y = y + Y_OFFSET;
     mesh.scale.set(scale, scale, 1);
   }
 
@@ -324,40 +383,37 @@
     const uniqueProgress = (progress + offset) % 1;
 
     const y = calculateMobileYPosition(uniqueProgress);
-
-    const noiseInput = uniqueProgress * Math.PI * 2;
-    const xOffset =
-      noise(Math.cos(noiseInput) + index, Math.sin(noiseInput)) * 0.01;
-    const x =
-      THREE.MathUtils.mapLinear(
-        y,
-        -MOBILE_Y_DISTANCE,
-        MOBILE_Y_DISTANCE,
-        startPosition.x,
-        0
-      ) + xOffset;
+    const xOffset = calculateNoiseOffset(uniqueProgress, index, MOBILE_NOISE_SCALE);
+    const x = THREE.MathUtils.mapLinear(
+      y,
+      -MOBILE_Y_DISTANCE,
+      MOBILE_Y_DISTANCE,
+      startPosition.x,
+      0
+    ) + xOffset;
 
     const scale = calculateMobileScale(y);
-    const opacity = Math.max(
-      THREE.MathUtils.mapLinear(
-        Math.abs(y),
-        MOBILE_Y_DISTANCE * 0.5,
-        MOBILE_Y_DISTANCE,
-        1,
-        0
-      ),
-      0.1
-    );
 
-    // Only update material if opacity changed significantly (threshold: 0.01)
-    if (object.cachedOpacity === undefined || Math.abs(object.cachedOpacity - opacity) > 0.01) {
-      (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
-      (mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
-      object.cachedOpacity = opacity;
+    // Curva de opacidade melhorada com fade suave nas extremidades
+    const normalizedY = Math.abs(y) / MOBILE_Y_DISTANCE;
+    const fadeStart = MOBILE_OPACITY_FADE_START;
+
+    let opacity: number;
+    if (normalizedY < fadeStart) {
+      opacity = 1;
+    } else {
+      // Usar ease-in para fade mais suave
+      const fadeProgress = (normalizedY - fadeStart) / (1 - fadeStart);
+      opacity = Math.max(
+        1 - Math.pow(fadeProgress, 1.5),
+        MOBILE_MIN_OPACITY
+      );
     }
 
+    updateMeshOpacity(object, opacity);
+
     mesh.position.x = x;
-    mesh.position.y = y;
+    mesh.position.y = y + MOBILE_Y_OFFSET;
     mesh.scale.set(scale, scale, 1);
   }
 
@@ -407,6 +463,11 @@
 
     const { width, height } = dimensions;
 
+    // Calculate dynamic distances based on viewport size
+    const distances = calculateDistances(width, height);
+    X_DISTANCE = distances.xDistance;
+    Y_DISTANCE = distances.yDistance;
+
     canvas.width = width;
     canvas.height = height;
 
@@ -441,12 +502,13 @@
 
     let objects: FunnelObject[] = [];
 
-    const createGeometry = (
+    function createGeometry(
       width: number,
       height: number
-    ): THREE.PlaneGeometry => {
+    ): THREE.PlaneGeometry {
       return new THREE.PlaneGeometry(width, height);
-    };
+    }
+
     const loadTexturePromises = textureDefinitions.map(
       (textureDefinition, i) => {
         return new Promise<LoadedTextureData | null>((resolve) => {
@@ -615,37 +677,53 @@
 
     let currentWidth = width;
     let currentHeight = height;
+    let previousXDistance = X_DISTANCE;
+    let previousYDistance = Y_DISTANCE;
 
     function onWindowResize() {
       const clientWidth = window.innerWidth;
       const clientHeight = window.innerHeight;
 
-      if (clientWidth === currentWidth && clientHeight === currentHeight) {
-        return;
-      }
+      // Early return if dimensions unchanged
+      if (clientWidth === currentWidth && clientHeight === currentHeight) return;
+      if (clientWidth <= 0 || clientHeight <= 0) return;
 
-      if (clientWidth <= 0 || clientHeight <= 0) {
-        return;
-      }
-
-      // Check if mode changed
+      // Check mode change
       const newIsMobile = clientWidth <= MOBILE_BREAKPOINT;
-      if (newIsMobile !== isMobile) {
-        isMobile = newIsMobile;
+      const modeChanged = newIsMobile !== isMobile;
+      if (modeChanged) isMobile = newIsMobile;
+
+      // Check distances change for desktop mode
+      const distancesChanged = !isMobile && (() => {
+        const newDistances = calculateDistances(clientWidth, clientHeight);
+        const DISTANCE_CHANGE_THRESHOLD = 0.1;
+
+        const xChanged = Math.abs(newDistances.xDistance - previousXDistance) / previousXDistance > DISTANCE_CHANGE_THRESHOLD;
+        const yChanged = Math.abs(newDistances.yDistance - previousYDistance) / previousYDistance > DISTANCE_CHANGE_THRESHOLD;
+
+        if (xChanged || yChanged) {
+          X_DISTANCE = newDistances.xDistance;
+          Y_DISTANCE = newDistances.yDistance;
+          previousXDistance = X_DISTANCE;
+          previousYDistance = Y_DISTANCE;
+          return true;
+        }
+        return false;
+      })();
+
+      // Recreate objects if needed
+      if (modeChanged || distancesChanged) {
         createObjectsForMode(isMobile ? "mobile" : "desktop");
       }
 
+      // Update dimensions and camera
       currentWidth = clientWidth;
       currentHeight = clientHeight;
-
       camera.aspect = clientWidth / clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(clientWidth, clientHeight);
-      // Adjust pixel ratio based on mode
       renderer.setPixelRatio(
-        isMobile
-          ? Math.min(window.devicePixelRatio, 2)
-          : window.devicePixelRatio
+        isMobile ? Math.min(window.devicePixelRatio, 2) : window.devicePixelRatio
       );
     }
 
