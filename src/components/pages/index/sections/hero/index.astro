@@ -6,6 +6,33 @@ import NotificationStack from "./notification-stack.astro";
 import CalendarIcon from "@/components/icons/calendar.astro";
 ---
 
+<style is:global>
+  video {
+    -webkit-playsinline: true;
+    -webkit-media-controls-start-playback-button {
+      display: none !important;
+    }
+  }
+  
+  /* Para iOS específicamente */
+  video::-webkit-media-controls-play-button,
+  video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+    -webkit-appearance: none !important;
+  }
+  
+  /* Garantir que não apareça em fullscreen */
+  video::-webkit-media-controls-fullscreen-button {
+    display: none !important;
+  }
+  
+  /* Para alguns casos de overlay */
+  video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+  }
+</style>
+
+
 <section id="hero" class="relative z-0 w-full h-screen max-h-[1048px] flex overflow-hidden">
   <div
     class="relative z-10 flex items-center flex-1 flex-col pt-24 md:pt-44 gap-2 max-w-7xl mx-auto"
@@ -42,8 +69,9 @@ import CalendarIcon from "@/components/icons/calendar.astro";
     >
       <div class="absolute inset-0 p-6 flex">
         <div
-          class="absolute top-4 left-1/2 -translate-x-1/2 w-18 h-5 rounded-full bg-white"
+          class="absolute top-4 left-1/2 -translate-x-1/2 w-18 h-5 rounded-full bg-white flex items-center justify-center"
         >
+          <video src="/assets/medias/index/hero/sphere.mp4" autoplay loop muted playsinline class="size-4 object-contain" />
         </div>
 
         <div class="w-full relative">
@@ -62,21 +90,20 @@ import CalendarIcon from "@/components/icons/calendar.astro";
     id="hero-video-container"
     class="absolute z-0 inset-0 w-full h-full p-0 md:p-4 pointer-events-none"
   >
-    <div id="hero-video-wrapper" class="w-full h-full bg-black/10 md:rounded-2xl">
+    <div id="hero-video-wrapper" class="w-full h-full  md:rounded-2xl">
       <video
         id="hero-video"
-        class="w-full h-full object-cover rounded-2xl pointer-events-none"
+        class="w-full h-full object-cover pointer-events-none"
         autoplay
         loop
         muted
         playsinline
-        disablepictureinpicture
-        controlslist="nodownload nofullscreen noremoteplayback"
         preload="auto"
-        src="/assets/medias/index/hero/hero-bg.webm"
+        controls={false}
+        poster="/assets/medias/index/hero/hero-thumbnail.png"
       >
         <source src="/assets/medias/index/hero/hero-bg.webm" type="video/webm">
-        
+        <source src="/assets/medias/index/hero/hero-bg.mp4" type="video/mp4">
         <source src="/assets/medias/index/hero/hero-bg.mov" type="video/quicktime">
       </video>
     </div>
@@ -102,6 +129,13 @@ import CalendarIcon from "@/components/icons/calendar.astro";
 
 <script>
   import { animate } from "motion";
+
+  // Configurar atributos do vídeo para remover controles no iOS
+  const heroVideo = document.getElementById("hero-video") as HTMLVideoElement;
+  if (heroVideo) {
+    heroVideo.setAttribute("disablePictureInPicture", "true");
+    heroVideo.setAttribute("disableRemotePlayback", "true");
+  }
 
   function resetVideoStyles() {
     const videoContainer = document.getElementById("hero-video-container");
