@@ -2,6 +2,8 @@
 import { Image } from "astro:assets";
 import desktopQuotes from "@/assets/quotes/desktop.png";
 import mobileQuotes from "@/assets/quotes/mobile.png";
+
+import Quote from "./quotes.astro";
 ---
 
 <section id="quotes" class="relative z-0 py-12 flex flex-col items-center justify-center gap-8 px-4">
@@ -18,7 +20,8 @@ import mobileQuotes from "@/assets/quotes/mobile.png";
   </div>
 
   <div class="z-0 w-full max-w-7xl aspect-[382/720] md:aspect-[1356/512] rounded-[20px] overflow-hidden">
-    <Image
+    <Quote />
+    <!-- <Image
       src={desktopQuotes}
       alt="Demonstração de orçamentos instantâneos gerados pela IA da Sharpi"
       class="hidden md:block w-full h-full object-cover"
@@ -29,6 +32,6 @@ import mobileQuotes from "@/assets/quotes/mobile.png";
       alt="Demonstração de orçamentos instantâneos gerados pela IA da Sharpi"
       class="block md:hidden w-full h-full object-cover"
       loading="lazy"
-    />
+    /> -->
   </div>
 </section>

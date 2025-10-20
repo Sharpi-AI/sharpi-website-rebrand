@@ -1,5 +1,5 @@
 ---
-import ForwardArrowIcon from "@/components/icons/forward-arrow.astro";
+
 import CloseIcon from "@/components/icons/close.astro";
 ---
 
@@ -21,75 +21,71 @@ import CloseIcon from "@/components/icons/close.astro";
   >
     <!-- Left Panel: Message List -->
     <div
-      class="absolute left-[55px] top-[156px] w-[430px] hidden md:flex flex-col gap-[6px] items-end"
+      class=" w-[430px] hidden md:flex flex-col gap-[6px] items-end"
     >
       <!-- Message 1: Long request -->
       <div
-        class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[328px]"
+        class="relative bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[328px]"
+        data-message="1"
+        data-animated
       >
         <p
           class="text-[11px] text-[#343434] tracking-[-0.22px] leading-[0.9]"
         >
-          Me mande o preço desses produtos, por favor
+          Me manda uma cotação desses produtos:
         </p>
-        <div class="relative shrink-0 size-3">
-          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="1" y="1" width="10" height="10" rx="1" stroke="#8679FF" stroke-width="0.5" />
-          </svg>
-        </div>
+       
+        <div class="bg-[#573DFF] size-1.5 rounded-full absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2" data-blue-dot data-animated />
       </div>
 
       <!-- Message 2: Rice -->
       <div
-        class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]"
+        class="relative bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]"
+        data-message="2"
+        data-animated
       >
         <p
           class="text-[11px] text-[#343434] tracking-[-0.22px] leading-[0.9]"
         >
-          12kg de arroz para risoto
+          6 caixas de pilhas AA alcalinas
         </p>
-        <div class="relative shrink-0 size-3">
-          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="1" y="1" width="10" height="10" rx="1" stroke="#8679FF" stroke-width="0.5" />
-          </svg>
-        </div>
+
+        <div class="bg-[#573DFF] size-1.5 rounded-full absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2" data-blue-dot data-animated />
+
       </div>
 
       <!-- Message 3: Castanha -->
       <div
-        class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]"
+        class="relative bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]"
+        data-message="3"
+        data-animated
       >
         <p
           class="text-[11px] text-[#343434] tracking-[-0.22px] leading-[0.9]"
         >
-          Castanha do Pará
+        18 rolos filme pvc 100 micras
         </p>
-        <div class="relative shrink-0 size-3">
-          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="1" y="1" width="10" height="10" rx="1" stroke="#8679FF" stroke-width="0.5" />
-          </svg>
-        </div>
+
+        <div class="bg-[#573DFF] size-1.5 rounded-full absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2" data-blue-dot data-animated />
+
       </div>
 
       <!-- Message 4: Detergente + User Info -->
-      <div class="flex flex-col gap-2 items-end">
+      <div class="relative flex flex-col gap-2 items-start" data-message="4" data-animated>
         <div
-          class="bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]"
+          class="relative bg-white border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-lg px-4 py-3 flex items-center justify-between h-[40px] w-[268px]"
         >
           <p
             class="text-[11px] text-[#343434] tracking-[-0.22px] leading-[0.9]"
           >
-            Detergente Neutro
+          2 galões de água sanitária 5lt
           </p>
-          <div class="relative shrink-0 size-3">
-            <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="1" width="10" height="10" rx="1" stroke="#8679FF" stroke-width="0.5" />
-            </svg>
-          </div>
+
+
+          <div class="bg-[#573DFF] size-1.5 rounded-full absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2" data-blue-dot data-animated />
         </div>
 
-        <!-- User Info -->
-        <div class="flex gap-1 items-center px-4">
+        <div class="absolute -bottom-6 left-0 flex gap-1 items-center px-4">
           <div class="size-4 rounded-full overflow-hidden shrink-0 bg-gray-300">
             <img
               src="/assets/medias/index/how-to/products/avatar-user.png"
@@ -111,42 +107,63 @@ import CloseIcon from "@/components/icons/close.astro";
       </div>
     </div>
 
-    <!-- Central Area: Price List + Video Animation -->
-    <div
-      class="absolute left-[480px] top-[172px] w-[370px] h-[145px] hidden md:block"
-    >
-      <!-- Placeholder for Price List SVG/Image or actual table -->
-      <div class="relative w-full h-full">
-        <!-- Central Video Animation -->
-        <div
-          class="absolute left-[145px] top-[36px] w-[76px] h-[73px]"
-        >
-          <div class="aspect-square mix-blend-multiply relative w-full h-full rounded-full overflow-hidden bg-[#8679ff]/10 flex items-center justify-center">
-            <video
-              autoplay
-              loop
-              muted
-              playsinline
-              class="w-full h-full object-cover"
-            >
-              <source src="/assets/medias/index/quotes/quotes.mp4" type="video/mp4" />
-            </video>
-          </div>
+
+    <!-- Flow Animation -->
+    <div id="flow" class="hidden md:flex items-center gap-0" data-animated>
+      <!-- Left vertical paths group -->
+      <div class="flex flex-col gap-0">
+        <!-- Flow 1 -->
+        <div class="relative translate-y-11.25" data-flow="1">
+          <svg class="block" width="153" height="85.5" viewBox="0 0 306 171" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <path id="flow-path-1" d="M 0 1.0811 L 259.369 1.0811 C 272.972 1.0811 284 12.1089 284 25.7123 V 118 C 284 125 295 133 306 133" stroke="none"/>
+          </svg>
         </div>
+
+        <!-- Flow 2 -->
+        <div class="relative translate-y-1.25" data-flow="2">
+          <svg class="block" width="154" height="31" viewBox="0 0 308 62" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <path id="flow-path-2" d="M 0.4629 0.8398 L 259.381 1.8282 C 272.947 1.88 283.918 12.8925 283.918 26.4593 V 26 C 284 38 302 48 309 44" stroke="none"/>
+          </svg>
+        </div>
+
+        <!-- Flow 3 -->
+        <div class="relative -translate-y-2" data-flow="3">
+          <svg class="block" width="153" height="32" viewBox="0 0 306 64" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <path id="flow-path-3" d="M 0.4629 58.0703 C 117.085 58.0703 215.408 58.3023 259.358 58.4254 C 272.994 58.4635 284 47.4204 284 33.7838 V 33 C 284 20 293 13 304 13" stroke="none"/>
+          </svg>
+        </div>
+
+        <!-- Flow 4 -->
+        <div class="relative  -translate-y-12" data-flow="4">
+          <svg class="block" width="154" height="82.5" viewBox="0 0 308 165" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <path id="flow-path-4" d="M 0 163.566 L 258.369 163.566 C 271.972 163.566 283 152.539 283 138.935 V 61 C 283 51 293 31 307 30" stroke="none"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Right horizontal path -->
+      <div class="relative" data-flow="5">
+        <video src="/assets/medias/index/quotes/particles.webm" class="size-24 absolute left-0 top-1/2 -translate-y-1/2 object-cover" muted playsinline data-video />
+        <svg class="block" width="234" height="1.5" viewBox="0 0 468 3" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+          <path id="flow-path-5" d="M0 1.41895H467.69" stroke="none"/>
+        </svg>
       </div>
     </div>
 
+    
     <!-- Right Panel: Quote Card + Action Card -->
     <div
-      class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-6"
+      class=" flex items-center "
+      data-quote-card
+      data-animated
     >
-      <!-- Quote PDF Card -->
       <div
-        class="bg-[#d5e5ff] h-[303px] w-[229px] rounded-[12px] shadow-[0px_0px_20px_0px_rgba(0,0,0,0.05)] relative"
+        class="relative bg-[#d5e5ff] h-[303px] w-[229px] rounded-[12px] shadow-[0px_0px_20px_0px_rgba(0,0,0,0.05)] "
       >
+      <div class="bg-[#573DFF] size-1.5 rounded-full absolute top-1/2 -translate-y-1/2 left-0 -translate-x-1/2" data-blue-dot data-animated />
         <!-- Close Icon -->
-        <div class="absolute right-3 top-3 size-2">
-          <CloseIcon size={8} color="#3a3939" />
+        <div class="absolute right-3 top-3 size-2 rounded-full bg-[#8679FF]">
+          
         </div>
 
         <!-- Header -->
@@ -171,7 +188,7 @@ import CloseIcon from "@/components/icons/close.astro";
           class="absolute left-[17px] right-[17px] top-[150px] flex flex-col gap-[15px]"
         >
           <!-- Product 1: Farinha de Trigo -->
-          <div class="flex items-center justify-between">
+          <div class="grid grid-cols-[1fr_25%_10%] items-center justify-between">
             <span
               class="text-[8px] text-[#3a3939] tracking-[-0.16px]"
             >
@@ -190,7 +207,7 @@ import CloseIcon from "@/components/icons/close.astro";
           </div>
 
           <!-- Product 2: Ovos Vermelhos -->
-          <div class="flex items-center justify-between">
+          <div class="grid grid-cols-[1fr_25%_10%] items-center justify-between">
             <span
               class="text-[8px] text-[#3a3939] tracking-[-0.16px]"
             >
@@ -209,7 +226,7 @@ import CloseIcon from "@/components/icons/close.astro";
           </div>
 
           <!-- Product 3: Manteiga -->
-          <div class="flex items-center justify-between">
+          <div class="grid grid-cols-[1fr_25%_10%] items-center justify-between">
             <span
               class="text-[8px] text-[#3a3939] tracking-[-0.16px]"
             >
@@ -228,7 +245,7 @@ import CloseIcon from "@/components/icons/close.astro";
           </div>
 
           <!-- Product 4: Arroz Árborio -->
-          <div class="flex items-center justify-between">
+          <div class="grid grid-cols-[1fr_25%_10%] items-center justify-between">
             <span
               class="text-[8px] text-[#3a3939] tracking-[-0.16px]"
             >
@@ -264,11 +281,11 @@ import CloseIcon from "@/components/icons/close.astro";
         </div>
       </div>
 
-      <!-- Quote Action Card -->
       <div
-        class="bg-neutral-50 border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-[16px] p-3 flex flex-col gap-4 items-center w-[113px]"
+        class="relative -translate-x-1/2 bg-neutral-50 border-[0.5px] border-[rgba(0,0,0,0.12)] rounded-[16px] p-3 flex flex-col gap-4 items-center w-[113px]"
+        data-action-card
+        data-animated
       >
-        <!-- Text Content -->
         <div class="flex flex-col gap-[6px] items-center text-center">
           <span
             class="text-[8px] text-[#8679ff] tracking-[-0.16px] leading-[0.9]"
@@ -282,20 +299,298 @@ import CloseIcon from "@/components/icons/close.astro";
           </p>
         </div>
 
-        <!-- Action Button -->
+        
         <button
           class="bg-[#4a2df6] rounded-[6px] px-2 py-[6px] flex items-center justify-center gap-1 w-full hover:bg-[#3d25d1] transition-colors"
         >
           <span
-            class="text-[6px] text-white tracking-[-0.12px] leading-[0.9] text-right"
+            class="text-[6px] text-white tracking-[-0.12px] leading-[0.9] text-right whitespace-nowrap"
           >
             Enviar para o cliente
           </span>
-          <ForwardArrowIcon size={5} color="white" />
+
+          <svg class="size-[7px]" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.5124 16.5789C6.69242 16.7589 6.9203 16.8489 7.19831 16.8489C7.48202 16.8489 7.71103 16.7589 7.88422 16.5789C8.0631 16.4 8.15312 16.1687 8.15312 15.885L8.15312 5.11413L8.04943 2.28498L7.4672 2.57097L10.3658 5.79094L12.337 7.73478C12.4235 7.82251 12.525 7.89202 12.64 7.94329C12.7562 7.99001 12.8804 8.0128 13.0138 8.0128C13.2735 8.0128 13.4912 7.9262 13.6643 7.75301C13.8375 7.57868 13.9253 7.35877 13.9253 7.09329C13.9253 6.83237 13.8261 6.60107 13.6302 6.39825L7.91043 0.670433C7.81814 0.572444 7.70761 0.497243 7.58 0.44483C7.45923 0.392417 7.33162 0.366211 7.19831 0.366211C7.0707 0.366211 6.9465 0.392417 6.82573 0.44483C6.70381 0.497243 6.59443 0.572444 6.49531 0.670433L0.775571 6.39825C0.579595 6.60107 0.480469 6.83237 0.480469 7.09329C0.480469 7.35877 0.568202 7.57868 0.741389 7.75301C0.914576 7.9262 1.1322 8.0128 1.39198 8.0128C1.52529 8.0128 1.64948 7.99001 1.7657 7.94329C1.88078 7.89202 1.98218 7.82251 2.06878 7.73478L4.03081 5.79094L6.92941 2.57097L6.3563 2.28498L6.25261 5.11413L6.25261 15.885C6.25261 16.1687 6.33921 16.4 6.5124 16.5789Z" fill="white" fill-opacity="0.9"/>
+            </svg>
+            
         </button>
       </div>
     </div>
 
-  
+
   </div>
 </div>
+
+<style>
+  /* Initial states for animated elements */
+  [data-message] {
+    opacity: 0;
+  }
+
+  [data-quote-card] {
+    opacity: 0;
+  }
+
+  [data-blue-dot] {
+    opacity: 0;
+  }
+
+  [data-video] {
+    opacity: 0;
+  }
+
+  [data-action-card] {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { animate, stagger } from "motion"
+
+  // Flow animation with Promise-based completion
+  class PathMarquee {
+    constructor(container, pathId, dotCount, velocity, startDelay = 0) {
+      this.container = container
+      this.pathId = pathId
+      this.dotCount = dotCount
+      this.velocity = velocity
+      this.startDelay = startDelay
+      this.dots = []
+      this.completionPromise = null
+    }
+
+    start() {
+      return new Promise((resolve) => {
+        this.completionPromise = resolve
+        setTimeout(() => this.init(), this.startDelay)
+      })
+    }
+
+    init() {
+      const path = this.container.querySelector(`#${this.pathId}`)
+      if (!path) return
+
+      const pathLength = path.getTotalLength()
+
+      // Calculate SVG scale factor (viewport size / viewBox size)
+      const svg = path.ownerSVGElement
+      const scale = svg.width.baseVal.value / svg.viewBox.baseVal.width
+
+      // Get wrapper element
+      const wrapper = path.closest('[data-flow]')
+
+      // Create dots
+      for (let i = 0; i < this.dotCount; i++) {
+        const dot = document.createElement('div')
+        dot.className = 'flow-dot'
+        dot.style.position = 'absolute'
+        dot.style.width = '3px'
+        dot.style.height = '3px'
+        dot.style.background = '#573DFF'
+        dot.style.borderRadius = '50%'
+        dot.style.top = '0'
+        dot.style.left = '0'
+        dot.style.opacity = '0'
+        dot.style.pointerEvents = 'none'
+
+        wrapper.appendChild(dot)
+        this.dots.push(dot)
+      }
+
+      // Calculate timing
+      const travelTime = (100 / this.velocity) * 1000
+      const delayBetweenDots = 250  // Increased for slower, smoother flow
+
+      let completedDots = 0
+      const totalDots = this.dotCount
+
+      // Animate each dot
+      this.dots.forEach((dot, index) => {
+        const dotDelay = index * delayBetweenDots
+
+        setTimeout(() => {
+          this.animateDot(dot, path, travelTime, pathLength, scale, () => {
+            completedDots++
+            // When all dots complete, resolve the promise
+            if (completedDots === totalDots && this.completionPromise) {
+              this.completionPromise()
+            }
+          })
+        }, dotDelay)
+      })
+    }
+
+    animateDot(dot, path, duration, pathLength, scale, onComplete) {
+      dot.style.opacity = '1'
+
+      let startTime = null
+
+      const animateFrame = (timestamp) => {
+        if (!startTime) startTime = timestamp
+        const elapsed = timestamp - startTime
+        const progress = Math.min(elapsed / duration, 1)
+
+        if (progress < 1) {
+          const distance = progress * pathLength
+          const point = path.getPointAtLength(distance)
+
+          // Apply scale factor to match SVG viewport size
+          dot.style.transform = `translate(${point.x * scale}px, ${point.y * scale}px)`
+
+          requestAnimationFrame(animateFrame)
+        } else {
+          dot.style.opacity = '0'
+          if (onComplete) onComplete()
+        }
+      }
+
+      requestAnimationFrame(animateFrame)
+    }
+
+    cleanup() {
+      // Remove all dots from DOM
+      this.dots.forEach(dot => dot.remove())
+      this.dots = []
+    }
+  }
+
+  // Main timeline function
+  async function playTimeline() {
+    const container = document.getElementById('quotes-container')
+    if (!container) return
+
+    // Get all elements
+    const messages = container.querySelectorAll('[data-message]')
+    const quoteCard = container.querySelector('[data-quote-card]')
+    const actionCard = container.querySelector('[data-action-card]')
+    const blueDots = container.querySelectorAll('[data-blue-dot]')
+    const animatedElements = container.querySelectorAll('[data-animated]')
+
+    // Phase 1: Messages appear in center, then move to final position
+    // Step 1a: Appear in center with stagger
+    await animate(
+      messages,
+      { opacity: [0, 1], x: [300, 300] },
+      { delay: stagger(0.15), duration: 0.8, ease: "easeOut" }
+    ).finished
+
+    // Step 1b: Move from center to left (final position)
+    await animate(
+      messages,
+      { x: [300, 0] },
+      { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
+    ).finished
+
+    // Phase 2: Quote card appears from right
+    if (quoteCard) {
+      await animate(
+        quoteCard,
+        { opacity: [0, 1], x: [40, 0] },
+        { duration: 1, ease: "easeOut" }
+      ).finished
+    }
+
+    // Phase 3: Blue dots appear
+    await animate(
+      blueDots,
+      { opacity: [0, 1], scale: [0, 1] },
+      { duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }
+    ).finished
+
+    // Phase 4: Flow animation
+    await startFlowAnimation(container)
+
+    // Phase 4.5: Action card appears after flow completes
+    if (actionCard) {
+      await animate(
+        actionCard,
+        { opacity: [0, 1], y: [20, 0] },
+        { duration: 0.6, ease: "easeOut" }
+      ).finished
+    }
+
+    // Phase 4.75: Wait 3 seconds with everything visible
+    await new Promise(resolve => setTimeout(resolve, 3000))
+
+    // Phase 5: Fade out everything
+    await animate(
+      animatedElements,
+      { opacity: 0 },
+      { duration: 1.5, ease: "easeIn" }
+    ).finished
+
+    // Phase 6: Reset and restart
+    setTimeout(() => {
+      // Reset opacity for next cycle - elements that will be animated
+      messages.forEach((el: HTMLElement) => el.style.opacity = '0')
+      if (quoteCard) (quoteCard as HTMLElement).style.opacity = '0'
+      if (actionCard) (actionCard as HTMLElement).style.opacity = '0'
+      blueDots.forEach((el: HTMLElement) => el.style.opacity = '0')
+
+      // Reset video
+      const video = container.querySelector('[data-video]') as HTMLVideoElement
+      if (video) {
+        video.currentTime = 0
+        video.style.opacity = '0'
+      }
+
+      // Reset only flow container (needs to be visible for flow dots)
+      const flowContainer = container.querySelector('#flow') as HTMLElement
+      if (flowContainer) flowContainer.style.opacity = '1'
+
+      // Restart timeline
+      playTimeline()
+    }, 1000)
+  }
+
+  // Start flow animations and wait for completion
+  async function startFlowAnimation(container: HTMLElement) {
+    const velocity = 20  // Original velocity restored
+    const dotCount = 20
+    const travelTime = (100 / velocity) * 1000 // 5000ms
+    const horizontalStartDelay = travelTime // Flow 5 starts when first dots complete
+
+    const marquees = []
+
+    // Create flows 1-4 (start immediately)
+    for (let i = 1; i <= 4; i++) {
+      const marquee = new PathMarquee(container, `flow-path-${i}`, dotCount, velocity, 0)
+      marquees.push(marquee)
+    }
+
+    // Create flow 5 (horizontal, delayed start)
+    const horizontalMarquee = new PathMarquee(container, 'flow-path-5', dotCount, velocity, horizontalStartDelay)
+    marquees.push(horizontalMarquee)
+
+    // Get video element
+    const video = container.querySelector('[data-video]') as HTMLVideoElement
+
+    // Start video when flow 5 starts
+    if (video) {
+      setTimeout(() => {
+        // Fade in video and play
+        animate(video, { opacity: [0, 1] }, { duration: 0.5 })
+        video.currentTime = 0
+        video.playbackRate = 1.8
+        video.play()
+
+        // Fade out when video ends
+        video.addEventListener('ended', () => {
+          animate(video, { opacity: 0 }, { duration: 0.5 })
+        }, { once: true })
+      }, horizontalStartDelay)
+    }
+
+    // Start all animations
+    const allAnimations = marquees.map(m => m.start())
+
+    // Wait for all to complete
+    await Promise.all(allAnimations)
+
+    // Cleanup
+    marquees.forEach(m => m.cleanup())
+  }
+
+  // Start the timeline when page loads
+  playTimeline()
+</script>
