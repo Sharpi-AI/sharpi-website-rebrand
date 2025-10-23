@@ -20,9 +20,32 @@ const { bigNumber, bigNumberTitle, description } = Astro.props;
   </div>
 
   <div class="flex flex-col justify-center w-full text-[#3d3939] group-hover:text-[#573dff] group-[.active]:text-[#573dff] transition-all duration-300">
-    <p class="text-[76px] group-hover:text-[80px] group-[.active]:text-[80px] leading-[76px] tracking-[-1.2px] group-hover:tracking-[-1.6px] group-[.active]:tracking-[-1.6px] font-medium transition-all duration-300">{bigNumber}</p>
+    <p class="big-number text-[76px] group-hover:text-[80px] group-[.active]:text-[80px] leading-[76px] tracking-[-1.2px] group-hover:tracking-[-1.6px] group-[.active]:tracking-[-1.6px] font-medium transition-all duration-300">{bigNumber}</p>
   </div>
 </article>
+
+<style>
+  /* Mobile optimization: use transform scale instead of font-size change to prevent layout shift */
+  @media (max-width: 768px) {
+    .big-number {
+      transform-origin: left center;
+      transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
+
+    /* Remove font-size and tracking transitions on mobile */
+    article.group:hover .big-number,
+    article.group.active .big-number {
+      font-size: 76px !important;
+      letter-spacing: -1.2px !important;
+    }
+
+    /* Apply scale transform instead */
+    article.group:hover .big-number,
+    article.group.active .big-number {
+      transform: scale(1.053);
+    }
+  }
+</style>
 
 <script>
   // Mobile detection and intersection observer for auto-active state

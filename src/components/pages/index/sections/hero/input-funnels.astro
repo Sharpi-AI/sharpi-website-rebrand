@@ -1,11 +1,16 @@
 ---
+interface Props {
+  id?: string;
+}
 
+const { id = "three-funnel-canvas" } = Astro.props;
 ---
 
 <canvas
-  id="three-funnel-canvas"
+  id={id}
   class="absolute inset-0 w-full h-full block"
-  style="width: 100%; height: 100%; display: block;"></canvas>
+  style="width: 100%; height: 100%; display: block;"
+  data-funnel-id={id}></canvas>
 
 <script>
   import * as THREE from "three";
@@ -19,9 +24,10 @@
   const Y_OFFSET = -1.5; // Controla o deslocamento vertical de todos os objetos (positivo = para cima, negativo = para baixo)
 
   const MOBILE_BREAKPOINT = 768;
-  const MOBILE_Y_DISTANCE = 1;
-  const MOBILE_Y_OFFSET = -2.5; // Controla o deslocamento vertical no mobile (independente do desktop)
-  const MOBILE_X_VARIANCE = 3.5;
+  const MOBILE_Y_DISTANCE = 2.1; // Increased from 1 to 2.5 for better vertical range inside device
+  const MOBILE_Y_OFFSET = 0; // Changed from -2.5 to 0 to center inside device
+  const MOBILE_X_VARIANCE = 1.5; // Reduced from 3.5 to 1.5 to fit inside device width
+  const MOBILE_X_OFFSET = -0.3; // Horizontal offset for mobile funnel (positive = right, negative = left)
   const MOBILE_TEXTURE_COUNT = 12;
 
   // Animation constants
@@ -32,11 +38,11 @@
   const MIN_SCALE = 0.2;
   const MIN_OPACITY = 0.01;
   const DESKTOP_OPACITY_FADE_START = 3;
-  const MOBILE_OPACITY_FADE_START = 0.75;
+  const MOBILE_OPACITY_FADE_START = 0.5; // Reduced from 0.75 to 0.5 for smoother fade
   const MOBILE_MIN_OPACITY = 0.1;
   const MOBILE_NOISE_SCALE = 0.01;
   const DESKTOP_NOISE_SCALE = 0.0001;
-  const MOBILE_SCALE_MIN = 0.3;
+  const MOBILE_SCALE_MIN = 0.4; // Increased from 0.3 to 0.4 for slightly larger objects
 
   let isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
 
@@ -82,7 +88,7 @@
     const BASE_WIDTH = 1440;
     const BASE_HEIGHT = 900;
     const BASE_X_DISTANCE = 10;
-    const BASE_Y_DISTANCE = 4;
+    const BASE_Y_DISTANCE = 6;
 
     // Calculate scaling factors
     const widthScale = width / BASE_WIDTH;
@@ -102,6 +108,13 @@
     );
 
     return { xDistance, yDistance };
+  }
+
+  // Calculate adjusted mobile Y distance to avoid overlapping with notifications
+  function getAdjustedMobileYDistance(): number {
+    const viewportHeight = window.innerHeight;
+    const availableHeight = Math.min(viewportHeight * 0.4, 500); // Máximo 40% da altura da tela ou 300px
+    return Math.min(MOBILE_Y_DISTANCE, availableHeight / 100); // Converter para unidades do Three.js
   }
 
   // Seeded random function for deterministic positioning
@@ -226,10 +239,13 @@
     const xVariation = (seededRandom(index * 345) - 0.5) * laneWidth * 0.6;
     const x = laneCenter + xVariation;
 
+    // Usar altura ajustada para evitar sobreposição com notificações
+    const adjustedYDistance = getAdjustedMobileYDistance();
+
     // Criar "ondas" de entrada: cards começam em diferentes posições Y
     // Isso evita que todos comecem juntos de baixo
-    const waveOffset = (index / MOBILE_TEXTURE_COUNT) * MOBILE_Y_DISTANCE * 0.8;
-    const y = -MOBILE_Y_DISTANCE - waveOffset;
+    const waveOffset = (index / MOBILE_TEXTURE_COUNT) * adjustedYDistance * 0.8;
+    const y = -adjustedYDistance - waveOffset;
 
     const z = Z_INDEX_SPACING * index;
 
@@ -279,21 +295,25 @@
 
   // Mobile-specific calculation functions
   function calculateMobileYPosition(progress: number): number {
+    const adjustedYDistance = getAdjustedMobileYDistance();
+    
     return THREE.MathUtils.mapLinear(
       progress,
       0,
       1,
-      -MOBILE_Y_DISTANCE,
-      MOBILE_Y_DISTANCE
+      -adjustedYDistance,
+      adjustedYDistance
     );
   }
 
   function calculateMobileScale(y: number): number {
     // Usar curva suave (ease-out) para melhor transição de escala
+    const adjustedYDistance = getAdjustedMobileYDistance();
+    
     const normalizedY = THREE.MathUtils.mapLinear(
       y,
-      -MOBILE_Y_DISTANCE,
-      MOBILE_Y_DISTANCE,
+      -adjustedYDistance,
+      adjustedYDistance,
       0,
       1
     );
@@ -384,10 +404,14 @@
 
     const y = calculateMobileYPosition(uniqueProgress);
     const xOffset = calculateNoiseOffset(uniqueProgress, index, MOBILE_NOISE_SCALE);
+    
+    // Usar altura ajustada para consistência
+    const adjustedYDistance = getAdjustedMobileYDistance();
+    
     const x = THREE.MathUtils.mapLinear(
       y,
-      -MOBILE_Y_DISTANCE,
-      MOBILE_Y_DISTANCE,
+      -adjustedYDistance,
+      adjustedYDistance,
       startPosition.x,
       0
     ) + xOffset;
@@ -395,7 +419,7 @@
     const scale = calculateMobileScale(y);
 
     // Curva de opacidade melhorada com fade suave nas extremidades
-    const normalizedY = Math.abs(y) / MOBILE_Y_DISTANCE;
+    const normalizedY = Math.abs(y) / adjustedYDistance;
     const fadeStart = MOBILE_OPACITY_FADE_START;
 
     let opacity: number;
@@ -412,7 +436,7 @@
 
     updateMeshOpacity(object, opacity);
 
-    mesh.position.x = x;
+    mesh.position.x = x + MOBILE_X_OFFSET;
     mesh.position.y = y + MOBILE_Y_OFFSET;
     mesh.scale.set(scale, scale, 1);
   }
@@ -442,10 +466,8 @@
   }
 
   // Main initialization function
-  async function initThreeFunnel() {
-    const canvas = document.getElementById(
-      "three-funnel-canvas"
-    ) as HTMLCanvasElement;
+  async function initThreeFunnel(canvasId: string) {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas) return;
 
     let retries = 0;
@@ -767,10 +789,25 @@
     };
   }
 
-  // Initialize when page loads
+  // Initialize all funnel canvases when page loads
+  function initAllFunnels() {
+    const canvases = document.querySelectorAll('[data-funnel-id]');
+    canvases.forEach((canvas) => {
+      // Only initialize visible canvases (check if not hidden by CSS)
+      const isVisible = (canvas as HTMLElement).offsetParent !== null;
+
+      if (isVisible) {
+        const canvasId = canvas.getAttribute('data-funnel-id');
+        if (canvasId) {
+          initThreeFunnel(canvasId);
+        }
+      }
+    });
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initThreeFunnel);
+    document.addEventListener("DOMContentLoaded", initAllFunnels);
   } else {
-    initThreeFunnel();
+    initAllFunnels();
   }
 </script>

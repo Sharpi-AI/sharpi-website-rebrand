@@ -37,11 +37,19 @@ import Button from "@/components/ui/button/index.astro";
 
   /* Mobile: esconder botões quando não scrollado */
   @media (max-width: 767px) {
+    #header-container {
+      transition: transform 0.3s ease-in-out;
+    }
+
+    #header-container.header-hide {
+      transform: translateY(-100%);
+    }
+
     .header-nav {
       width:  92px;
       padding-block: 6px;
       padding-left: 4px;
-      
+
       transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1), padding 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
@@ -110,7 +118,7 @@ import Button from "@/components/ui/button/index.astro";
               href="/carreiras"
               target="_blank"
               variant="link"
-              class="hidden md:flex px-4.5 pt-1"
+              class="hidden md:flex px-4.5 pt-1 opacity-0 pointer-events-none"
               title="Carreiras"
             >
               Carreiras
@@ -196,6 +204,8 @@ import Button from "@/components/ui/button/index.astro";
 
   let lastScrollState = false;
   let isAnimating = false;
+  let lastScrollY = 0;
+  const scrollThreshold = 100;
 
   const updateHeaderColors = () => {
     const heroSection = document.getElementById("hero");
@@ -208,6 +218,21 @@ import Button from "@/components/ui/button/index.astro";
     const scrollY = window.scrollY;
     const isScrolled = scrollY > heroBottom;
     const isMobile = window.innerWidth < 768;
+
+    // Mobile: hide/show header based on scroll direction
+    if (isMobile) {
+      const scrollingDown = scrollY > lastScrollY;
+      const shouldHide = scrollingDown && scrollY > scrollThreshold;
+      const shouldShow = !scrollingDown || scrollY <= scrollThreshold;
+
+      if (shouldHide) {
+        headerContainer.classList.add("header-hide");
+      } else if (shouldShow) {
+        headerContainer.classList.remove("header-hide");
+      }
+
+      lastScrollY = scrollY;
+    }
 
     // Animar width em mobile com sequência
     if (isMobile) {

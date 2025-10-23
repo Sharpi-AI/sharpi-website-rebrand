@@ -38,16 +38,16 @@ const erps = [
 
 <section
   id="erp"
-  class="px-4 md:px-10 flex flex-col md:flex-row items-center justify-between max-w-5xl mx-auto py-28 gap-10"
+  class="px-4  flex flex-col  items-center justify-between max-w-7xl mx-auto py-28 gap-10"
 >
-  <div class="space-y-4 md:space-y-10 shrink-0 max-w-lg w-fit flex flex-col">
+  <div class="space-y-4 md:space-y-10 shrink-0   flex flex-col items-center justify-center">
     <h2
-      class="font-normal text-balance leading-none tracking-[-1.5px] text-center md:text-left text-[37px] md:text-[58px]  md:max-w-[10ch]"
+      class="font-normal text-balance leading-none tracking-[-1.5px] text-center  text-[37px] text-[#573DFF] md:text-[48px]  "
     >
       Seu ERP, nosso desafio.
     </h2>
     <p
-      class="text-base leading-snug font-normal text-[#3D3939] tracking-tight text-balance text-center md:text-left w-fit md:max-w-[35ch]"
+      class="text-base leading-snug font-normal text-[#3D3939] tracking-tight text-balance text-center  w-fit md:max-w-[55ch]"
     >
       Nossos especialistas fazem de tudo para se conectar ao seu ERP—seja ele
       qual for—garantindo um fluxo de dados perfeito desde o primeiro dia.
@@ -55,24 +55,30 @@ const erps = [
   </div>
 
   <div
-    class="flex flex-wrap items-center justify-center gap-8 w-full max-w-xl "
+    class="flex flex-wrap items-center justify-center gap-3 w-full  "
   >
     {
-      erps.map((erp) => (
-        <div class="flex place-self-center max-w-24 md:max-w-30 items-center justify-center transition-all duration-300">
-          <Image
-            src={erp.logo}
-            alt={erp.alt}
-            width={120}
-            height={80}
-            quality={90}
-            class="brightness-0 saturate-100"
-            style="filter: brightness(0) saturate(100%) invert(34%) sepia(75%) saturate(3558%) hue-rotate(239deg) brightness(96%) contrast(105%);"
-            loading="lazy"
-            format="webp"
-          />
-        </div>
-      ))
+      erps.map((erp, index) => {
+        const isOddTotal = erps.length % 2 !== 0;
+        const isLastElement = index === erps.length - 1;
+        const shouldHideOnMobile = isOddTotal && isLastElement;
+
+        return (
+          <div class={`place-self-center flex-[44%] md:flex-none aspect-square md:size-[180px] bg-[#573DFF] items-center justify-center rounded transition-all duration-300 ${shouldHideOnMobile ? 'hidden md:flex' : 'flex'}`}>
+            <Image
+              src={erp.logo}
+              alt={erp.alt}
+              width={120}
+              height={80}
+              quality={90}
+              class="size-24 object-contain"
+              style="filter: brightness(0) saturate(100%) invert(100%)"
+              loading="lazy"
+              format="webp"
+            />
+          </div>
+        );
+      })
     }
   </div>
 </section>

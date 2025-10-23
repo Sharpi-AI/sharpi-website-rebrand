@@ -60,10 +60,6 @@ import ReactivationCard from "./reactivation.astro";
     transition: none;
   }
 
-  .carousel-track.is-snapping {
-    transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-  }
-
   .carousel-slide {
     flex: 0 0 auto;
   }
@@ -154,14 +150,14 @@ import ReactivationCard from "./reactivation.astro";
     let currentX = 0;
     let targetX = 0;
     let isDragging = false;
-    let hasMoved = false;
     let startX = 0;
+    let startY = 0;
     let startTranslateX = 0;
     let velocity = 0;
     let lastX = 0;
     let lastTime = Date.now();
     let rafId = null;
-    let snapTimeout = null;
+    let dragDirection: 'horizontal' | 'vertical' | null = null;
 
     // Calculate bounds (desktop: show multiple cards, mobile: allow last slide to reach left edge)
     const getBounds = () => {
@@ -242,35 +238,6 @@ import ReactivationCard from "./reactivation.astro";
       updateActiveSlide();
     };
 
-    // Snap to specific slide by index
-    const snapToSlide = (index: number) => {
-      if (index < 0 || index >= slides.length) return;
-
-      carousel.classList.add('is-snapping');
-      const slide = slides[index];
-      const containerRect = container.getBoundingClientRect();
-      const slideRect = slide.getBoundingClientRect();
-      const containerLeft = containerRect.left;
-      const slideLeft = slideRect.left;
-      const offset = containerLeft - slideLeft;
-
-      targetX = currentX + offset;
-      const bounds = getBounds();
-      targetX = Math.max(bounds.min, Math.min(bounds.max, targetX));
-
-      applyTransform(targetX);
-
-      setTimeout(() => {
-        carousel.classList.remove('is-snapping');
-      }, 350);
-    };
-
-    // Snap to closest slide (align to left edge)
-    const snapToClosest = () => {
-      const closestIndex = getClosestSlideIndex();
-      snapToSlide(closestIndex);
-    };
-
     // Momentum animation
     const animate = () => {
       if (!isDragging && Math.abs(velocity) > 0.3) {
@@ -284,49 +251,73 @@ import ReactivationCard from "./reactivation.astro";
           cancelAnimationFrame(rafId);
           rafId = null;
         }
-
-        if (snapTimeout) {
-          clearTimeout(snapTimeout);
-        }
-        snapTimeout = setTimeout(snapToClosest, 50);
       }
     };
 
     // Mouse/Touch drag handlers
     const handleDragStart = (e: MouseEvent | TouchEvent) => {
-      isDragging = true;
-      hasMoved = false;
-      carousel.classList.add('is-dragging');
-
       const clientX = e.type.includes('mouse') ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX;
+      const clientY = e.type.includes('mouse') ? (e as MouseEvent).clientY : (e as TouchEvent).touches[0].clientY;
+
       startX = clientX;
+      startY = clientY;
       startTranslateX = currentX;
       lastX = clientX;
       lastTime = Date.now();
       velocity = 0;
+      dragDirection = null; // Reset direction for new drag
+
+      // For mouse events, start dragging immediately
+      if (e.type.includes('mouse')) {
+        isDragging = true;
+        carousel.classList.add('is-dragging');
+      }
 
       if (rafId) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
-      if (snapTimeout) {
-        clearTimeout(snapTimeout);
-        snapTimeout = null;
-      }
     };
 
     const handleDragMove = (e: MouseEvent | TouchEvent) => {
-      if (!isDragging) return;
-
-      e.preventDefault();
       const clientX = e.type.includes('mouse') ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX;
-      const deltaX = clientX - startX;
+      const clientY = e.type.includes('mouse') ? (e as MouseEvent).clientY : (e as TouchEvent).touches[0].clientY;
 
-      // Mark as moved if dragged more than 5px
-      if (Math.abs(deltaX) > 5) {
-        hasMoved = true;
+      // For touch events, determine direction first
+      if (e.type.includes('touch') && dragDirection === null) {
+        const deltaX = Math.abs(clientX - startX);
+        const deltaY = Math.abs(clientY - startY);
+        const threshold = 10; // Minimum movement to determine direction
+
+        if (deltaX > threshold || deltaY > threshold) {
+          // Determine direction based on which delta is larger
+          if (deltaX > deltaY) {
+            dragDirection = 'horizontal';
+            isDragging = true;
+            carousel.classList.add('is-dragging');
+          } else {
+            dragDirection = 'vertical';
+            // Don't start dragging, allow native scroll
+            return;
+          }
+        } else {
+          // Not enough movement yet
+          return;
+        }
       }
 
+      // If determined to be vertical scroll, don't interfere
+      if (dragDirection === 'vertical') {
+        return;
+      }
+
+      // If not dragging yet (mouse hasn't moved enough), return
+      if (!isDragging) return;
+
+      // Prevent default for horizontal dragging
+      e.preventDefault();
+
+      const deltaX = clientX - startX;
       targetX = startTranslateX + deltaX;
 
       // Calculate velocity
@@ -350,8 +341,6 @@ import ReactivationCard from "./reactivation.astro";
       // Apply momentum
       if (Math.abs(velocity) > 1.5) {
         rafId = requestAnimationFrame(animate);
-      } else {
-        snapToClosest();
       }
     };
 
@@ -360,8 +349,8 @@ import ReactivationCard from "./reactivation.astro";
     document.addEventListener('mousemove', handleDragMove);
     document.addEventListener('mouseup', handleDragEnd);
 
-    // Touch events
-    carousel.addEventListener('touchstart', handleDragStart, { passive: true });
+    // Touch events - passive: false to allow conditional preventDefault
+    carousel.addEventListener('touchstart', handleDragStart, { passive: false });
     carousel.addEventListener('touchmove', handleDragMove, { passive: false });
     carousel.addEventListener('touchend', handleDragEnd);
 
@@ -371,31 +360,10 @@ import ReactivationCard from "./reactivation.astro";
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         e.preventDefault();
 
-        if (snapTimeout) {
-          clearTimeout(snapTimeout);
-        }
-
         targetX -= e.deltaX;
         applyTransform(targetX);
-
-        snapTimeout = setTimeout(snapToClosest, 100);
       }
     }, { passive: false });
-
-    // Click handlers for slides (desktop only)
-    slides.forEach((slide, index) => {
-      slide.addEventListener('click', (e) => {
-        const isDesktop = window.innerWidth > 768;
-
-        // Only handle clicks on desktop and if user didn't drag
-        if (!isDesktop || hasMoved) return;
-
-        // Prevent click if currently dragging
-        if (isDragging) return;
-
-        snapToSlide(index);
-      });
-    });
 
     // Initialize
     applyTransform(0);

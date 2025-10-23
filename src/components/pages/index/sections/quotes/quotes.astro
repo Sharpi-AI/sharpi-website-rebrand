@@ -63,7 +63,7 @@ import CloseIcon from "@/components/icons/close.astro";
         <p
           class="text-[11px] text-[#343434] tracking-[-0.22px] leading-[0.9]"
         >
-        18 rolos filme pvc 100 micras
+        18 rolos filme pvc 10 mts
         </p>
 
         <div class="bg-[#573DFF] size-1.5 rounded-full absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 hidden md:block" data-blue-dot data-animated />
@@ -143,8 +143,8 @@ import CloseIcon from "@/components/icons/close.astro";
 
       <!-- Right horizontal path -->
       <div class="relative" data-flow="5">
-        <video src="/assets/medias/index/quotes/particles.webm" class="size-24 absolute left-0 top-1/2 -translate-y-1/2 object-cover" muted playsinline data-video />
-        <svg class="block" width="234" height="1.5" viewBox="0 0 468 3" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <video src="/assets/medias/index/quotes/particles.webm" class="size-24 absolute -left-12 top-1/2 -translate-y-1/2 object-cover" muted playsinline data-video />
+        <svg class="block" width="164"  viewBox="0 0 468 3" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
           <path id="flow-path-5" d="M0 1.41895H467.69" stroke="none"/>
         </svg>
       </div>
@@ -348,6 +348,7 @@ import CloseIcon from "@/components/icons/close.astro";
   [data-video] {
     opacity: 0;
   }
+ 
 
   [data-action-card] {
     opacity: 0;
@@ -355,7 +356,22 @@ import CloseIcon from "@/components/icons/close.astro";
 </style>
 
 <script>
-  import { animate, stagger } from "motion"
+  import { animate, stagger, inView } from "motion"
+
+  // ========================================
+  // Animation Speed Configuration
+  // ========================================
+  // Increase FLOW_SPEED_MULTIPLIER to make animations faster
+  // Decrease to make them slower (e.g., 0.5 for half speed, 2 for double speed)
+  const FLOW_SPEED_MULTIPLIER = 2
+  const BASE_VELOCITY = 20
+  const BASE_DELAY_BETWEEN_DOTS = 250
+
+  // ========================================
+  // Visibility Control Variables
+  // ========================================
+  let isTabVisible = !document.hidden
+  let isSectionInView = false
 
   // Detect if viewport is mobile
   function isMobile(): boolean {
@@ -366,9 +382,27 @@ import CloseIcon from "@/components/icons/close.astro";
   let isAnimationRunning = false
   let animationTimeout: ReturnType<typeof setTimeout> | null = null
 
+  // Track active marquees to allow cancellation
+  let activeMarquees: PathMarquee[] = []
+
+  // Debounce control for visibility checks
+  let visibilityCheckTimeout: ReturnType<typeof setTimeout> | null = null
+  let isStopping = false
+
   // Flow animation with Promise-based completion
   class PathMarquee {
-    constructor(container, pathId, dotCount, velocity, startDelay = 0) {
+    container: HTMLElement
+    pathId: string
+    dotCount: number
+    velocity: number
+    startDelay: number
+    dots: HTMLDivElement[]
+    completionPromise: (() => void) | null
+    animationFrameIds: number[]
+    timeoutIds: ReturnType<typeof setTimeout>[]
+    isStopped: boolean
+
+    constructor(container: HTMLElement, pathId: string, dotCount: number, velocity: number, startDelay = 0) {
       this.container = container
       this.pathId = pathId
       this.dotCount = dotCount
@@ -376,27 +410,38 @@ import CloseIcon from "@/components/icons/close.astro";
       this.startDelay = startDelay
       this.dots = []
       this.completionPromise = null
+      this.animationFrameIds = []
+      this.timeoutIds = []
+      this.isStopped = false
     }
 
     start() {
+      // Register this marquee as active
+      activeMarquees.push(this)
+
       return new Promise((resolve) => {
         this.completionPromise = resolve
-        setTimeout(() => this.init(), this.startDelay)
+        const timeoutId = setTimeout(() => this.init(), this.startDelay)
+        this.timeoutIds.push(timeoutId)
       })
     }
 
     init() {
+      if (this.isStopped) return
+
       const path = this.container.querySelector(`#${this.pathId}`)
       if (!path) return
 
-      const pathLength = path.getTotalLength()
+      const pathLength = (path as SVGPathElement).getTotalLength()
 
       // Calculate SVG scale factor (viewport size / viewBox size)
-      const svg = path.ownerSVGElement
+      const svg = (path as SVGPathElement).ownerSVGElement
+      if (!svg) return
       const scale = svg.width.baseVal.value / svg.viewBox.baseVal.width
 
       // Get wrapper element
       const wrapper = path.closest('[data-flow]')
+      if (!wrapper) return
 
       // Create dots
       for (let i = 0; i < this.dotCount; i++) {
@@ -416,19 +461,21 @@ import CloseIcon from "@/components/icons/close.astro";
         this.dots.push(dot)
       }
 
-      // Calculate timing
+      // Calculate timing (adjusted by speed multiplier)
       const travelTime = (100 / this.velocity) * 1000
-      const delayBetweenDots = 250  // Increased for slower, smoother flow
+      const delayBetweenDots = BASE_DELAY_BETWEEN_DOTS / FLOW_SPEED_MULTIPLIER
 
       let completedDots = 0
       const totalDots = this.dotCount
 
       // Animate each dot
-      this.dots.forEach((dot, index) => {
+      this.dots.forEach((dot: HTMLDivElement, index: number) => {
         const dotDelay = index * delayBetweenDots
 
-        setTimeout(() => {
-          this.animateDot(dot, path, travelTime, pathLength, scale, () => {
+        const timeoutId = setTimeout(() => {
+          if (this.isStopped) return
+
+          this.animateDot(dot, path as SVGPathElement, travelTime, pathLength, scale, () => {
             completedDots++
             // When all dots complete, resolve the promise
             if (completedDots === totalDots && this.completionPromise) {
@@ -436,15 +483,24 @@ import CloseIcon from "@/components/icons/close.astro";
             }
           })
         }, dotDelay)
+        this.timeoutIds.push(timeoutId)
       })
     }
 
-    animateDot(dot, path, duration, pathLength, scale, onComplete) {
+    animateDot(dot: HTMLDivElement, path: SVGPathElement, duration: number, pathLength: number, scale: number, onComplete: () => void) {
+      if (this.isStopped) return
+
       dot.style.opacity = '1'
 
-      let startTime = null
+      let startTime: number | null = null
 
-      const animateFrame = (timestamp) => {
+      const animateFrame = (timestamp: number) => {
+        // Check if stopped
+        if (this.isStopped) {
+          dot.style.opacity = '0'
+          return
+        }
+
         if (!startTime) startTime = timestamp
         const elapsed = timestamp - startTime
         const progress = Math.min(elapsed / duration, 1)
@@ -456,26 +512,55 @@ import CloseIcon from "@/components/icons/close.astro";
           // Apply scale factor to match SVG viewport size
           dot.style.transform = `translate(${point.x * scale}px, ${point.y * scale}px)`
 
-          requestAnimationFrame(animateFrame)
+          const frameId = requestAnimationFrame(animateFrame)
+          this.animationFrameIds.push(frameId)
         } else {
           dot.style.opacity = '0'
           if (onComplete) onComplete()
         }
       }
 
-      requestAnimationFrame(animateFrame)
+      const frameId = requestAnimationFrame(animateFrame)
+      this.animationFrameIds.push(frameId)
+    }
+
+    stop() {
+      this.isStopped = true
+
+      // Cancel all requestAnimationFrame
+      this.animationFrameIds.forEach((id) => cancelAnimationFrame(id))
+      this.animationFrameIds = []
+
+      // Clear all timeouts
+      this.timeoutIds.forEach((id) => clearTimeout(id))
+      this.timeoutIds = []
+
+      // Hide all dots
+      this.dots.forEach((dot: HTMLDivElement) => {
+        dot.style.opacity = '0'
+      })
     }
 
     cleanup() {
+      // Stop animations first
+      this.stop()
+
       // Remove all dots from DOM
-      this.dots.forEach(dot => dot.remove())
+      this.dots.forEach((dot: HTMLDivElement) => dot.remove())
       this.dots = []
+
+      // Remove from active marquees
+      const index = activeMarquees.indexOf(this)
+      if (index > -1) {
+        activeMarquees.splice(index, 1)
+      }
     }
   }
 
   // Start mobile flow animation (vertical)
-  async function startMobileFlowAnimation(container: HTMLElement) {
-    const velocity = 20
+  // Sequence: Vertical flow → Video
+  async function startMobileFlowAnimation() {
+    const velocity = BASE_VELOCITY * FLOW_SPEED_MULTIPLIER
     const dotCount = 20
 
     // Create flow marquee for vertical mobile path
@@ -484,29 +569,35 @@ import CloseIcon from "@/components/icons/close.astro";
 
     const marquee = new PathMarquee(mobileFlowContainer, 'flow-path-mobile', dotCount, velocity, 0)
 
-    // Get video element
+    // ========================================
+    // STEP 1: Start vertical flow and wait for completion
+    // ========================================
+    await marquee.start()
+
+    // ========================================
+    // STEP 2: Play video after flow completes
+    // ========================================
     const video = mobileFlowContainer.querySelector('[data-video]') as HTMLVideoElement
 
-    // Start video 3 seconds after flow starts
     if (video) {
-      setTimeout(() => {
+      await new Promise<void>((resolve) => {
         // Fade in video and play
         animate(video, { opacity: [0, 1] }, { duration: 0.5 })
         video.currentTime = 0
         video.playbackRate = 1.8
         video.play()
 
-        // Fade out when video ends
+        // Wait for video to end
         video.addEventListener('ended', () => {
           animate(video, { opacity: 0 }, { duration: 0.5 })
+          resolve()
         }, { once: true })
-      }, 3000)
+      })
     }
 
-    // Start animation and wait for completion
-    await marquee.start()
-
+    // ========================================
     // Cleanup
+    // ========================================
     marquee.cleanup()
   }
 
@@ -558,7 +649,7 @@ import CloseIcon from "@/components/icons/close.astro";
     }
 
     // Phase 4: Flow animation (vertical) + video
-    await startMobileFlowAnimation(container)
+    await startMobileFlowAnimation()
 
     // Phase 5: Action card appears
     if (actionCard) {
@@ -582,7 +673,7 @@ import CloseIcon from "@/components/icons/close.astro";
     // Reset and restart
     animationTimeout = setTimeout(() => {
       // Reset opacity for next cycle
-      messages.forEach((el: HTMLElement) => el.style.opacity = '0')
+      messages.forEach((el) => (el as HTMLElement).style.opacity = '0')
       if (quoteCard) (quoteCard as HTMLElement).style.opacity = '0'
       if (actionCard) (actionCard as HTMLElement).style.opacity = '0'
 
@@ -682,10 +773,10 @@ import CloseIcon from "@/components/icons/close.astro";
     // Phase 6: Reset and restart
     animationTimeout = setTimeout(() => {
       // Reset opacity for next cycle - elements that will be animated
-      messages.forEach((el: HTMLElement) => el.style.opacity = '0')
+      messages.forEach((el) => (el as HTMLElement).style.opacity = '0')
       if (quoteCard) (quoteCard as HTMLElement).style.opacity = '0'
       if (actionCard) (actionCard as HTMLElement).style.opacity = '0'
-      blueDots.forEach((el: HTMLElement) => el.style.opacity = '0')
+      blueDots.forEach((el) => (el as HTMLElement).style.opacity = '0')
 
       // Reset video
       const video = container.querySelector('[data-video]') as HTMLVideoElement
@@ -704,51 +795,56 @@ import CloseIcon from "@/components/icons/close.astro";
   }
 
   // Start flow animations and wait for completion
+  // Sequence: Left flows → Video → Right flow
   async function startFlowAnimation(container: HTMLElement) {
-    const velocity = 20  // Original velocity restored
+    const velocity = BASE_VELOCITY * FLOW_SPEED_MULTIPLIER
     const dotCount = 20
-    const travelTime = (100 / velocity) * 1000 // 5000ms
-    const horizontalStartDelay = travelTime // Flow 5 starts when first dots complete
 
-    const marquees = []
+    const leftMarquees = []
 
-    // Create flows 1-4 (start immediately)
+    // ========================================
+    // STEP 1: Create and start flows 1-4 (left side)
+    // ========================================
     for (let i = 1; i <= 4; i++) {
       const marquee = new PathMarquee(container, `flow-path-${i}`, dotCount, velocity, 0)
-      marquees.push(marquee)
+      leftMarquees.push(marquee)
     }
 
-    // Create flow 5 (horizontal, delayed start)
-    const horizontalMarquee = new PathMarquee(container, 'flow-path-5', dotCount, velocity, horizontalStartDelay)
-    marquees.push(horizontalMarquee)
+    // Start left flows and wait for all to complete
+    await Promise.all(leftMarquees.map(m => m.start()))
 
-    // Get video element
+    // ========================================
+    // STEP 2: Play video and wait for it to finish
+    // ========================================
     const video = container.querySelector('[data-video]') as HTMLVideoElement
 
-    // Start video when flow 5 starts
     if (video) {
-      setTimeout(() => {
+      await new Promise<void>((resolve) => {
         // Fade in video and play
         animate(video, { opacity: [0, 1] }, { duration: 0.5 })
         video.currentTime = 0
         video.playbackRate = 1.8
         video.play()
 
-        // Fade out when video ends
+        // Wait for video to end
         video.addEventListener('ended', () => {
           animate(video, { opacity: 0 }, { duration: 0.5 })
+          resolve()
         }, { once: true })
-      }, horizontalStartDelay)
+      })
     }
 
-    // Start all animations
-    const allAnimations = marquees.map(m => m.start())
+    // ========================================
+    // STEP 3: Start flow 5 (right/horizontal) after video ends
+    // ========================================
+    const horizontalMarquee = new PathMarquee(container, 'flow-path-5', dotCount, velocity, 0)
+    await horizontalMarquee.start()
 
-    // Wait for all to complete
-    await Promise.all(allAnimations)
-
-    // Cleanup
-    marquees.forEach(m => m.cleanup())
+    // ========================================
+    // Cleanup all marquees
+    // ========================================
+    leftMarquees.forEach(m => m.cleanup())
+    horizontalMarquee.cleanup()
   }
 
   // Handle window resize
@@ -778,6 +874,124 @@ import CloseIcon from "@/components/icons/close.astro";
     resizeTimeout = setTimeout(handleResize, 250)
   })
 
-  // Start the timeline when page loads (if desktop)
-  playTimeline()
+  // ========================================
+  // Stop and reset animation
+  // ========================================
+  function stopAnimation() {
+    // Prevent multiple simultaneous calls
+    if (isStopping || !isAnimationRunning) return
+
+    isStopping = true
+    isAnimationRunning = false
+
+    // Clear any pending timeouts
+    if (animationTimeout) {
+      clearTimeout(animationTimeout)
+      animationTimeout = null
+    }
+
+    // Stop all active marquees (this will cancel all requestAnimationFrame and timeouts)
+    activeMarquees.forEach((marquee) => marquee.stop())
+
+    // Reset all animated elements
+    const container = document.getElementById('quotes-container')
+    if (!container) return
+
+    const messages = container.querySelectorAll('[data-message]')
+    const quoteCard = container.querySelector('[data-quote-card]')
+    const actionCard = container.querySelector('[data-action-card]')
+    const blueDots = container.querySelectorAll('[data-blue-dot]')
+
+    // Reset opacity and transforms
+    messages.forEach((el) => {
+      (el as HTMLElement).style.opacity = '0'
+      ;(el as HTMLElement).style.transform = ''
+    })
+    if (quoteCard) {
+      (quoteCard as HTMLElement).style.opacity = '0'
+      ;(quoteCard as HTMLElement).style.transform = ''
+    }
+    if (actionCard) {
+      (actionCard as HTMLElement).style.opacity = '0'
+      ;(actionCard as HTMLElement).style.transform = ''
+    }
+    blueDots.forEach((el) => {
+      (el as HTMLElement).style.opacity = '0'
+    })
+
+    // Reset videos
+    const videos = container.querySelectorAll('[data-video]') as NodeListOf<HTMLVideoElement>
+    videos.forEach((video) => {
+      video.pause()
+      video.currentTime = 0
+      video.style.opacity = '0'
+    })
+
+    // Clean up flow dots (already stopped via marquee.stop(), now remove from DOM)
+    const flowDots = container.querySelectorAll('.flow-dot')
+    flowDots.forEach((dot) => dot.remove())
+
+    // Clear active marquees array
+    activeMarquees.forEach((marquee) => {
+      const index = activeMarquees.indexOf(marquee)
+      if (index > -1) {
+        activeMarquees.splice(index, 1)
+      }
+    })
+    activeMarquees = []
+
+    // Reset stopping flag
+    isStopping = false
+  }
+
+  // ========================================
+  // Check if should play animation (with debounce)
+  // ========================================
+  function checkAndPlayAnimation() {
+    // Clear any pending visibility check
+    if (visibilityCheckTimeout) {
+      clearTimeout(visibilityCheckTimeout)
+      visibilityCheckTimeout = null
+    }
+
+    // Debounce to prevent rapid state changes
+    visibilityCheckTimeout = setTimeout(() => {
+      const shouldPlay = isSectionInView && isTabVisible
+      const shouldStop = !shouldPlay && isAnimationRunning
+
+      // Start animation if conditions are met and not already running
+      if (shouldPlay && !isAnimationRunning && !isStopping) {
+        playTimeline()
+      }
+      // Stop animation if conditions not met and is running
+      else if (shouldStop && !isStopping) {
+        stopAnimation()
+      }
+    }, 100) // 100ms debounce to prevent rapid changes
+  }
+
+  // ========================================
+  // Page Visibility API - Detect tab changes
+  // ========================================
+  document.addEventListener('visibilitychange', () => {
+    isTabVisible = !document.hidden
+    checkAndPlayAnimation()
+  })
+
+  // ========================================
+  // InView - Detect section visibility
+  // ========================================
+  const container = document.getElementById('quotes-container')
+  if (container) {
+    inView(container, () => {
+      isSectionInView = true
+      checkAndPlayAnimation()
+
+      // Return cleanup function when element leaves viewport
+      return () => {
+        isSectionInView = false
+        checkAndPlayAnimation()
+      }
+    })
+  }
 </script>

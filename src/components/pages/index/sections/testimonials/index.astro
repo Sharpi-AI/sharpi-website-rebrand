@@ -16,15 +16,14 @@ const testimonials = [
     text: "A Sharpi permitiu que nossas vendedoras ganhassem tempo e se dedicassem ainda mais às prospecções, aumentando o faturamento através das mensagens automáticas, um dos recursos que ela oferece. Com essa agilidade, conseguimos atender novos clientes com maior eficiência e a atenção necessária, fortalecendo nossas relações e ampliando nossa base de clientes.",
     avatar: img04,
   },
-
-  // {
-  //   id: "testimonials-card-3",
-  //   name: "Maria Santos",
-  //   role: "VP of Sales",
-  //   company: "Global Industries",
-  //   text: "The automated follow-ups and intelligent lead scoring have revolutionized how we approach sales. Sharpi is now an essential part of our daily workflow.",
-  //   avatar: img01,
-  // },
+  {
+    id: "testimonials-card-3",
+    name: "Leonardo Ribeiro",
+    role: "Gerente Comercial",
+    company: "Bold Snacks",
+    text: "Com o apoio da Sharpi, conseguimos otimizar o tempo da equipe comercial e melhorar significativamente o controle e o acompanhamento dos resultados. Hoje temos muito mais agilidade e visibilidade na gestão.",
+    avatar: img01,
+  },
   {
     id: "testimonials-card-2",
     name: "Ana Julia",
@@ -52,42 +51,44 @@ const testimonials = [
 ];
 
 const mosaicImages = [
-  {
-    id: "mosaic-1",
-    src: img03,
-    alt: "Team member profile photo",
-    position: "top-[7%] left-[44%]",
-    size: "w-[24%] aspect-[326/403]",
-    width: 326,
-    height: 403,
-  },
-  {
+{
     id: "mosaic-2",
-    src: img02,
+    src: img03,
     alt: "Team member profile photo",
     position: "top-[63.5%] left-[31%]",
     size: "w-[12%] aspect-[165/203]",
-    width: 165,
-    height: 203,
+    width: 165 * 1.5,
+    height: 203 * 1.5,
   },
   {
-    id: "mosaic-3",
-    src:  img04,
+    id: "mosaic-1",
+    src: img04,
     alt: "Team member profile photo",
-    position: "top-[42%] left-[74%]",
-    size: "w-[5%] aspect-[72/72]",
-    width: 72,
-    height: 72,
+    position: "top-[7%] left-[44%]",
+    size: "w-[24%] aspect-[326/403]",
+    width: 326 * 1.5,
+    height: 403 * 1.5,
   },
+ 
   {
     id: "mosaic-4",
-    src: img01,
+    src: img02 ,
     alt: "Team member profile photo",
     position: "top-[52%] left-[14%]",
     size: "w-[5%] aspect-[72/72]",
-    width: 72,
-    height: 72,
+    width: 72 * 1.5,
+    height: 72 * 1.5,
   },
+  {
+    id: "mosaic-3",
+    src:  img01,
+    alt: "Team member profile photo",
+    position: "top-[42%] left-[74%]",
+    size: "w-[5%] aspect-[72/72]",
+    width: 72 * 1.5,
+    height: 72 * 1.5,
+  },
+
 ];
 ---
 
@@ -126,6 +127,7 @@ const mosaicImages = [
         width={mosaicImages[0].width}
         height={mosaicImages[0].height}
         loading="lazy"
+        
       />
     </div>
 
@@ -156,7 +158,7 @@ const mosaicImages = [
 
     <!-- <div class="absolute top-[63.5%] left-[16.75%] z-10">
       <Card
-        targetScale="0.48"
+        targetScale="0.54"
         cardId="testimonials-card-2"
         name={testimonials[1].name}
         role={testimonials[1].role}
@@ -170,6 +172,18 @@ const mosaicImages = [
       <Card
         targetScale="0.82"
         cardId="testimonials-card-3"
+        name={testimonials[2].name}
+        role={testimonials[2].role}
+        company={testimonials[2].company}
+        text={testimonials[2].text}
+        avatar={testimonials[2].avatar}
+      />
+    </div>
+
+    <div class="absolute top-[54%] left-[69%] z-10">
+      <Card
+        targetScale="0.58"
+        cardId="testimonials-card-4"
         name={testimonials[1].name}
         role={testimonials[1].role}
         company={testimonials[1].company}
@@ -178,27 +192,15 @@ const mosaicImages = [
       />
     </div>
 
-    <!-- <div class="absolute top-[54%] left-[69%] z-10">
+    <div class="absolute top-[35%] left-[60%] z-10">
       <Card
-        targetScale="0.58"
-        cardId="testimonials-card-4"
+        targetScale="0.50"
+        cardId="testimonials-card-5"
         name={testimonials[3].name}
         role={testimonials[3].role}
         company={testimonials[3].company}
         text={testimonials[3].text}
         avatar={testimonials[3].avatar}
-      />
-    </div> -->
-
-    <div class="absolute top-[35%] left-[60%] z-10">
-      <Card
-        targetScale="0.48"
-        cardId="testimonials-card-5"
-        name={testimonials[2].name}
-        role={testimonials[2].role}
-        company={testimonials[2].company}
-        text={testimonials[2].text}
-        avatar={testimonials[2].avatar}
       />
     </div>
 
@@ -278,7 +280,7 @@ const mosaicImages = [
                       </div>
                     </div>
 
-                    <p class="text-base md:text-sm tracking-[-0.02em] leading-snug mt-auto text-balance line-clamp-4 group-hover:line-clamp-none">
+                    <p class="text-base md:text-sm tracking-[-0.02em] leading-snug mt-auto text-balance ">
                       {testimonial.text}
                     </p>
                   </div>

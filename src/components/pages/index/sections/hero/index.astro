@@ -67,7 +67,15 @@ import CalendarIcon from "@/components/icons/calendar.astro";
       id="hero-device"
       class="relative z-0 h-full w-[calc(100%-4rem)] md:w-96 rounded-t-[60px] bg-gradient-to-b from-[#ffffff38] to-[#ffffff] overflow-hidden backdrop-blur-sm opacity-0 translate-y-[30px]"
     >
-      <div class="absolute inset-0 p-6 flex">
+      <!-- Mobile funnel (behind notifications) -->
+      <div
+        id="hero-funnel-mobile"
+        class="md:hidden absolute inset-0 z-0 opacity-0 pointer-events-none"
+      >
+        <DataSourceFunnel id="three-funnel-canvas-mobile" />
+      </div>
+
+      <div class="absolute inset-0 p-6 flex z-10">
         <div
           class="absolute top-4 left-1/2 -translate-x-1/2 w-18 h-5 rounded-full bg-white flex items-center justify-center"
         >
@@ -111,9 +119,9 @@ import CalendarIcon from "@/components/icons/calendar.astro";
 
   <div
     id="hero-funnel"
-    class="absolute z-10 md:z-5 inset-0  p-4 opacity-0 pointer-events-none"
+    class="hidden md:block absolute z-5 inset-0 p-4 opacity-0 pointer-events-none"
   >
-    <DataSourceFunnel />
+    <DataSourceFunnel id="three-funnel-canvas-desktop" />
   </div>
 
   <div
@@ -195,13 +203,19 @@ import CalendarIcon from "@/components/icons/calendar.astro";
   function initHeroAnimations() {
     const device = document.getElementById("hero-device");
     const funnel = document.getElementById("hero-funnel");
+    const funnelMobile = document.getElementById("hero-funnel-mobile");
     const content = document.getElementById("hero-content");
 
-    if (!device || !funnel || !content) return;
+    if (!device || !content) return;
+
+    // Prepare elements to animate (device always, funnel depends on visibility)
+    const elementsToAnimate = [device];
+    if (funnel) elementsToAnimate.push(funnel);
+    if (funnelMobile) elementsToAnimate.push(funnelMobile);
 
     // Animação do device e funnel juntos (delay: 0.2s)
     animate(
-      [device, funnel],
+      elementsToAnimate,
       {
         opacity: [0, 1],
         y: [30, 0],

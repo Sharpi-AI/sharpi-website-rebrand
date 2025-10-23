@@ -727,10 +727,10 @@ import ScannerImage from "@/assets/how-to/scanner.png";
 
     const startEntryAnimationsDesktop = () => {
       const scannerDuration = 1.2; // Duração de uma varredura completa (ida e volta)
-      const scannerRepetitions = 3; // Número de varreduras
+      const scannerRepetitions = 2; // Número de varreduras
       const totalScannerTime = scannerDuration * scannerRepetitions;
 
-      // 1. Animar painel PDF (esquerda) - aparece primeiro
+      // 1. PDF aparece primeiro (necessário para o scanner ser visível)
       currentAnimations.push(
         animate('[data-animate="panel-pdf"]', {
           opacity: [0, 1],
@@ -741,19 +741,19 @@ import ScannerImage from "@/assets/how-to/scanner.png";
         })
       );
 
-      // 2. Animar scanner - 3 varreduras (descendo e subindo)
+      // 2. Scanner aparece e se move (logo após PDF aparecer)
       const scanner = container.querySelector('#document-scanner');
       if (scanner) {
         // Resetar posição inicial do scanner
         (scanner as HTMLElement).style.top = '0px';
 
-        // Fazer scanner aparecer junto com o PDF
+        // Fazer scanner aparecer quando o PDF estiver visível
         currentAnimations.push(
           animate(scanner, {
             opacity: [0, 1],
           }, {
-            duration: 0.3,
-            delay: duration,
+            duration: 0.2,
+            delay: 0.3, // Pequeno delay após PDF começar a aparecer
           })
         );
 
@@ -762,23 +762,34 @@ import ScannerImage from "@/assets/how-to/scanner.png";
           animate(scanner, {
             top: [
               '0px',      // Início
-              '390px',    // Desce até o final
+              '370px',    // Desce até o final
               '0px',      // Sobe de volta
-              '390px',    // Segunda varredura - desce
+              '370px',    // Segunda varredura - desce
               '0px',      // Sobe de volta
-              '390px',    // Terceira varredura - desce
+              '370px',    // Terceira varredura - desce
               '0px',      // Volta ao topo
             ],
           }, {
             duration: totalScannerTime,
-            easing: 'linear',
-            delay: duration, // Inicia após o PDF aparecer
+            easing: [0.83, 0, 0.17, 1],
+            delay: 0.3, // Inicia junto com opacity
+          })
+        );
+
+        // Fade-out do scanner após completar as varreduras
+        currentAnimations.push(
+          animate(scanner, {
+            opacity: [1, 0],
+          }, {
+            duration: 0.3,
+            delay: 0.3 + totalScannerTime, // Após o scanner completar
+            easing: [0.4, 0, 0.2, 1],
           })
         );
       }
 
-      // 3. Animar painel Extract (direita) - aparece 1s após o scanner começar
-      const extractDelay = duration + 1; // PDF aparece + 1s
+      // 3. Animar painel Extract (direita) - aparece após scanner terminar
+      const extractDelay = 0.3 + totalScannerTime + 0.5; // Scanner termina + pequeno delay
       currentAnimations.push(
         animate('[data-animate="panel-extract"]', {
           opacity: [0, 1],
@@ -789,11 +800,8 @@ import ScannerImage from "@/assets/how-to/scanner.png";
         })
       );
 
-      // Calcular tempo total (última animação termina quando scanner termina ou extract aparece, o que for maior)
-      const pdfTime = duration;
-      const scannerEndTime = duration + totalScannerTime;
-      const extractEndTime = extractDelay + duration;
-      const totalTime = Math.max(scannerEndTime, extractEndTime) * 1000;
+      // Calcular tempo total (última animação termina quando extract aparece)
+      const totalTime = (extractDelay + duration) * 1000;
 
       const timeoutId = window.setTimeout(() => runAnimationSequence(), totalTime);
       animationTimeouts.push(timeoutId);
@@ -801,12 +809,13 @@ import ScannerImage from "@/assets/how-to/scanner.png";
 
     const startEntryAnimationsMobile = () => {
       const scannerDuration = 1.2; // Duração de uma varredura completa (ida e volta)
-      const scannerRepetitions = 3; // Número de varreduras
+      const scannerRepetitions = 2; // Número de varreduras
       const totalScannerTime = scannerDuration * scannerRepetitions;
 
       // Timings da sequência mobile
       const pdfAppearTime = duration; // 0.8s - PDF aparece
-      const scannerTime = totalScannerTime; // 3.6s - Scanner faz 3 varreduras
+      const scannerStartTime = 0.3; // 0.3s - Scanner começa (delay reduzido)
+      const scannerTime = totalScannerTime; // 1.8s - Scanner faz 3 varreduras
       const pdfVisibleTime = 1; // 1s - PDF fica visível após scanner
       const pdfFadeOutTime = 0.5; // 0.5s - PDF desaparece
       const extractAppearTime = duration; // 0.8s - Extract aparece
@@ -830,13 +839,13 @@ import ScannerImage from "@/assets/how-to/scanner.png";
         // Resetar posição inicial do scanner
         (scanner as HTMLElement).style.top = '0px';
 
-        // Fazer scanner aparecer junto com o PDF
+        // Fazer scanner aparecer logo após o PDF começar a aparecer
         currentAnimations.push(
           animate(scanner, {
             opacity: [0, 1],
           }, {
-            duration: 0.3,
-            delay: duration,
+            duration: 0.2,
+            delay: 0.3, // Pequeno delay após PDF começar
           })
         );
 
@@ -854,14 +863,14 @@ import ScannerImage from "@/assets/how-to/scanner.png";
             ],
           }, {
             duration: totalScannerTime,
-            easing: 'linear',
-            delay: duration, // Inicia após o PDF aparecer
+            easing: [0.83, 0, 0.17, 1],
+            delay: 0.3, // Inicia junto com opacity
           })
         );
       }
 
       // 3. PDF fica visível por mais 1s, depois faz fade-out
-      const pdfFadeOutStartTime = (pdfAppearTime + scannerTime + pdfVisibleTime) * 1000;
+      const pdfFadeOutStartTime = (scannerStartTime + scannerTime + pdfVisibleTime) * 1000;
       const pdfFadeOutTimeoutId = window.setTimeout(() => {
         const pdfPanel = container.querySelector('[data-animate="panel-pdf"]');
         if (pdfPanel) {
@@ -888,7 +897,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
       animationTimeouts.push(pdfFadeOutTimeoutId);
 
       // 4. Extract aparece após PDF desaparecer
-      const extractAppearStartTime = (pdfAppearTime + scannerTime + pdfVisibleTime + pdfFadeOutTime) * 1000;
+      const extractAppearStartTime = (scannerStartTime + scannerTime + pdfVisibleTime + pdfFadeOutTime) * 1000;
       const extractAppearTimeoutId = window.setTimeout(() => {
         currentAnimations.push(
           animate(container.querySelector('[data-animate="panel-extract"]') as Element, {
@@ -903,7 +912,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
       animationTimeouts.push(extractAppearTimeoutId);
 
       // 5. Extract fica visível por 4s, depois faz fade-out
-      const extractFadeOutStartTime = (pdfAppearTime + scannerTime + pdfVisibleTime + pdfFadeOutTime + extractAppearTime + extractVisibleTime) * 1000;
+      const extractFadeOutStartTime = (scannerStartTime + scannerTime + pdfVisibleTime + pdfFadeOutTime + extractAppearTime + extractVisibleTime) * 1000;
       const extractFadeOutTimeoutId = window.setTimeout(() => {
         const extractPanel = container.querySelector('[data-animate="panel-extract"]');
         if (extractPanel) {

@@ -5,7 +5,9 @@
       "Bash(cat:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "WebFetch(domain:docs.astro.build)"
+      "WebFetch(domain:docs.astro.build)",
+      "WebFetch(domain:motion.dev)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

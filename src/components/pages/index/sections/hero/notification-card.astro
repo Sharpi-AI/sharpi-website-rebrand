@@ -12,21 +12,21 @@ const { title, message, media, index, type } = Astro.props;
 
 <div
   id={`notification-card-${index}`}
-  class="relative z-0 w-[256px]  md:w-[240px] rounded-[20px] md:rounded-[18px] origin-top shadow-lg backdrop-blur-lg py-4 md:py-[15px] px-[12.5px] md:px-3 mb-2 pointer-events-none"
+  class="relative z-0 min-w-[266px] md:min-w-0  md:w-[187px] xl:w-[240px] 2xl:w-[274px] h-[62px] md:h-[48px] xl:h-[58px] 2xl:h-[67px] rounded-[20px] md:rounded-[14px] xl:rounded-[18px] 2xl:rounded-[20px] origin-top shadow-lg backdrop-blur-lg  px-[12.5px] md:px-[11px] xl:px-[12px] 2xl:px-[14px] mb-2 pointer-events-none "
   data-index={index}
   style="background-color: #FFFFFF40;"
 >
-  <div class="relative z-10 flex items-start gap-3 md:gap-2">
+  <div class="relative z-10 flex items-center gap-3 md:gap-2 h-full">
     <div class="flex-shrink-0  bg-zinc-200 rounded overflow-hidden">
       {media && type === "video" && <video src={media} autoplay loop muted playsinline class="size-[20px] md:size-[20px]  object-cover"/>}
-      {media && type === "image" && <img src={media} alt={title} class="w-[25px] h-[30px] md:w-[23px] md:h-[28px]  object-cover"/>}
+      {media && type === "image" && <img src={media} alt={title} class="w-[25px] h-[30px] md:w-[18px] md:h-[22px] xl:w-[23px] xl:h-[28px] 2xl:w-[26px] 2xl:h-[32px] object-cover"/>}
     </div>
 
     <div class="flex-1 min-w-0 space-y-1">
-      <h4 class="text-[14.5px] md:text-[13.5px] leading-none font-light md:font-normal text-[#90908E] truncate whitespace-nowrap">
+      <h4 class="text-[14.5px] md:text-[10.55px] xl:text-[13.5px] 2xl:text-[15.5px] leading-none tracking-[-0.02em] font-light  text-[#90908E] truncate whitespace-nowrap">
         {title}
       </h4>
-      <p class="text-[14.5px] md:text-[13.5px] leading-none font-medium md:font-normal text-[#2D2D2D] whitespace-nowrap">
+      <p class="text-[14.5px] md:text-[10.55px] xl:text-[13.5px] 2xl:text-[15.5px] leading-none tracking-[-0.02em] font-medium  text-[#2D2D2D] whitespace-nowrap">
         {message}
       </p>
     </div>

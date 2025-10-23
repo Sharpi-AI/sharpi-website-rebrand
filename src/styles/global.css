@@ -47,10 +47,12 @@ video {
 @theme {
   --font-suisse-intl: 'suisse-intl';
   --font-suisse-mono: 'suisse-mono';
-  
+
   --font-body: var(--font-suisse-intl);
   --font-mono: var(--font-suisse-mono);
 
+  /* Custom breakpoints */
+  --breakpoint-2xl: 105rem; /* 1680px (1680÷16) */
 
   @keyframes loading-spin {
     100% {
@@ -58,7 +60,7 @@ video {
     }
   }
 
-  --animate-loading-spin: loading-spin 3s linear infinite; 
+  --animate-loading-spin: loading-spin 3s linear infinite;
 }
 
 .orbit-text {
