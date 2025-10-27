@@ -72,6 +72,8 @@ video {
   padding: 16px 16px 16px 12px;
   border: 1px solid rgba(0,0,0,0.12);
   border-radius: 15px;
+  height: 68px;
+  max-height: 68px;
   color: black;
   box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.08);
   transform-origin: center;
@@ -131,5 +133,6 @@ video {
   font-weight: 500;
   color: #6F6F6F;
   letter-spacing: -0.025em;
+  font-family: var(--font-mono);
   line-height: 1;
 }

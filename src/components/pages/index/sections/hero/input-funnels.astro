@@ -20,7 +20,7 @@ const { id = "three-funnel-canvas" } = Astro.props;
 
   // Distances calculated dynamically based on viewport size
   let X_DISTANCE = 8;
-  let Y_DISTANCE = 5;
+  let Y_DISTANCE = 8;
   const Y_OFFSET = -1.5; // Controla o deslocamento vertical de todos os objetos (positivo = para cima, negativo = para baixo)
 
   const MOBILE_BREAKPOINT = 768;
@@ -29,6 +29,10 @@ const { id = "three-funnel-canvas" } = Astro.props;
   const MOBILE_X_VARIANCE = 1.5; // Reduced from 3.5 to 1.5 to fit inside device width
   const MOBILE_X_OFFSET = -0.3; // Horizontal offset for mobile funnel (positive = right, negative = left)
   const MOBILE_TEXTURE_COUNT = 12;
+  const DESKTOP_OBJECTS_PER_TEXTURE = 2; // 17 texturas × 4 = 68 objetos totais
+  const DESKTOP_NUM_LANES = 5; // Número de faixas verticais (topo, meio-alto, centro, meio-baixo, baixo)
+  const DESKTOP_X_NUM_LANES = 5; // Número de faixas horizontais (profundidade)
+  const DESKTOP_X_LANE_VARIANCE = 1.0; // Variação total da posição X inicial (em unidades)
 
   // Animation constants
   const Z_INDEX_SPACING = 0.01;
@@ -88,7 +92,7 @@ const { id = "three-funnel-canvas" } = Astro.props;
     const BASE_WIDTH = 1440;
     const BASE_HEIGHT = 900;
     const BASE_X_DISTANCE = 10;
-    const BASE_Y_DISTANCE = 6;
+    const BASE_Y_DISTANCE = 7;
 
     // Calculate scaling factors
     const widthScale = width / BASE_WIDTH;
@@ -197,6 +201,39 @@ const { id = "three-funnel-canvas" } = Astro.props;
     }
   }
 
+  function getDesktopLaneDistribution(
+    index: number,
+    repetitionIndex: number,
+    numLanes: number
+  ): number {
+    const laneIndex = (index + repetitionIndex) % numLanes;
+    
+    const laneHeight = (Y_DISTANCE * 2) / numLanes;
+    const laneCenter = -Y_DISTANCE + (laneIndex + 0.5) * laneHeight;
+    
+    const seed = index * 999 + repetitionIndex * 555;
+    const laneVariation = (seededRandom(seed) - 0.5) * laneHeight * 0.6;
+    
+    return laneCenter + laneVariation;
+  }
+
+  function getDesktopXLaneDistribution(
+    index: number,
+    repetitionIndex: number,
+    baseX: number,
+    numLanes: number
+  ): number {
+    const laneIndex = (index * 2 + repetitionIndex) % numLanes;
+    
+    const laneWidth = (DESKTOP_X_LANE_VARIANCE * 2) / numLanes;
+    const laneOffset = -DESKTOP_X_LANE_VARIANCE + (laneIndex + 0.5) * laneWidth;
+    
+    const seed = index * 777 + repetitionIndex * 333;
+    const laneVariation = (seededRandom(seed) - 0.5) * laneWidth * 0.4;
+    
+    return baseX + laneOffset + laneVariation;
+  }
+
   // Create funnel object (desktop mode)
   function createFunnelObject(
     texture: THREE.Texture,
@@ -204,20 +241,23 @@ const { id = "three-funnel-canvas" } = Astro.props;
     direction: "left-to-right" | "right-to-left",
     index: number,
     totalObjects: number,
-    scene: THREE.Scene
+    scene: THREE.Scene,
+    repetitionIndex: number = 0
   ): FunnelObject {
-    const x = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
-    const y = getImprovedYDistribution(index, direction, totalObjects, "gaussian");
+    const baseX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
+    const x = getDesktopXLaneDistribution(index, repetitionIndex, baseX, DESKTOP_X_NUM_LANES);
+    const adjustedIndex = index + (repetitionIndex * totalObjects);
+    const y = getDesktopLaneDistribution(index, repetitionIndex, DESKTOP_NUM_LANES);
     const z = direction === "left-to-right"
-      ? Z_INDEX_SPACING * index
-      : Z_INDEX_SPACING * (index + Z_OFFSET_RIGHT);
+      ? Z_INDEX_SPACING * adjustedIndex
+      : Z_INDEX_SPACING * (adjustedIndex + Z_OFFSET_RIGHT);
 
     const mesh = createBaseMesh(texture, geometry, { x, y: y + Y_OFFSET, z }, scene);
 
     return {
       mesh,
       startPosition: { x, y: y + Y_OFFSET, z },
-      offset: seededRandom(index * (direction === "left-to-right" ? 456 : 987)),
+      offset: seededRandom(adjustedIndex * (direction === "left-to-right" ? 456 : 987) + repetitionIndex * 1234),
       direction,
     };
   }
@@ -581,25 +621,29 @@ const { id = "three-funnel-canvas" } = Astro.props;
         const geometry = createGeometry(width, height);
 
         if (mode === "desktop") {
-          const leftObject = createFunnelObject(
-            texture,
-            geometry,
-            "left-to-right",
-            i,
-            validTextureData.length,
-            scene
-          );
-          objects.push(leftObject);
+          for (let repetition = 0; repetition < DESKTOP_OBJECTS_PER_TEXTURE; repetition++) {
+            const leftObject = createFunnelObject(
+              texture,
+              geometry,
+              "left-to-right",
+              i,
+              validTextureData.length,
+              scene,
+              repetition
+            );
+            objects.push(leftObject);
 
-          const rightObject = createFunnelObject(
-            texture,
-            geometry.clone(),
-            "right-to-left",
-            i,
-            validTextureData.length,
-            scene
-          );
-          objects.push(rightObject);
+            const rightObject = createFunnelObject(
+              texture,
+              geometry.clone(),
+              "right-to-left",
+              i,
+              validTextureData.length,
+              scene,
+              repetition
+            );
+            objects.push(rightObject);
+          }
         } else {
           const mobileObject = createMobileFunnelObject(
             texture,

@@ -389,6 +389,58 @@
   // Track active marquees to allow cancellation
   let activeMarquees: PathMarquee[] = []
 
+  // Track active Motion animations to allow cancellation
+  let activeMotionAnimations: any[] = []
+
+  function cancelAllMotionAnimations() {
+    activeMotionAnimations.forEach((animation) => {
+      try {
+        animation.stop()
+      } catch (error) {
+        // Animation might already be stopped
+      }
+    })
+    activeMotionAnimations.length = 0
+
+    // Force reset all animated elements to initial state
+    const container = document.getElementById('quotes-container')
+    if (!container) return
+
+    const messages = container.querySelectorAll('[data-message]')
+    const quoteCard = container.querySelector('[data-quote-card]')
+    const actionCard = container.querySelector('[data-action-card]')
+    const blueDots = container.querySelectorAll('[data-blue-dot]')
+
+    messages.forEach((el) => {
+      const element = el as HTMLElement
+      element.style.opacity = ''
+      element.style.transform = ''
+    })
+
+    if (quoteCard) {
+      const element = quoteCard as HTMLElement
+      element.style.opacity = ''
+      element.style.transform = ''
+    }
+
+    if (actionCard) {
+      const element = actionCard as HTMLElement
+      element.style.opacity = ''
+      element.style.transform = ''
+    }
+
+    blueDots.forEach((el) => {
+      const element = el as HTMLElement
+      element.style.opacity = ''
+    })
+
+    // Reset videos
+    const videos = container.querySelectorAll('[data-video]') as NodeListOf<HTMLVideoElement>
+    videos.forEach((video) => {
+      video.style.opacity = ''
+    })
+  }
+
   // Debounce control for visibility checks
   let visibilityCheckTimeout: ReturnType<typeof setTimeout> | null = null
   let isStopping = false
@@ -403,7 +455,7 @@
     dotSpacing?: number
     onFirstDotComplete?: () => void
     dots: HTMLDivElement[]
-    completionPromise: (() => void) | null
+    completionPromise: (() => void) | null = null
     animationFrameIds: number[]
     timeoutIds: ReturnType<typeof setTimeout>[]
     isStopped: boolean
@@ -417,7 +469,6 @@
       this.dotSpacing = dotSpacing
       this.onFirstDotComplete = onFirstDotComplete
       this.dots = []
-      this.completionPromise = null
       this.animationFrameIds = []
       this.timeoutIds = []
       this.isStopped = false
@@ -427,8 +478,8 @@
       // Register this marquee as active
       activeMarquees.push(this)
 
-      return new Promise((resolve) => {
-        this.completionPromise = resolve
+      return new Promise<void>((resolve) => {
+        this.completionPromise = () => resolve()
         const timeoutId = setTimeout(() => this.init(), this.startDelay)
         this.timeoutIds.push(timeoutId)
       })
@@ -607,15 +658,15 @@
 
     if (video) {
       await new Promise<void>((resolve) => {
-        // Fade in video and play
-        animate(video, { opacity: [0, 1] }, { duration: 0.5 })
+        const fadeInAnim = animate(video, { opacity: [0, 1] }, { duration: 0.5 })
+        activeMotionAnimations.push(fadeInAnim)
         video.currentTime = 0
         video.playbackRate = 1.8
         video.play()
 
-        // Wait for video to end
         video.addEventListener('ended', () => {
-          animate(video, { opacity: 0 }, { duration: 0.5 })
+          const fadeOutAnim = animate(video, { opacity: 0 }, { duration: 0.5 })
+          activeMotionAnimations.push(fadeOutAnim)
           resolve()
         }, { once: true })
       })
@@ -644,73 +695,176 @@
   }
 
   // Mobile timeline function
-  async function playMobileTimeline() {
+  // async function playMobileTimeline() {
+  //   const container = document.getElementById('quotes-container')
+  //   if (!container) return
+
+  //   isAnimationRunning = true
+
+  //   // Get all elements
+  //   const messages = container.querySelectorAll('[data-message]')
+  //   const quoteCard = container.querySelector('[data-quote-card]')
+  //   const actionCard = container.querySelector('[data-action-card]')
+  //   const animatedElements = container.querySelectorAll('[data-animated]')
+
+  //   // Phase 1: Messages appear in center with fade-in up and stagger
+  //   // Step 1a: Appear in center with fade-in up (start 20px below center, rise to center)
+  //   await animate(
+  //     messages,
+  //     { opacity: [0, 1], y: [170, 150] },
+  //     { delay: stagger(0.15), duration: 0.8, ease: "easeOut" }
+  //   ).finished
+
+  //   // Step 1b: Move from center to final position
+  //   await animate(
+  //     messages,
+  //     { y: [150, 0] },
+  //     { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
+  //   ).finished
+
+  //   // Phase 3: Blue dot from first message appears (mobile only has one visible blue dot)
+  //   const blueDotMobile = container.querySelector('[data-message="1"] [data-blue-dot]')
+  //   if (blueDotMobile) {
+  //     await animate(
+  //       blueDotMobile,
+  //       { opacity: [0, 1] },
+  //       { duration: 0.6, ease: "easeOut" }
+  //     ).finished
+  //   }
+
+  //   // Phase 4: Flow animation (vertical) + video
+  //   // Quote card appears when first dot of flow 2 completes
+  //   await startMobileFlowAnimation(() => {
+  //     if (quoteCard) {
+  //       animate(
+  //         quoteCard,
+  //         { opacity: [0, 1] },
+  //         { duration: 0.8, ease: "easeOut" }
+  //       )
+  //     }
+  //   })
+
+  //   // Phase 5: Action card appears
+  //   if (actionCard) {
+  //     await animate(
+  //       actionCard,
+  //       { opacity: [0, 1], y: [20, 0] },
+  //       { duration: 0.6, ease: "easeOut" }
+  //     ).finished
+  //   }
+
+  //   // Wait 3 seconds with everything visible
+  //   await new Promise(resolve => setTimeout(resolve, 3000))
+
+  //   // Fade out everything
+  //   await animate(
+  //     animatedElements,
+  //     { opacity: 0 },
+  //     { duration: 1.5, ease: "easeIn" }
+  //   ).finished
+
+  //   // Reset and restart
+  //   animationTimeout = setTimeout(() => {
+  //     // Reset opacity for next cycle
+  //     messages.forEach((el) => (el as HTMLElement).style.opacity = '0')
+  //     if (quoteCard) (quoteCard as HTMLElement).style.opacity = '0'
+  //     if (actionCard) (actionCard as HTMLElement).style.opacity = '0'
+
+  //     // Reset blue dot mobile
+  //     const blueDotMobile = container.querySelector('[data-message="1"] [data-blue-dot]') as HTMLElement
+  //     if (blueDotMobile) blueDotMobile.style.opacity = '0'
+
+  //     // Reset video mobile
+  //     const mobileFlowContainer = document.getElementById('flow-mobile')
+  //     if (mobileFlowContainer) {
+  //       const video = mobileFlowContainer.querySelector('[data-video]') as HTMLVideoElement
+  //       if (video) {
+  //         video.pause()
+  //         video.currentTime = 0
+  //         video.style.opacity = '0'
+  //       }
+  //     }
+
+  //     // Restart timeline
+  //     playMobileTimeline()
+  //   }, 1000)
+  // }
+// Mobile timeline function
+async function playMobileTimeline() {
     const container = document.getElementById('quotes-container')
     if (!container) return
 
+    cancelAllMotionAnimations()
+    activeMarquees.forEach((marquee) => marquee.stop())
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
     isAnimationRunning = true
 
-    // Get all elements
+    const mobileFlowContainer = document.getElementById('flow-mobile')
+    if (mobileFlowContainer) mobileFlowContainer.style.opacity = '1'
+
     const messages = container.querySelectorAll('[data-message]')
     const quoteCard = container.querySelector('[data-quote-card]')
     const actionCard = container.querySelector('[data-action-card]')
     const animatedElements = container.querySelectorAll('[data-animated]')
 
-    // Phase 1: Messages appear in center with fade-in up and stagger
-    // Step 1a: Appear in center with fade-in up (start 20px below center, rise to center)
-    await animate(
+    const msgAnimation1 = animate(
       messages,
       { opacity: [0, 1], y: [170, 150] },
       { delay: stagger(0.15), duration: 0.8, ease: "easeOut" }
-    ).finished
+    )
+    activeMotionAnimations.push(msgAnimation1)
+    await msgAnimation1.finished
 
-    // Step 1b: Move from center to final position
-    await animate(
+    const msgAnimation2 = animate(
       messages,
       { y: [150, 0] },
       { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
-    ).finished
+    )
+    activeMotionAnimations.push(msgAnimation2)
+    await msgAnimation2.finished
 
-    // Phase 3: Blue dot from first message appears (mobile only has one visible blue dot)
     const blueDotMobile = container.querySelector('[data-message="1"] [data-blue-dot]')
     if (blueDotMobile) {
-      await animate(
+      const dotAnimation = animate(
         blueDotMobile,
         { opacity: [0, 1] },
         { duration: 0.6, ease: "easeOut" }
-      ).finished
+      )
+      activeMotionAnimations.push(dotAnimation)
+      await dotAnimation.finished
     }
 
-    // Phase 4: Flow animation (vertical) + video
-    // Quote card appears when first dot of flow 2 completes
     await startMobileFlowAnimation(() => {
       if (quoteCard) {
-        animate(
+        const quoteAnim = animate(
           quoteCard,
           { opacity: [0, 1] },
           { duration: 0.8, ease: "easeOut" }
         )
+        activeMotionAnimations.push(quoteAnim)
       }
     })
 
-    // Phase 5: Action card appears
     if (actionCard) {
-      await animate(
+      const actionAnimation = animate(
         actionCard,
         { opacity: [0, 1], y: [20, 0] },
         { duration: 0.6, ease: "easeOut" }
-      ).finished
+      )
+      activeMotionAnimations.push(actionAnimation)
+      await actionAnimation.finished
     }
 
-    // Wait 3 seconds with everything visible
     await new Promise(resolve => setTimeout(resolve, 3000))
 
-    // Fade out everything
-    await animate(
+    const fadeOutAnimation = animate(
       animatedElements,
       { opacity: 0 },
       { duration: 1.5, ease: "easeIn" }
-    ).finished
+    )
+    activeMotionAnimations.push(fadeOutAnimation)
+    await fadeOutAnimation.finished
 
     // Reset and restart
     animationTimeout = setTimeout(() => {
@@ -732,6 +886,9 @@
           video.currentTime = 0
           video.style.opacity = '0'
         }
+        // === NOVO: Reseta a opacidade do contêiner de flow mobile ===
+        mobileFlowContainer.style.opacity = '0'
+        // =========================================================
       }
 
       // Restart timeline
@@ -739,8 +896,105 @@
     }, 1000)
   }
 
+
   // Main timeline function
-  async function playTimeline() {
+  // async function playTimeline() {
+  //   // Run mobile timeline if on mobile
+  //   if (isMobile()) {
+  //     playMobileTimeline()
+  //     return
+  //   }
+
+  //   const container = document.getElementById('quotes-container')
+  //   if (!container) return
+
+  //   isAnimationRunning = true
+
+  //   // Get all elements
+  //   const messages = container.querySelectorAll('[data-message]')
+  //   const quoteCard = container.querySelector('[data-quote-card]')
+  //   const actionCard = container.querySelector('[data-action-card]')
+  //   const blueDots = container.querySelectorAll('[data-blue-dot]')
+  //   const animatedElements = container.querySelectorAll('[data-animated]')
+
+  //   // Phase 1: Messages appear in center with fade-in up and stagger
+  //   // Step 1a: Appear in center with fade-in up
+  //   await animate(
+  //     messages,
+  //     { opacity: [0, 1], x: [300, 300], y: [20, 0] },
+  //     { delay: stagger(0.15), duration: 0.8, ease: "easeOut" }
+  //   ).finished
+
+  //   // Step 1b: Move from center to left (final position)
+  //   await animate(
+  //     messages,
+  //     { x: [300, 0] },
+  //     { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
+  //   ).finished
+
+  //   // Phase 2: Quote card appears from right
+  //   if (quoteCard) {
+  //     await animate(
+  //       quoteCard,
+  //       { opacity: [0, 1], x: [40, 0] },
+  //       { duration: 1, ease: "easeOut" }
+  //     ).finished
+  //   }
+
+  //   // Phase 3: Blue dots appear
+  //   await animate(
+  //     blueDots,
+  //     { opacity: [0, 1] },
+  //     { duration: 0.6, ease: "easeOut" }
+  //   ).finished
+
+  //   // Phase 4: Flow animation
+  //   await startFlowAnimation(container)
+
+  //   // Phase 4.5: Action card appears after flow completes
+  //   if (actionCard) {
+  //     await animate(
+  //       actionCard,
+  //       { opacity: [0, 1], y: [20, 0] },
+  //       { duration: 0.6, ease: "easeOut" }
+  //     ).finished
+  //   }
+
+  //   // Phase 4.75: Wait 3 seconds with everything visible
+  //   await new Promise(resolve => setTimeout(resolve, 3000))
+
+  //   // Phase 5: Fade out everything
+  //   await animate(
+  //     animatedElements,
+  //     { opacity: 0 },
+  //     { duration: 1.5, ease: "easeIn" }
+  //   ).finished
+
+  //   // Phase 6: Reset and restart
+  //   animationTimeout = setTimeout(() => {
+  //     // Reset opacity for next cycle - elements that will be animated
+  //     messages.forEach((el) => (el as HTMLElement).style.opacity = '0')
+  //     if (quoteCard) (quoteCard as HTMLElement).style.opacity = '0'
+  //     if (actionCard) (actionCard as HTMLElement).style.opacity = '0'
+  //     blueDots.forEach((el) => (el as HTMLElement).style.opacity = '0')
+
+  //     // Reset video
+  //     const video = container.querySelector('[data-video]') as HTMLVideoElement
+  //     if (video) {
+  //       video.currentTime = 0
+  //       video.style.opacity = '0'
+  //     }
+
+  //     // Reset only flow container (needs to be visible for flow dots)
+  //     const flowContainer = container.querySelector('#flow') as HTMLElement
+  //     if (flowContainer) flowContainer.style.opacity = '1'
+
+  //     // Restart timeline
+  //     playTimeline()
+  //   }, 1000)
+  // }
+// Main timeline function
+async function playTimeline() {
     // Run mobile timeline if on mobile
     if (isMobile()) {
       playMobileTimeline()
@@ -750,67 +1004,78 @@
     const container = document.getElementById('quotes-container')
     if (!container) return
 
+    cancelAllMotionAnimations()
+    activeMarquees.forEach((marquee) => marquee.stop())
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
     isAnimationRunning = true
 
-    // Get all elements
+    const flowContainer = container.querySelector('#flow') as HTMLElement
+    if (flowContainer) flowContainer.style.opacity = '1'
+
     const messages = container.querySelectorAll('[data-message]')
     const quoteCard = container.querySelector('[data-quote-card]')
     const actionCard = container.querySelector('[data-action-card]')
     const blueDots = container.querySelectorAll('[data-blue-dot]')
     const animatedElements = container.querySelectorAll('[data-animated]')
 
-    // Phase 1: Messages appear in center with fade-in up and stagger
-    // Step 1a: Appear in center with fade-in up
-    await animate(
+    const msgAnimation1 = animate(
       messages,
       { opacity: [0, 1], x: [300, 300], y: [20, 0] },
       { delay: stagger(0.15), duration: 0.8, ease: "easeOut" }
-    ).finished
+    )
+    activeMotionAnimations.push(msgAnimation1)
+    await msgAnimation1.finished
 
-    // Step 1b: Move from center to left (final position)
-    await animate(
+    const msgAnimation2 = animate(
       messages,
       { x: [300, 0] },
       { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
-    ).finished
+    )
+    activeMotionAnimations.push(msgAnimation2)
+    await msgAnimation2.finished
 
-    // Phase 2: Quote card appears from right
     if (quoteCard) {
-      await animate(
+      const quoteAnimation = animate(
         quoteCard,
         { opacity: [0, 1], x: [40, 0] },
         { duration: 1, ease: "easeOut" }
-      ).finished
+      )
+      activeMotionAnimations.push(quoteAnimation)
+      await quoteAnimation.finished
     }
 
-    // Phase 3: Blue dots appear
-    await animate(
+    const dotsAnimation = animate(
       blueDots,
       { opacity: [0, 1] },
       { duration: 0.6, ease: "easeOut" }
-    ).finished
+    )
+    activeMotionAnimations.push(dotsAnimation)
+    await dotsAnimation.finished
 
-    // Phase 4: Flow animation
     await startFlowAnimation(container)
 
-    // Phase 4.5: Action card appears after flow completes
     if (actionCard) {
-      await animate(
+      const actionAnimation = animate(
         actionCard,
         { opacity: [0, 1], y: [20, 0] },
         { duration: 0.6, ease: "easeOut" }
-      ).finished
+      )
+      activeMotionAnimations.push(actionAnimation)
+      await actionAnimation.finished
     }
 
-    // Phase 4.75: Wait 3 seconds with everything visible
     await new Promise(resolve => setTimeout(resolve, 3000))
 
-    // Phase 5: Fade out everything
-    await animate(
+    const fadeOutAnimation = animate(
       animatedElements,
       { opacity: 0 },
       { duration: 1.5, ease: "easeIn" }
-    ).finished
+    )
+    activeMotionAnimations.push(fadeOutAnimation)
+    await fadeOutAnimation.finished
+
+    
 
     // Phase 6: Reset and restart
     animationTimeout = setTimeout(() => {
@@ -827,9 +1092,10 @@
         video.style.opacity = '0'
       }
 
-      // Reset only flow container (needs to be visible for flow dots)
+      // === CORRIGIDO: Reseta a opacidade do contêiner de flow para 0 ===
       const flowContainer = container.querySelector('#flow') as HTMLElement
-      if (flowContainer) flowContainer.style.opacity = '1'
+      if (flowContainer) flowContainer.style.opacity = '0' // Estava '1'
+      // ===========================================================
 
       // Restart timeline
       playTimeline()
@@ -862,15 +1128,15 @@
 
     if (video) {
       await new Promise<void>((resolve) => {
-        // Fade in video and play
-        animate(video, { opacity: [0, 1] }, { duration: 0.5 })
+        const fadeInAnim = animate(video, { opacity: [0, 1] }, { duration: 0.5 })
+        activeMotionAnimations.push(fadeInAnim)
         video.currentTime = 0
         video.playbackRate = 1.8
         video.play()
 
-        // Wait for video to end
         video.addEventListener('ended', () => {
-          animate(video, { opacity: 0 }, { duration: 0.5 })
+          const fadeOutAnim = animate(video, { opacity: 0 }, { duration: 0.5 })
+          activeMotionAnimations.push(fadeOutAnim)
           resolve()
         }, { once: true })
       })
@@ -919,23 +1185,89 @@
   // ========================================
   // Stop and reset animation
   // ========================================
+  // function stopAnimation() {
+  //   // Prevent multiple simultaneous calls
+  //   if (isStopping || !isAnimationRunning) return
+
+  //   isStopping = true
+  //   isAnimationRunning = false
+
+  //   // Clear any pending timeouts
+  //   if (animationTimeout) {
+  //     clearTimeout(animationTimeout)
+  //     animationTimeout = null
+  //   }
+
+  //   // Stop all active marquees (this will cancel all requestAnimationFrame and timeouts)
+  //   activeMarquees.forEach((marquee) => marquee.stop())
+
+  //   // Reset all animated elements
+  //   const container = document.getElementById('quotes-container')
+  //   if (!container) return
+
+  //   const messages = container.querySelectorAll('[data-message]')
+  //   const quoteCard = container.querySelector('[data-quote-card]')
+  //   const actionCard = container.querySelector('[data-action-card]')
+  //   const blueDots = container.querySelectorAll('[data-blue-dot]')
+
+  //   // Reset opacity and transforms
+  //   messages.forEach((el) => {
+  //     (el as HTMLElement).style.opacity = '0'
+  //     ;(el as HTMLElement).style.transform = ''
+  //   })
+  //   if (quoteCard) {
+  //     (quoteCard as HTMLElement).style.opacity = '0'
+  //     ;(quoteCard as HTMLElement).style.transform = ''
+  //   }
+  //   if (actionCard) {
+  //     (actionCard as HTMLElement).style.opacity = '0'
+  //     ;(actionCard as HTMLElement).style.transform = ''
+  //   }
+  //   blueDots.forEach((el) => {
+  //     (el as HTMLElement).style.opacity = '0'
+  //   })
+
+  //   // Reset videos
+  //   const videos = container.querySelectorAll('[data-video]') as NodeListOf<HTMLVideoElement>
+  //   videos.forEach((video) => {
+  //     video.pause()
+  //     video.currentTime = 0
+  //     video.style.opacity = '0'
+  //   })
+
+  //   // Clean up flow dots (already stopped via marquee.stop(), now remove from DOM)
+  //   const flowDots = container.querySelectorAll('.flow-dot')
+  //   flowDots.forEach((dot) => dot.remove())
+
+  //   // Clear active marquees array
+  //   activeMarquees.forEach((marquee) => {
+  //     const index = activeMarquees.indexOf(marquee)
+  //     if (index > -1) {
+  //       activeMarquees.splice(index, 1)
+  //     }
+  //   })
+  //   activeMarquees = []
+
+  //   // Reset stopping flag
+  //   isStopping = false
+  // }
+  // ========================================
+  // Stop and reset animation
+  // ========================================
   function stopAnimation() {
-    // Prevent multiple simultaneous calls
     if (isStopping || !isAnimationRunning) return
 
     isStopping = true
     isAnimationRunning = false
 
-    // Clear any pending timeouts
     if (animationTimeout) {
       clearTimeout(animationTimeout)
       animationTimeout = null
     }
 
-    // Stop all active marquees (this will cancel all requestAnimationFrame and timeouts)
+    cancelAllMotionAnimations()
     activeMarquees.forEach((marquee) => marquee.stop())
 
-    // Reset all animated elements
     const container = document.getElementById('quotes-container')
     if (!container) return
 
@@ -944,7 +1276,6 @@
     const actionCard = container.querySelector('[data-action-card]')
     const blueDots = container.querySelectorAll('[data-blue-dot]')
 
-    // Reset opacity and transforms
     messages.forEach((el) => {
       (el as HTMLElement).style.opacity = '0'
       ;(el as HTMLElement).style.transform = ''
@@ -961,7 +1292,11 @@
       (el as HTMLElement).style.opacity = '0'
     })
 
-    // Reset videos
+    const flowDesktop = container.querySelector('#flow') as HTMLElement
+    const flowMobile = container.querySelector('#flow-mobile') as HTMLElement
+    if (flowDesktop) flowDesktop.style.opacity = '0'
+    if (flowMobile) flowMobile.style.opacity = '0'
+
     const videos = container.querySelectorAll('[data-video]') as NodeListOf<HTMLVideoElement>
     videos.forEach((video) => {
       video.pause()
@@ -969,20 +1304,11 @@
       video.style.opacity = '0'
     })
 
-    // Clean up flow dots (already stopped via marquee.stop(), now remove from DOM)
     const flowDots = container.querySelectorAll('.flow-dot')
     flowDots.forEach((dot) => dot.remove())
 
-    // Clear active marquees array
-    activeMarquees.forEach((marquee) => {
-      const index = activeMarquees.indexOf(marquee)
-      if (index > -1) {
-        activeMarquees.splice(index, 1)
-      }
-    })
     activeMarquees = []
 
-    // Reset stopping flag
     isStopping = false
   }
 

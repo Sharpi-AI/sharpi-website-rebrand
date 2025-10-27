@@ -191,7 +191,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
             <div class="flex gap-2.5 items-center">
               <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
-                <Image quality={75} width={36} height={42} w loading="lazy" src={Azeite} alt="Azeite para Salada" class="w-full h-full object-cover" />
+                <Image quality={75} width={36} height={42} loading="lazy" src={Azeite} alt="Azeite para Salada" class="w-full h-full object-cover" />
               </div>
               <div class="flex flex-col gap-1">
                 <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
@@ -205,17 +205,17 @@ import Laranja from "@/assets/how-to/laranja.webp";
             </div>
             <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 216</p>
           </div>
-          <div class="grid grid-cols-3 items-center justify-between opacity-60">
-            <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
+          <div class="grid grid-cols-3 items-center justify-between" data-grid="item-arroz">
+            <div class="border-[0.5px] border-[#573dff] rounded-sm size-[14px] flex items-center justify-center p-1" data-border="item-arroz">
               <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">A</span>
             </div>
 
-            <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2 text-[#232222]">
-              <StartIcon color="#232222" size={12} class="shrink-0"/>
-              <span class="text-[11px]  tracking-[-0.02em] leading-[1.2] whitespace-nowrap">garrafas de azeite</span>
+            <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2" data-color-transition="item-arroz">
+              <StartIcon color="#573dff" size={12} class="shrink-0"/>
+              <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">garrafas de azeite</span>
             </div>
 
-            <span class="justify-self-end  font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 12</span>
+            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]" data-quantity="item-arroz">× 12</span>
           </div>
           </div>
         </div>
@@ -239,17 +239,17 @@ import Laranja from "@/assets/how-to/laranja.webp";
             </div>
             <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 8,50</p>
           </div>
-          <div class="grid grid-cols-3 items-center justify-between opacity-60">
-            <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
+          <div class="grid grid-cols-3 items-center justify-between" data-grid="item-mussarela">
+            <div class="border-[0.5px] border-[#573dff] rounded-sm size-[14px] flex items-center justify-center p-1" data-border="item-mussarela">
               <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">B</span>
             </div>
 
-            <div class="flex-1 flex justify-self-center justify-center items-center gap-1.5 px-2">
-              <StartIcon color="#232222" class="shrink-0" size={12}/>
-              <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">maizena 500g</span>
+            <div class="flex-1 flex justify-self-center justify-center items-center gap-1.5 px-2" data-color-transition="item-mussarela">
+              <StartIcon color="#573dff" class="shrink-0" size={12}/>
+              <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">maizena 500g</span>
             </div>
 
-            <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 1</span>
+            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]" data-quantity="item-mussarela">× 1</span>
           </div>
           </div>
         </div>
@@ -259,7 +259,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
             <div class="flex items-center justify-between border-b-[0.5px] border-[rgba(0,0,0,0.12)] pb-2">
               <div class="flex gap-2.5 items-center">
                 <div class="w-[36px] h-[42px] rounded-md overflow-hidden shrink-0">
-                  <Image quality={75} width={36} height={42} w loading="lazy" src={Sabao} alt="Sabão em Pó" class="w-full h-full object-cover" />
+                  <Image quality={75} width={36} height={42} loading="lazy" src={Sabao} alt="Sabão em Pó" class="w-full h-full object-cover" />
                 </div>
                 <div class="flex flex-col gap-1">
                   <p class="text-[12px] text-[#232222] tracking-[-0.24px] leading-[0.9] whitespace-nowrap">
@@ -273,30 +273,30 @@ import Laranja from "@/assets/how-to/laranja.webp";
               </div>
               <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 60</p>
             </div>
-            <div class="grid grid-cols-3 items-center justify-between opacity-60">
-              <div class="border-[0.5px] border-[#232222] rounded-sm size-[14px] flex items-center justify-center p-1">
+            <div class="grid grid-cols-3 items-center justify-between" data-grid="item-tapioca">
+              <div class="border-[0.5px] border-[#573dff] rounded-sm size-[14px] flex items-center justify-center p-1" data-border="item-tapioca">
                 <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">C</span>
               </div>
-              <div class="flex-1 flex justify-self-center items-center justify-center gap-1.5 px-2">
-                <StartIcon color="#232222" size={12} class="shrink-0"/>
-                <span class="text-[11px] text-[#232222] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">daquela marca</span>
+              <div class="flex-1 flex justify-self-center items-center justify-center gap-1.5 px-2" data-color-transition="item-tapioca">
+                <StartIcon color="#573dff" size={12} class="shrink-0"/>
+                <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">daquela marca</span>
               </div>
-              <span class="justify-self-end font-medium text-[9px] text-[#90908e] tracking-[-0.18px] leading-[1.2]">× 5</span>
+              <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]" data-quantity="item-tapioca">× 5</span>
             </div>
           </div>
         </div>
 
 
         <div class="hidden md:flex items-center gap-2 h-7 overflow-visible" data-animate="text-imagem" style="max-height: 0;">
-          <p class="text-[12px] text-[#2e2e2e] tracking-[-0.24px] leading-[0.9] opacity-0" data-animate="text-imagem-p">
+          <p class="text-[12px] text-[#2e2e2e] tracking-[-0.24px] leading-[0.9] " data-animate="text-imagem-p">
             Itens adicionados por imagem
           </p>
           <video
             data-video-appear
             src="/assets/medias/index/how-to/loading-particles.mp4"
-            autoplay loop muted playsinline
+            muted playsinline
             class="size-6 mix-blend-darken object-cover video-loading opacity-0"
-            
+
           ></video>
         </div>
 
@@ -320,15 +320,15 @@ import Laranja from "@/assets/how-to/laranja.webp";
             </div>
             <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 253</p>
           </div>
-          <div class="grid grid-cols-3 items-center justify-between">
-            <div class="border-[0.5px] border-[#573dff] rounded-sm size-[14px] flex items-center justify-center p-1">
+          <div class="grid grid-cols-3 items-center justify-between" data-grid="item-acucar">
+            <div class="border-[0.5px] border-[#573dff] rounded-sm size-[14px] flex items-center justify-center p-1" data-border="item-acucar">
               <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">D</span>
             </div>
-            <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2">
+            <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2" data-color-transition="item-acucar">
               <StartIcon color="#573dff" size={12} class="shrink-0"/>
               <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">Manjericão comum</span>
             </div>
-            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 4 KG</span>
+            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]" data-quantity="item-acucar">× 4 KG</span>
           </div>
           </div>
         </div>
@@ -353,17 +353,17 @@ import Laranja from "@/assets/how-to/laranja.webp";
             </div>
             <p class="text-[11.4px] text-[#232222] font-medium opacity-60 leading-[0.9]">R$ 20</p>
           </div>
-          <div class="grid grid-cols-3 items-center justify-between">
-            <div class="border-[0.5px] border-[#573dff] rounded-sm size-[14px] flex items-center justify-center p-1">
+          <div class="grid grid-cols-3 items-center justify-between" data-grid="item-hortela">
+            <div class="border-[0.5px] border-[#573dff] rounded-sm size-[14px] flex items-center justify-center p-1" data-border="item-hortela">
               <span class="font-mono text-[8px] text-[#90908e] tracking-[-0.16px] leading-normal">E</span>
             </div>
 
-            <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2">
+            <div class="flex-1 justify-self-center flex items-center justify-center gap-1.5 px-2" data-color-transition="item-hortela">
               <StartIcon color="#573dff" size={12} class="shrink-0"/>
               <span class="font-medium text-[11px] text-[#573dff] tracking-[-0.02em] leading-[1.2] whitespace-nowrap">"Laranja p/ suco"</span>
             </div>
 
-            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]">× 5 Sacos</span>
+            <span class="justify-self-end text-[9px] text-[#573dff] tracking-[-0.18px] leading-[1.2]" data-quantity="item-hortela">× 5 Sacos</span>
           </div>
           </div>
         </div>
@@ -383,6 +383,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
     let animationTimeouts: number[] = [];
     let isAnimating = false;
     let currentAnimations: any[] = [];
+    let eventListeners: Array<{ element: Element, event: string, handler: any }> = [];
 
     // Detectar se é mobile ou desktop
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
@@ -432,18 +433,226 @@ import Laranja from "@/assets/how-to/laranja.webp";
 
     const animationOptions = {
       duration: duration,
-      easing: [0.22, 1, 0.36, 1], // easeOutCubic
+      easing: [0.22, 1, 0.36, 1] as any, // easeOutCubic
     };
 
-    // Função para parar e resetar animação completamente
-    const stopAndResetAnimation = () => {
-      console.log('🛑 stopAndResetAnimation chamada');
+    // Função para animar transição de cor do texto e StarIcon
+    const animateColorTransition = (itemId: string) => {
+      const colorTransitionDelay = 0.3; // 300ms delay
+      const colorTransitionDuration = 0.5; // 500ms duração
 
-      // Cancelar todos timeouts pendentes
+      window.setTimeout(() => {
+        const element = container.querySelector(`[data-color-transition="${itemId}"]`);
+        const borderElement = container.querySelector(`[data-border="${itemId}"]`);
+        const quantityElement = container.querySelector(`[data-quantity="${itemId}"]`);
+        const gridElement = container.querySelector(`[data-grid="${itemId}"]`);
+
+        if (!element) return;
+
+        // Animar o span de texto
+        const textSpan = element.querySelector('span');
+        if (textSpan) {
+          const anim = animate(textSpan as Element,
+            { color: ['#573dff', '#232222'] },
+            { duration: colorTransitionDuration, easing: 'ease-in-out' } as any
+          );
+          currentAnimations.push(anim);
+        }
+
+        // Animar o SVG (StartIcon) - modificar apenas atributos fill/stroke
+        const svg = element.querySelector('svg');
+        if (svg) {
+          const paths = svg.querySelectorAll('path');
+
+          // Adicionar CSS transition aos paths
+          paths.forEach((path) => {
+            (path as SVGPathElement).style.transition = `fill ${colorTransitionDuration}s ease-in-out, stroke ${colorTransitionDuration}s ease-in-out`;
+          });
+
+          // Usar timeout para garantir que a transition foi aplicada pelo browser
+          window.setTimeout(() => {
+            paths.forEach((path) => {
+              const hasFill = path.hasAttribute('fill');
+              const hasStroke = path.hasAttribute('stroke');
+
+              // Mudar apenas o atributo (CSS transition vai animar)
+              if (hasFill) {
+                path.setAttribute('fill', '#90908e');
+              }
+              if (hasStroke) {
+                path.setAttribute('stroke', '#90908e');
+              }
+            });
+          }, 10); // 10ms para garantir que o browser processou a propriedade transition
+        }
+
+        // Animar a quantidade (× 12, × 1, etc.)
+        if (quantityElement) {
+          const anim = animate(quantityElement as Element,
+            { color: ['#573dff', '#90908e'] },
+            { duration: colorTransitionDuration, easing: 'ease-in-out' } as any
+          );
+          currentAnimations.push(anim);
+        }
+
+        // Animar a borda
+        if (borderElement) {
+          const anim = animate(borderElement as Element,
+            { borderColor: ['#573dff', '#232222'] },
+            { duration: colorTransitionDuration, easing: 'ease-in-out' } as any
+          );
+          currentAnimations.push(anim);
+        }
+
+        // Adicionar opacity-60 ao grid após a transição
+        if (gridElement) {
+          window.setTimeout(() => {
+            (gridElement as HTMLElement).style.opacity = '0.6';
+          }, colorTransitionDuration * 1000);
+        }
+      }, colorTransitionDelay * 1000);
+    };
+
+    // Função para limpar todos os event listeners rastreados
+    const clearEventListeners = () => {
+      eventListeners.forEach(({ element, event, handler }) => {
+        element.removeEventListener(event, handler);
+      });
+      eventListeners = [];
+    };
+
+    // Função para adicionar event listener rastreado
+    const addTrackedEventListener = (element: Element, event: string, handler: any, options?: any) => {
+      element.addEventListener(event, handler, options);
+      eventListeners.push({ element, event, handler });
+    };
+
+    // Função para limpar todos os estilos inline deixados pelo Motion
+    const clearAllInlineStyles = () => {
+      container.querySelectorAll('[data-animate]').forEach(el => {
+        const element = el as HTMLElement;
+        const animateKey = element.getAttribute('data-animate');
+
+        // Remover todos os estilos inline do Motion
+        // element.style.removeProperty('opacity');
+        element.style.removeProperty('transform');
+        element.style.removeProperty('max-height');
+        element.style.removeProperty('overflow');
+        // element.style.removeProperty('transition');
+
+        // Aplicar estado inicial correto baseado no tipo
+        if (animateKey === 'panel-conversa') {
+          if (window.innerWidth >= 768) {
+            element.style.transform = 'translateX(220px)';
+          }
+          element.style.opacity = '1';
+        } else if (animateKey === 'panel-pedido') {
+          // Não controlar opacidade - itens internos já controlam
+        } else if (animateKey === 'text-imagem') {
+          element.style.maxHeight = '0';
+          element.style.overflow = 'visible';
+          element.style.opacity = '1';
+        } else if (animateKey === 'text-imagem-p') {
+          element.style.removeProperty('transform');
+          // element.style.removeProperty('transition');
+          setTimeout(() => {
+            element.style.opacity = '1';
+          }, 1000);
+          // element.style.opacity = '1'; // Forçar invisível no reset
+        } else if (animateKey === 'video-loading') {
+          element.style.opacity = '0';
+        } else {
+          element.style.opacity = '0';
+          element.style.maxHeight = '0';
+          element.style.overflow = 'visible';
+        }
+      });
+    };
+
+    // Função para resetar cores dos elementos
+    const resetColorTransitions = () => {
+      container.querySelectorAll('[data-color-transition]').forEach(el => {
+        const itemId = el.getAttribute('data-color-transition');
+        if (!itemId) return;
+
+        // Reset texto
+        const textSpan = el.querySelector('span');
+        if (textSpan) {
+          (textSpan as HTMLElement).style.color = '#573dff';
+        }
+
+        // Reset SVG
+        const svg = el.querySelector('svg');
+        if (svg) {
+          const paths = svg.querySelectorAll('path');
+          paths.forEach(path => {
+            (path as SVGElement).style.transition = '';
+            (path as SVGElement).style.fill = '';
+            (path as SVGElement).style.stroke = '';
+
+            if (path.hasAttribute('fill')) {
+              path.setAttribute('fill', '#573dff');
+            }
+            if (path.hasAttribute('stroke')) {
+              path.setAttribute('stroke', '#573dff');
+            }
+          });
+        }
+
+        // Reset quantidade
+        const quantityEl = container.querySelector(`[data-quantity="${itemId}"]`) as HTMLElement;
+        if (quantityEl) {
+          quantityEl.style.color = '#573dff';
+        }
+
+        // Reset borda
+        const borderEl = container.querySelector(`[data-border="${itemId}"]`) as HTMLElement;
+        if (borderEl) {
+          borderEl.style.borderColor = '#573dff';
+        }
+
+        // Reset opacity do grid
+        const gridEl = container.querySelector(`[data-grid="${itemId}"]`) as HTMLElement;
+        if (gridEl) {
+          gridEl.style.opacity = '1';
+        }
+      });
+    };
+
+    // Função para resetar vídeo completamente
+    const resetVideo = () => {
+      const video = container.querySelector('[data-video-appear]') as HTMLVideoElement;
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+
+        // Clonar vídeo para remover TODOS os event listeners
+        const newVideo = video.cloneNode(true) as HTMLVideoElement;
+        video.parentNode?.replaceChild(newVideo, video);
+
+        newVideo.style.transition = '';
+        newVideo.style.opacity = '0';
+        newVideo.playbackRate = 1;
+        newVideo.currentTime = 0;
+      }
+    };
+
+    // Função para resetar vídeo de background
+    const resetBackgroundVideo = () => {
+      const bgVideo = container.querySelector('video:not([data-video-appear])') as HTMLVideoElement;
+      if (bgVideo) {
+        bgVideo.currentTime = 0;
+        bgVideo.play().catch(() => {});
+      }
+    };
+
+    // Função consolidada para reset completo
+    const fullReset = () => {
+      // 1. Cancelar todos timeouts pendentes
       animationTimeouts.forEach(id => window.clearTimeout(id));
       animationTimeouts = [];
 
-      // Parar animações em andamento
+      // 2. Parar animações em andamento
       currentAnimations.forEach(anim => {
         if (anim && typeof anim.stop === 'function') {
           anim.stop();
@@ -451,71 +660,36 @@ import Laranja from "@/assets/how-to/laranja.webp";
       });
       currentAnimations = [];
 
-      // Aguardar um frame para Motion liberar propriedades
+      // 3. Limpar event listeners
+      clearEventListeners();
+
+      // 4. Aguardar múltiplos frames para Motion liberar completamente
       requestAnimationFrame(() => {
-        console.log('🔄 Reset dentro de requestAnimationFrame (stopAndReset)');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            // 5. Limpar estilos inline
+            clearAllInlineStyles();
 
-        // Resetar todos elementos ao estado inicial
-        container.querySelectorAll('[data-animate]').forEach(el => {
-          const element = el as HTMLElement;
-          const animateKey = element.getAttribute('data-animate');
+            // 6. Resetar cores
+            resetColorTransitions();
 
-          console.log(`  Resetando ${animateKey}:`, element);
-          console.log(`    Estado Antes:`, {
-            opacity: element.style.opacity,
-            maxHeight: element.style.maxHeight,
-            transform: element.style.transform,
-            overflow: element.style.overflow
-          });
+            // 7. Resetar vídeos
+            resetVideo();
+            resetBackgroundVideo();
 
-          if (animateKey === 'panel-conversa') {
-            if (window.innerWidth >= 768) {
-              element.style.transform = 'translateX(220px)';
-            }
-            element.style.opacity = '1'; // Setar explicitamente como visível
-          } else if (animateKey === 'panel-pedido') {
-            // Não controlar opacidade - itens internos já controlam
-          } else if (animateKey === 'text-imagem') {
-            // Container de texto+vídeo: resetar maxHeight mas manter visível
-            element.style.maxHeight = '0';
-            element.style.overflow = 'visible';
-            element.style.transform = '';
-            element.style.opacity = '1'; // Garantir visibilidade para os filhos
-          } else if (animateKey === 'text-imagem-p' || animateKey === 'video-loading') {
-            // Text and video children: only reset opacity, clear unwanted properties
-            // video-loading tem fade-out manual específico, não participa do fade-out geral
-            element.style.opacity = '0';
-            element.style.maxHeight = ''; // Limpar propriedades que não devem ser controladas
-            element.style.transform = '';
-            element.style.overflow = '';
-          } else {
-            element.style.opacity = '0';
-            element.style.maxHeight = '0';
-            element.style.overflow = 'visible'; // Permitir fade in
-            element.style.transform = ''; // Limpar transform do Motion
-          }
+            // 8. Resetar contador
+            updateCounter(0);
 
-          console.log(`    Estado Depois:`, {
-            opacity: element.style.opacity,
-            maxHeight: element.style.maxHeight,
-            transform: element.style.transform,
-            overflow: element.style.overflow
+            // 9. Marcar como não animando
+            isAnimating = false;
           });
         });
-
-        // Resetar vídeo com data-video-appear (manipulação tradicional)
-        const video = container.querySelector('[data-video-appear]') as HTMLVideoElement;
-        if (video) {
-          video.style.transition = '';
-          video.style.opacity = '0';
-        }
-
-        // Resetar contador
-        updateCounter(0);
-
-        isAnimating = false;
-        console.log('✅ Reset completo (stopAndReset)');
       });
+    };
+
+    // Função para parar e resetar animação completamente
+    const stopAndResetAnimation = () => {
+      fullReset();
     };
 
     // Função que executa sequência completa de animações
@@ -536,10 +710,11 @@ import Laranja from "@/assets/how-to/laranja.webp";
         const element = el as HTMLElement;
         const animateKey = element.getAttribute('data-animate');
 
-        // Excluir painéis, container text-imagem e vídeo do fade out
+        // Excluir painéis, container text-imagem, texto e vídeo do fade out
         // - text-imagem: nunca anima opacity, apenas seus filhos
-        // - video-loading: tem fade-out manual específico (linhas 844-852)
-        if (animateKey === 'panel-conversa' || animateKey === 'panel-pedido' || animateKey === 'text-imagem' || animateKey === 'video-loading') {
+        // - text-imagem-p: controlado manualmente, não deve fazer fade-out geral
+        // - video-loading: tem fade-out manual específico
+        if (animateKey === 'panel-conversa' || animateKey === 'panel-pedido' || animateKey === 'text-imagem'  || animateKey === 'video-loading') {
           return false;
         }
 
@@ -550,7 +725,7 @@ import Laranja from "@/assets/how-to/laranja.webp";
       if (visibleElements.length > 0) {
         // Fazer fade-out de todos os elementos simultaneamente
         const fadeOutPromises = visibleElements.map(el => {
-          const anim = animate(el, { opacity: 0 }, { duration: fadeOutDuration, easing: 'ease-out' });
+          const anim = animate(el as Element, { opacity: 0 }, { duration: fadeOutDuration, easing: 'ease-out' } as any);
           currentAnimations.push(anim);
           return anim;
         });
@@ -567,91 +742,62 @@ import Laranja from "@/assets/how-to/laranja.webp";
     };
 
     const resetAndStartAnimation = () => {
-      console.log('▶️ resetAndStartAnimation chamada');
+      // Cancelar todos timeouts e animações
+      animationTimeouts.forEach(id => window.clearTimeout(id));
+      animationTimeouts = [];
 
-      // Resetar contador
-      updateCounter(0);
+      currentAnimations.forEach(anim => {
+        if (anim && typeof anim.stop === 'function') {
+          anim.stop();
+        }
+      });
+      currentAnimations = [];
 
-      // Aguardar um frame para Motion liberar propriedades
+      // Limpar event listeners
+      clearEventListeners();
+
+      // Aguardar múltiplos frames para Motion liberar
       requestAnimationFrame(() => {
-        console.log('🔄 Reset dentro de requestAnimationFrame (resetAndStart)');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            // Limpar estilos inline
+            clearAllInlineStyles();
 
-        // Resetar todos elementos para estado inicial
-        container.querySelectorAll('[data-animate]').forEach(el => {
-          const element = el as HTMLElement;
-          const animateKey = element.getAttribute('data-animate');
+            // Resetar cores
+            resetColorTransitions();
 
-          console.log(`  Resetando ${animateKey}:`, element);
-          console.log(`    Estado Antes:`, {
-            opacity: element.style.opacity,
-            maxHeight: element.style.maxHeight,
-            transform: element.style.transform,
-            overflow: element.style.overflow
-          });
+            // Resetar vídeos
+            resetVideo();
+            resetBackgroundVideo();
 
-          if (animateKey === 'panel-conversa') {
-            if (window.innerWidth >= 768) {
-              element.style.transform = 'translateX(220px)';
-            }
-            element.style.opacity = '1'; // Setar explicitamente como visível
-          } else if (animateKey === 'panel-pedido') {
-            // Não controlar opacidade - itens internos já controlam
-          } else if (animateKey === 'text-imagem') {
-            // Container de texto+vídeo: resetar maxHeight mas manter visível
-            element.style.maxHeight = '0';
-            element.style.overflow = 'visible';
-            element.style.transform = '';
-            element.style.opacity = '1'; // Garantir visibilidade para os filhos
-          } else if (animateKey === 'text-imagem-p' || animateKey === 'video-loading') {
-            // Text and video children: only reset opacity, clear unwanted properties
-            // video-loading tem fade-out manual específico, não participa do fade-out geral
-            element.style.opacity = '0';
-            element.style.maxHeight = ''; // Limpar propriedades que não devem ser controladas
-            element.style.transform = '';
-            element.style.overflow = '';
-          } else {
-            element.style.opacity = '0';
-            element.style.maxHeight = '0';
-            element.style.overflow = 'visible'; // Permitir fade in
-            element.style.transform = ''; // Limpar transform do Motion
-          }
+            // Resetar contador
+            updateCounter(0);
 
-          console.log(`    Estado Depois:`, {
-            opacity: element.style.opacity,
-            maxHeight: element.style.maxHeight,
-            transform: element.style.transform,
-            overflow: element.style.overflow
+            // Marcar como não animando
+            isAnimating = false;
+
+            // Iniciar animações de entrada imediatamente
+            startEntryAnimations();
           });
         });
-
-        // Limpar arrays de controle antes de reiniciar
-        animationTimeouts = [];
-        currentAnimations = [];
-        isAnimating = false;
-
-        console.log('✅ Reset completo, iniciando animações (resetAndStart)');
-
-        // Iniciar animações de entrada imediatamente
-        startEntryAnimations();
       });
     };
 
     const startEntryAnimations = () => {
-      console.log('🎬 startEntryAnimations iniciada', { isMobile, isAnimating });
-
       if (isMobile) {
-        console.log('📱 Sequência MOBILE');
         // Sequência mobile (apenas 3 mensagens e 2 itens)
 
-        currentAnimations.push(
-          animate('[data-animate="panel-conversa"]', {
-            opacity: [0, 1],
-          }, {
-            duration: duration,
-            easing: [0.22, 1, 0.36, 1],
-            delay: delay ,
-          })
-        );
+        const panelConversa = container.querySelector('[data-animate="panel-conversa"]');
+        if (panelConversa) {
+          currentAnimations.push(
+            animate(panelConversa as Element, {
+              opacity: [0, 1],
+            }, {
+              ...animationOptions,
+              delay: delay ,
+            })
+          );
+        }
 
         currentAnimations.push(
           animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
@@ -687,7 +833,10 @@ import Laranja from "@/assets/how-to/laranja.webp";
           animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
             ...animationOptions,
             delay: delay * 5,
-          }).then(() => updateCounter(1))
+          }).then(() => {
+            updateCounter(1);
+            animateColorTransition('item-arroz');
+          })
         );
 
         currentAnimations.push(
@@ -701,7 +850,10 @@ import Laranja from "@/assets/how-to/laranja.webp";
           animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
             ...animationOptions,
             delay: delay * 7,
-          }).then(() => updateCounter(2))
+          }).then(() => {
+            updateCounter(2);
+            animateColorTransition('item-mussarela');
+          })
         );
 
         // Calcular tempo total para mobile (última animação termina em: delay * 7 + duration)
@@ -709,7 +861,6 @@ import Laranja from "@/assets/how-to/laranja.webp";
         const timeoutId = window.setTimeout(() => runAnimationSequence(), totalTime);
         animationTimeouts.push(timeoutId);
       } else {
-        console.log('💻 Sequência DESKTOP');
         // Sequência desktop (todas as mensagens e itens)
         currentAnimations.push(
           animate('[data-animate="header-conversa"]', getSlideUpConfig('[data-animate="header-conversa"]'), {
@@ -733,15 +884,17 @@ import Laranja from "@/assets/how-to/laranja.webp";
         );
 
         // Animar painel de conversa para posição final (desktop)
-        currentAnimations.push(
-          animate('[data-animate="panel-conversa"]', {
-            x: [220, 0],
-          }, {
-            duration: duration,
-            easing: [0.22, 1, 0.36, 1],
-            delay: delay * 4,
-          })
-        );
+        const panelConversaDesktop = container.querySelector('[data-animate="panel-conversa"]');
+        if (panelConversaDesktop) {
+          currentAnimations.push(
+            animate(panelConversaDesktop as Element, {
+              x: [220, 0],
+            }, {
+              ...animationOptions,
+              delay: delay * 4,
+            })
+          );
+        }
 
         // Painel Pedido - Direita (aparece após painel conversa terminar de deslizar)
         currentAnimations.push(
@@ -756,7 +909,10 @@ import Laranja from "@/assets/how-to/laranja.webp";
           animate('[data-animate="item-arroz"]', getSlideUpConfig('[data-animate="item-arroz"]'), {
             ...animationOptions,
             delay: delay * 6,
-          }).then(() => updateCounter(1))
+          }).then(() => {
+            updateCounter(1);
+            animateColorTransition('item-arroz');
+          })
         );
 
         currentAnimations.push(
@@ -770,7 +926,10 @@ import Laranja from "@/assets/how-to/laranja.webp";
           animate('[data-animate="item-mussarela"]', getSlideUpConfig('[data-animate="item-mussarela"]'), {
             ...animationOptions,
             delay: delay * 8,
-          }).then(() => updateCounter(2))
+          }).then(() => {
+            updateCounter(2);
+            animateColorTransition('item-mussarela');
+          })
         );
 
         // Mensagem vendedor
@@ -794,7 +953,10 @@ import Laranja from "@/assets/how-to/laranja.webp";
           animate('[data-animate="item-tapioca"]', getSlideUpConfig('[data-animate="item-tapioca"]'), {
             ...animationOptions,
             delay: delay * 11,
-          }).then(() => updateCounter(3))
+          }).then(() => {
+            updateCounter(3);
+            animateColorTransition('item-tapioca');
+          })
         );
 
         // Mensagem com imagem
@@ -823,40 +985,51 @@ import Laranja from "@/assets/how-to/laranja.webp";
           }).then(() => {
             const video = container.querySelector('[data-video-appear]') as HTMLVideoElement;
             if (video) {
+              video.playbackRate = 2; // Reproduzir em 2x
               video.style.transition = 'opacity 0.5s ease-in-out';
               video.style.opacity = '1';
-            }
-          })
-        );
 
+              // Handler para quando vídeo terminar
+              const handleVideoEnded = () => {
+                // Item açúcar - aparece imediatamente
+                const animAcucar = animate('[data-animate="item-acucar"]', getSlideUpConfig('[data-animate="item-acucar"]'), {
+                  ...animationOptions,
+                  delay: 0,
+                }).then(() => {
+                  updateCounter(4);
+                  animateColorTransition('item-acucar');
+                });
+                currentAnimations.push(animAcucar);
 
-        // Item açúcar (4s após o vídeo começar)
-        currentAnimations.push(
-          animate('[data-animate="item-acucar"]', getSlideUpConfig('[data-animate="item-acucar"]'), {
-            ...animationOptions,
-            delay: delay * 14 + 4, // 4s de processamento após vídeo começar
-          }).then(() => updateCounter(4))
-        );
+                // Item hortelã - aparece logo em seguida
+                const animHortela = animate('[data-animate="item-hortela"]', getSlideUpConfig('[data-animate="item-hortela"]'), {
+                  ...animationOptions,
+                  delay: delay, // 0.8s após açúcar
+                }).then(() => {
+                  updateCounter(5);
+                  animateColorTransition('item-hortela');
+                  // Fazer fade-out do vídeo
+                  video.style.opacity = '0';
+                });
+                currentAnimations.push(animHortela);
+              };
 
-        // Item hortelã
-        currentAnimations.push(
-          animate('[data-animate="item-hortela"]', getSlideUpConfig('[data-animate="item-hortela"]'), {
-            ...animationOptions,
-            delay: delay * 14 + 5, // 1 delay após açúcar
-          }).then(() => {
-            updateCounter(5)
-            const video = container.querySelector('[data-video-appear]') as HTMLVideoElement;
-            if (video) {
-              video.style.opacity = '0';
+              // Adicionar listener rastreado
+              addTrackedEventListener(video, 'ended', handleVideoEnded, { once: true });
+
+              // Iniciar vídeo (já que removemos autoplay)
+              video.currentTime = 0; // Resetar para início
+              video.play().catch(() => {}); // Silenciar erros de autoplay
             }
           })
         );
 
         // Fade out do vídeo de loading (antes do fadeOut geral para evitar problemas com mix-blend-darken)
-      
 
-        // Calcular tempo total para desktop (última animação termina em: delay * 14 + 5 + duration)
-        const totalTime = (delay * 14 + 5 + duration) * 1000;
+
+        // Calcular tempo total para desktop
+        // delay * 13 (texto imagem) + ~3s (vídeo em 2x) + delay (açúcar) + delay (hortelã) + duration (hortelã)
+        const totalTime = (delay * 13 + 3 + delay + delay + duration) * 1000;
         const timeoutId = window.setTimeout(() => runAnimationSequence(), totalTime);
         animationTimeouts.push(timeoutId);
       }

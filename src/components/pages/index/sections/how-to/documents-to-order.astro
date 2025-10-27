@@ -157,7 +157,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
         <div
           class="absolute flex flex-col justify-center leading-[0] left-[6px] not-italic text-[#3a3939] text-[8px] text-nowrap top-[9px] tracking-[-0.16px] translate-y-[-50%]"
         >
-          <p class="leading-[normal] whitespace-pre">Cadeg</p>
+          <p class="leading-[normal] whitespace-pre">Filial Salvador</p>
         </div>
         <div class="absolute h-[6px] left-[114.5px] top-[6px] w-[89px]">
           <div
@@ -609,13 +609,13 @@ import ScannerImage from "@/assets/how-to/scanner.png";
     let animationTimeouts: number[] = [];
     let isAnimating = false;
     let currentAnimations: any[] = [];
+    let eventListeners: Array<{ element: Element, event: string, handler: any }> = [];
 
     const duration = 0.8;
-    const delay = 0.8;
 
     const animationOptions = {
       duration: duration,
-      easing: [0.22, 1, 0.36, 1], // easeOutCubic
+      easing: [0.22, 1, 0.36, 1] as any, // easeOutCubic
     };
 
     // Função para detectar se é mobile
@@ -624,13 +624,49 @@ import ScannerImage from "@/assets/how-to/scanner.png";
     // Rastrear estado anterior para detectar mudanças reais de orientação
     let previousIsMobile = isMobile();
 
-    // Função para parar e resetar animação completamente
-    const stopAndResetAnimation = () => {
-      // Cancelar todos timeouts pendentes
+    // Função para limpar todos os event listeners rastreados
+    const clearEventListeners = () => {
+      eventListeners.forEach(({ element, event, handler }) => {
+        element.removeEventListener(event, handler);
+      });
+      eventListeners = [];
+    };
+
+    // Função para adicionar event listener rastreado (não usado neste componente mas mantido para consistência)
+    // const addTrackedEventListener = (element: Element, event: string, handler: any, options?: any) => {
+    //   element.addEventListener(event, handler, options);
+    //   eventListeners.push({ element, event, handler });
+    // };
+
+    // Função para limpar todos os estilos inline
+    const clearAllInlineStyles = () => {
+      container.querySelectorAll('[data-animate]').forEach(el => {
+        const element = el as HTMLElement;
+        element.style.removeProperty('opacity');
+        element.style.removeProperty('transform');
+        element.style.removeProperty('transition');
+        element.style.opacity = '0';
+        element.style.transform = '';
+      });
+    };
+
+    // Função para resetar scanner
+    const resetScanner = () => {
+      const scanner = container.querySelector('#document-scanner') as HTMLElement;
+      if (scanner) {
+        scanner.style.top = '0px';
+        scanner.style.opacity = '0';
+        scanner.style.transition = '';
+      }
+    };
+
+    // Função consolidada para reset completo
+    const fullReset = () => {
+      // 1. Cancelar todos timeouts pendentes
       animationTimeouts.forEach(id => window.clearTimeout(id));
       animationTimeouts = [];
 
-      // Parar animações em andamento
+      // 2. Parar animações em andamento
       currentAnimations.forEach(anim => {
         if (anim && typeof anim.stop === 'function') {
           anim.stop();
@@ -638,24 +674,29 @@ import ScannerImage from "@/assets/how-to/scanner.png";
       });
       currentAnimations = [];
 
-      // Aguardar um frame para Motion liberar propriedades
+      // 3. Limpar event listeners
+      clearEventListeners();
+
+      // 4. Aguardar múltiplos frames para Motion liberar completamente
       requestAnimationFrame(() => {
-        // Resetar todos elementos ao estado inicial
-        container.querySelectorAll('[data-animate]').forEach(el => {
-          const element = el as HTMLElement;
-          element.style.opacity = '0';
-          element.style.transform = '';
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            // 5. Limpar estilos inline
+            clearAllInlineStyles();
+
+            // 6. Resetar scanner
+            resetScanner();
+
+            // 7. Marcar como não animando
+            isAnimating = false;
+          });
         });
-
-        // Resetar scanner
-        const scanner = container.querySelector('#document-scanner');
-        if (scanner) {
-          (scanner as HTMLElement).style.top = '0px';
-          (scanner as HTMLElement).style.opacity = '0';
-        }
-
-        isAnimating = false;
       });
+    };
+
+    // Função para parar e resetar animação completamente
+    const stopAndResetAnimation = () => {
+      fullReset();
     };
 
     // Função que executa sequência completa de animações
@@ -682,7 +723,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
       if (visibleElements.length > 0) {
         // Fazer fade-out de todos os elementos simultaneamente
         const fadeOutPromises = visibleElements.map(el => {
-          const anim = animate(el as Element, { opacity: 0 }, { duration: fadeOutDuration, easing: [0.4, 0, 0.2, 1] });
+          const anim = animate(el as Element, { opacity: 0 }, { duration: fadeOutDuration, easing: [0.4, 0, 0.2, 1] } as any);
           currentAnimations.push(anim);
           return anim.finished;
         });
@@ -699,29 +740,37 @@ import ScannerImage from "@/assets/how-to/scanner.png";
     };
 
     const resetAndStartAnimation = () => {
-      // Aguardar um frame para Motion liberar propriedades
-      requestAnimationFrame(() => {
-        // Resetar todos elementos para estado inicial
-        container.querySelectorAll('[data-animate]').forEach(el => {
-          const element = el as HTMLElement;
-          element.style.opacity = '0';
-          element.style.transform = '';
-        });
+      // Cancelar todos timeouts e animações
+      animationTimeouts.forEach(id => window.clearTimeout(id));
+      animationTimeouts = [];
 
-        // Resetar scanner
-        const scanner = container.querySelector('#document-scanner');
-        if (scanner) {
-          (scanner as HTMLElement).style.top = '0px';
-          (scanner as HTMLElement).style.opacity = '0';
+      currentAnimations.forEach(anim => {
+        if (anim && typeof anim.stop === 'function') {
+          anim.stop();
         }
+      });
+      currentAnimations = [];
 
-        // Limpar arrays de controle antes de reiniciar
-        animationTimeouts = [];
-        currentAnimations = [];
-        isAnimating = false;
+      // Limpar event listeners
+      clearEventListeners();
 
-        // Iniciar animações de entrada imediatamente
-        startEntryAnimations();
+      // Aguardar múltiplos frames para Motion liberar
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            // Limpar estilos inline
+            clearAllInlineStyles();
+
+            // Resetar scanner
+            resetScanner();
+
+            // Marcar como não animando
+            isAnimating = false;
+
+            // Iniciar animações de entrada imediatamente
+            startEntryAnimations();
+          });
+        });
       });
     };
 
@@ -773,7 +822,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
             duration: totalScannerTime,
             easing: [0.83, 0, 0.17, 1],
             delay: 0.3, // Inicia junto com opacity
-          })
+          } as any)
         );
 
         // Fade-out do scanner após completar as varreduras
@@ -784,7 +833,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
             duration: 0.3,
             delay: 0.3 + totalScannerTime, // Após o scanner completar
             easing: [0.4, 0, 0.2, 1],
-          })
+          } as any)
         );
       }
 
@@ -813,7 +862,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
       const totalScannerTime = scannerDuration * scannerRepetitions;
 
       // Timings da sequência mobile
-      const pdfAppearTime = duration; // 0.8s - PDF aparece
+      // const pdfAppearTime = duration; // 0.8s - PDF aparece (não usado diretamente)
       const scannerStartTime = 0.3; // 0.3s - Scanner começa (delay reduzido)
       const scannerTime = totalScannerTime; // 1.8s - Scanner faz 3 varreduras
       const pdfVisibleTime = 1; // 1s - PDF fica visível após scanner
@@ -865,7 +914,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
             duration: totalScannerTime,
             easing: [0.83, 0, 0.17, 1],
             delay: 0.3, // Inicia junto com opacity
-          })
+          } as any)
         );
       }
 
@@ -879,7 +928,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
           }, {
             duration: pdfFadeOutTime,
             easing: [0.4, 0, 0.2, 1],
-          });
+          } as any);
           currentAnimations.push(anim);
 
           // Também esconder o scanner junto
@@ -889,7 +938,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
             }, {
               duration: pdfFadeOutTime,
               easing: [0.4, 0, 0.2, 1],
-            });
+            } as any);
             currentAnimations.push(scannerAnim);
           }
         }
@@ -921,7 +970,7 @@ import ScannerImage from "@/assets/how-to/scanner.png";
           }, {
             duration: extractFadeOutTime,
             easing: [0.4, 0, 0.2, 1],
-          });
+          } as any);
           currentAnimations.push(anim);
 
           // Após Extract desaparecer, reiniciar loop

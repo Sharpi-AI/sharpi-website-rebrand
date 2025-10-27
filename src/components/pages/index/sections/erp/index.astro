@@ -6,6 +6,9 @@ import oracleLogo from "@/assets/erp/oracle.png";
 import targetLogo from "@/assets/erp/target.png";
 import totvsLogo from "@/assets/erp/totvs.png";
 import tinyLogo from "@/assets/erp/tiny.webp";
+import sankhyaLogo from "@/assets/erp/sankhya.png";
+import omieLogo from "@/assets/erp/omie.png";
+import microsoftDynamicsLogo from "@/assets/erp/microsoft-dynamics.png";
 
 const erps = [
   {
@@ -14,9 +17,14 @@ const erps = [
     alt: "Logo da SAP - ERP integrado com Sharpi",
   },
   {
-    name: "Oracle",
-    logo: oracleLogo,
-    alt: "Logo da Oracle - ERP integrado com Sharpi",
+    name: "Totvs",
+    logo: totvsLogo,
+    alt: "Logo da Totvs - ERP integrado com Sharpi",
+  },
+  {
+    name: "Sankhya",
+    logo: sankhyaLogo,
+    alt: "Logo da Sankhya - ERP integrado com Sharpi",
   },
   {
     name: "Target",
@@ -24,15 +32,26 @@ const erps = [
     alt: "Logo da Target - ERP integrado com Sharpi",
   },
   {
-    name: "Totvs",
-    logo: totvsLogo,
-    alt: "Logo da Totvs - ERP integrado com Sharpi",
-  },
-  {
     name: "Tiny",
     logo: tinyLogo,
     alt: "Logo da Tiny - ERP integrado com Sharpi",
   },
+  {
+    name: "Omie",
+    logo: omieLogo,
+    alt: "Logo da Omie - ERP integrado com Sharpi",
+  },
+  {
+    name: "Oracle",
+    logo: oracleLogo,
+    alt: "Logo da Oracle - ERP integrado com Sharpi",
+  },
+  {
+    name: "Microsoft Dynamics",
+    logo: microsoftDynamicsLogo,
+    alt: "Logo da Microsoft Dynamics - ERP integrado com Sharpi",
+  },
+
 ];
 ---
 
@@ -55,7 +74,7 @@ const erps = [
   </div>
 
   <div
-    class="flex flex-wrap items-center justify-center gap-3 w-full  "
+    class="w-full md:w-fit grid grid-cols-2 md:grid-cols-4 items-center justify-center gap-3 "
   >
     {
       erps.map((erp, index) => {
@@ -64,7 +83,7 @@ const erps = [
         const shouldHideOnMobile = isOddTotal && isLastElement;
 
         return (
-          <div class={`place-self-center flex-[44%] md:flex-none aspect-square md:size-[180px] bg-[#573DFF] items-center justify-center rounded transition-all duration-300 ${shouldHideOnMobile ? 'hidden md:flex' : 'flex'}`}>
+          <div class={`place-self-center aspect-square md:size-[180px] bg-[#573DFF] items-center justify-center rounded transition-all duration-300 ${shouldHideOnMobile ? 'hidden md:flex' : 'flex'}`}>
             <Image
               src={erp.logo}
               alt={erp.alt}

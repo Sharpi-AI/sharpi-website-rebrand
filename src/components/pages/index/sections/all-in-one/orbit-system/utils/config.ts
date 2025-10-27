@@ -133,7 +133,7 @@ export interface ParticleSystemSettings {
 export const DEFAULT_SETTINGS: ParticleSystemSettings = {
   // Particle arrangement
   arrangementType: 'fibonacci',
-  particleCount: 100,
+  particleCount: 200,
   numLines: 12,
   particlesPerLine: 20,
   numRings: 5,
@@ -142,7 +142,7 @@ export const DEFAULT_SETTINGS: ParticleSystemSettings = {
   spiralTurns: 5,
   radius: 1,
   particleSize: 0.06,
-  particleColor: '#8972ff',
+  particleColor: '#2E15FE',
 
   // Animation
   continuousAnimation: false,
@@ -191,7 +191,7 @@ export const DEFAULT_SETTINGS: ParticleSystemSettings = {
   lensCursorDamping: 0.15,
   lensCursorIor: 1.4,
   lensCursorThickness: 0.45,
-  lensCursorChromaticAberration: 0,
+  lensCursorChromaticAberration: 0.05,
   lensCursorAnisotropy: 0.1,
   lensCursorTransmission: 1.0,
   lensCursorRoughness: 0.001,
@@ -209,14 +209,14 @@ export const DEFAULT_SETTINGS: ParticleSystemSettings = {
   // Orbital Texts - Layer 1
   orbitingTexts1: ['Text 1'],
   showOrbitingTexts1: false,
-  orbitingTextColor1: '#8972ff',
+  orbitingTextColor1: '#2E15FE',
   orbitingTextSize1: 16,
   orbitingTextOffset1: 0.3,
 
   // Orbital Texts - Layer 2
   orbitingTexts2: ['Text 2'],
   showOrbitingTexts2: false,
-  orbitingTextColor2: '#8972ff',
+  orbitingTextColor2: '#2E15FE',
   orbitingTextSize2: 14,
   orbitingTextOffset2: 0.25,
 };
