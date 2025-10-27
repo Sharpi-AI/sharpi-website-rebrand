@@ -55,11 +55,11 @@ const { bigNumber, bigNumberTitle, description } = Astro.props;
     if (!isMobile) return;
 
     const cards = document.querySelectorAll('[data-mobile-card]');
-    const cardStates = new Map(); // Track card states and timeouts
+    const visibleCards = new Map(); // Track visible cards
 
     // Scroll state management
     let isScrolling = false;
-    let scrollTimeout = null;
+    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
     let pendingChanges = new Map(); // Store changes to apply after scroll ends
 
     // Detect active scrolling
@@ -75,19 +75,52 @@ const { bigNumber, bigNumberTitle, description } = Astro.props;
         isScrolling = false;
         // Apply any pending changes after scroll ends
         applyPendingChanges();
-      }, 400); // Wait 400ms after last scroll event
+      }, 400);
     }
 
     // Apply changes that were deferred during scrolling
     function applyPendingChanges() {
-      pendingChanges.forEach((shouldActivate, card) => {
-        if (shouldActivate) {
+      if (pendingChanges.size > 0) {
+        updateActiveCard();
+      }
+      pendingChanges.clear();
+    }
+
+    // Determine which card is most centered in viewport
+    function getMostCenteredCard(): Element | null {
+      const viewportHeight = window.innerHeight;
+      const viewportCenter = viewportHeight / 2;
+
+      let mostCenteredCard: Element | null = null;
+      let minDistance = Infinity;
+
+      visibleCards.forEach((entry: IntersectionObserverEntry, card: Element) => {
+        if (!entry.isIntersecting) return;
+
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(cardCenter - viewportCenter);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          mostCenteredCard = card;
+        }
+      });
+
+      return mostCenteredCard;
+    }
+
+    // Update which card should be active (only one)
+    function updateActiveCard() {
+      const mostCentered = getMostCenteredCard();
+
+      cards.forEach(card => {
+        if (mostCentered === card) {
           card.classList.add('active');
         } else {
           card.classList.remove('active');
         }
       });
-      pendingChanges.clear();
     }
 
     // Add scroll event listeners
@@ -97,76 +130,30 @@ const { bigNumber, bigNumberTitle, description } = Astro.props;
     window.addEventListener('touchcancel', handleScrollEnd, { passive: true });
     window.addEventListener('wheel', handleScrollEnd, { passive: true });
 
-    // Handle state changes with hysteresis and bidirectional debounce
-    function handleStateChange(entry) {
-      const card = entry.target;
-      const isCurrentlyActive = card.classList.contains('active');
-      const visibilityRatio = entry.intersectionRatio;
-
-      // Get or create card state
-      if (!cardStates.has(card)) {
-        cardStates.set(card, {
-          activationTimeout: null,
-          deactivationTimeout: null
-        });
-      }
-      const cardState = cardStates.get(card);
-
-      // Hysteresis thresholds: more conservative for stability
-      const ACTIVATION_THRESHOLD = 0.6;   // Activate when 60% visible
-      const DEACTIVATION_THRESHOLD = 0.3; // Deactivate when less than 30% visible
-
-      // Clear any existing timeouts
-      if (cardState.activationTimeout) {
-        clearTimeout(cardState.activationTimeout);
-        cardState.activationTimeout = null;
-      }
-      if (cardState.deactivationTimeout) {
-        clearTimeout(cardState.deactivationTimeout);
-        cardState.deactivationTimeout = null;
-      }
-
-      // Determine desired state
-      let shouldActivate = false;
-      if (!isCurrentlyActive && entry.isIntersecting && visibilityRatio >= ACTIVATION_THRESHOLD) {
-        shouldActivate = true;
-      } else if (isCurrentlyActive && (!entry.isIntersecting || visibilityRatio < DEACTIVATION_THRESHOLD)) {
-        shouldActivate = false;
-      } else {
-        // No state change needed
-        return;
-      }
+    // Handle state changes - track visible cards
+    function handleStateChange(entries: IntersectionObserverEntry[]) {
+      entries.forEach((entry: IntersectionObserverEntry) => {
+        visibleCards.set(entry.target, entry);
+      });
 
       // If scrolling, defer the change
       if (isScrolling) {
-        pendingChanges.set(card, shouldActivate);
+        pendingChanges.set(true, null);
         return;
       }
 
-      // Apply change with increased debounce for stability
-      if (shouldActivate) {
-        cardState.activationTimeout = setTimeout(() => {
-          requestAnimationFrame(() => {
-            card.classList.add('active');
-          });
-          cardState.activationTimeout = null;
-        }, 200); // Increased debounce
-      } else {
-        cardState.deactivationTimeout = setTimeout(() => {
-          requestAnimationFrame(() => {
-            card.classList.remove('active');
-          });
-          cardState.deactivationTimeout = null;
-        }, 300); // Increased debounce
-      }
+      // Update active card with debounce
+      setTimeout(() => {
+        if (!isScrolling) {
+          updateActiveCard();
+        }
+      }, 200);
     }
 
-    // Intersection Observer with ultra-conservative settings
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(handleStateChange);
-    }, {
-      threshold: [0.2, 0.3, 0.6], // Fewer, more spaced thresholds
-      rootMargin: '-30px' // Even larger negative margin for maximum stability
+    // Intersection Observer
+    const observer = new IntersectionObserver(handleStateChange, {
+      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+      rootMargin: '-100px 0px'
     });
 
     // Observe all cards

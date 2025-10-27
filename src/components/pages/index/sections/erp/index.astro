@@ -83,7 +83,7 @@ const erps = [
         const shouldHideOnMobile = isOddTotal && isLastElement;
 
         return (
-          <div class={`place-self-center aspect-square md:size-[180px] bg-[#573DFF] items-center justify-center rounded transition-all duration-300 ${shouldHideOnMobile ? 'hidden md:flex' : 'flex'}`}>
+          <div class={`place-self-center w-full md:w-fit aspect-square md:size-[180px] bg-[#573DFF] items-center justify-center rounded transition-all duration-300 ${shouldHideOnMobile ? 'hidden md:flex' : 'flex'}`}>
             <Image
               src={erp.logo}
               alt={erp.alt}
