@@ -13,7 +13,7 @@ const testimonials = [
     name: "Cris Taverna",
     role: "Diretora Comercial",
     company: "Multiplás",
-    text: "A Sharpi permitiu que nossas vendedoras ganhassem tempo e se dedicassem ainda mais às prospecções, aumentando o faturamento através das mensagens automáticas, um dos recursos que ela oferece. Com essa agilidade, conseguimos atender novos clientes com maior eficiência e a atenção necessária, fortalecendo nossas relações e ampliando nossa base de clientes.",
+    text: "A Sharpi permitiu que nossas vendedoras ganhassem tempo e se dedicassem mais à prospecção, aumentando o faturamento com auxilio das sugestões de IA. Hoje, conseguimos atender novos clientes com maior eficiência e atenção, fortalecendo nossas relações e ampliando a base de clientes.",
     avatar: img04,
   },
   {
@@ -55,38 +55,42 @@ const mosaicImages = [
     id: "mosaic-2",
     src: img03,
     alt: "Team member profile photo",
-    position: "top-[63.5%] left-[31%]",
-    size: "w-[12%] aspect-[165/203]",
-    width: 165 * 1.5,
-    height: 203 * 1.5,
+    position: "top-[63.5%] left-[30.25%]",
+    // size: "w-[12%] aspect-[165/203]",
+    size: "w-[12%] ",
+    width: 165 * 2,
+    height: 203 * 2,
   },
   {
     id: "mosaic-1",
     src: img04,
     alt: "Team member profile photo",
-    position: "top-[7%] left-[44%]",
-    size: "w-[24%] aspect-[326/403]",
-    width: 326 * 1.5,
-    height: 403 * 1.5,
+    position: "top-[17%] left-[44%]",
+    // size: "w-[24%] aspect-[326/403]",
+    size: "w-[24%] ",
+    width: 326 * 2,
+    height: 403 * 2,
   },
  
   {
     id: "mosaic-4",
     src: img02 ,
     alt: "Team member profile photo",
-    position: "top-[52%] left-[14%]",
-    size: "w-[5%] aspect-[72/72]",
-    width: 72 * 1.5,
-    height: 72 * 1.5,
+    position: "top-[52%] left-[16%]",
+    size: "w-[5%] ",
+    // size: "w-[5%] aspect-[72/72]",
+    width: 72 * 2,
+    height: 72 * 2,
   },
   {
     id: "mosaic-3",
     src:  img01,
     alt: "Team member profile photo",
-    position: "top-[42%] left-[74%]",
-    size: "w-[5%] aspect-[72/72]",
-    width: 72 * 1.5,
-    height: 72 * 1.5,
+    position: "top-[45.5%] left-[73.5%]",
+    // size: "w-[5%] aspect-[72/72]",
+    size: "w-[5%] ",
+    width: 72 * 2,
+    height: 72 * 2,
   },
 
 ];
@@ -127,11 +131,12 @@ const mosaicImages = [
         width={mosaicImages[0].width}
         height={mosaicImages[0].height}
         loading="lazy"
+        quality={100}
         
       />
     </div>
 
-    <div class="absolute top-[34%] left-[22.5%] z-10">
+    <div class="absolute top-[31.5%] left-[22.5%] z-10">
       <Card
         targetScale="0.82"
         cardId="testimonials-card-1"
@@ -180,7 +185,7 @@ const mosaicImages = [
       />
     </div>
 
-    <div class="absolute top-[54%] left-[69%] z-10">
+    <div class="absolute top-[54%] left-[73.5%] z-10">
       <Card
         targetScale="0.58"
         cardId="testimonials-card-4"
@@ -192,7 +197,7 @@ const mosaicImages = [
       />
     </div>
 
-    <div class="absolute top-[35%] left-[60%] z-10">
+    <div class="absolute top-[37%] left-[60%] z-10">
       <Card
         targetScale="0.50"
         cardId="testimonials-card-5"
@@ -252,7 +257,7 @@ const mosaicImages = [
           {
             testimonials.map((testimonial) => (
               <li class="splide__slide w-fit flex items-center [.is-active&_>_div]:min-h-[356px]">
-                <div class="group w-[308px] min-h-[322px] hover:max-h-[500px] overflow-hidden bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)] scale-100 duration-400 transition-all ">
+                <div class="group w-[284px] min-h-[322px] hover:max-h-[500px] overflow-hidden bg-white rounded-xl flex border-[0.5px] border-[rgba(0,0,0,0.12)] scale-100 duration-400 transition-all ">
                   <div class="flex flex-col gap-8 p-4 justify-between flex-1">
                     <div class="flex gap-3 items-center">
                       <div class="size-8 shrink-0 bg-gray-200 rounded-full overflow-hidden">
