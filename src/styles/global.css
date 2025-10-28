@@ -77,7 +77,7 @@ video {
   color: black;
   box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.08);
   transform-origin: center;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease;
   white-space: nowrap;
   
   /* Otimizações para reduzir tremor */
@@ -90,7 +90,22 @@ video {
   
   /* Força o uso de GPU para transformações */
   transform: translateZ(0);
+  opacity: 0;
 }
+
+/* Mobile breakpoint - telas menores que 768px */
+@media (max-width: 767px) {
+  .orbit-text {
+    gap: 6px;
+    padding: 12px 12px 12px 10px;
+    border-radius: 12px;
+    height: 56px;
+    max-height: 56px;
+    box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.06);
+  }
+}
+
+
 
 .orbit-text .icon {
   width: 36px;
@@ -107,6 +122,17 @@ video {
   will-change: transform;
   transform: translateZ(0);
 }
+
+/* Mobile breakpoint para ícones */
+@media (max-width: 767px) {
+  .orbit-text .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+}
+
 
 .orbit-text .icon svg {
   /* Otimizações para SVGs */
@@ -135,4 +161,17 @@ video {
   letter-spacing: -0.025em;
   font-family: var(--font-mono);
   line-height: 1;
+}
+
+/* Mobile breakpoint para textos */
+@media (max-width: 767px) {
+  .orbit-text .text1 {
+    font-size: 13px;
+    
+  }
+  
+  .orbit-text .text2 {
+    font-size: 13px;
+    
+  }
 }

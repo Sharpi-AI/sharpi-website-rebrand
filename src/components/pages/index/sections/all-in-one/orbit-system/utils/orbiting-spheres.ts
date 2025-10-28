@@ -1,4 +1,5 @@
-import { Group, Vector3, SphereGeometry, Mesh, MeshBasicMaterial, Camera } from 'three';
+import * as THREE from 'three';
+import { Group, Vector3, SphereGeometry, Mesh, MeshBasicMaterial, Camera, WebGLRenderer, Scene, PerspectiveCamera } from 'three';
 
 export type AnimationStage = 'idle' | 'stage1' | 'stage2' | 'stage3' | 'stage4' | 'completed' | 'returning';
 
@@ -41,7 +42,6 @@ export interface OrbitingSpheresConfig {
   returnDuration?: number;
   autoLoop?: boolean;
 
-
   // Text animation controls
   hideTextsOnStage?: AnimationStage;
   hideTextsByStage?: { [textIndex: number]: AnimationStage };
@@ -51,6 +51,11 @@ export interface OrbitingSpheresConfig {
 
   // Responsive scaling
   responsiveScale?: number;
+
+  // Canvas and rendering
+  canvas?: HTMLCanvasElement;
+  container?: HTMLElement;
+  pixelRatio?: number;
 
   // Callbacks
   onStageChange?: (stage: AnimationStage) => void;
@@ -64,13 +69,29 @@ export class OrbitingSpheres {
   private textElements: HTMLElement[] = [];
   private textContainer: HTMLElement | null = null;
   private camera: Camera | null = null;
-  private config: Required<Omit<OrbitingSpheresConfig, 'textItems' | 'hideTextsOnStage' | 'hideTextsByStage' | 'onStageChange' | 'onAnimationComplete' | 'onReset'>> & {
+  
+  // Canvas and rendering
+  private canvas: HTMLCanvasElement | null = null;
+  private container: HTMLElement | null = null;
+  private renderer: WebGLRenderer | null = null;
+  private scene: Scene | null = null;
+  
+  // Optimization controls
+  private animationFrameId: number | null = null;
+  private isInViewport: boolean = false;
+  private isPageVisible: boolean = true;
+  private isRendering: boolean = false;
+  private lastTime: number = 0;
+  private config: Required<Omit<OrbitingSpheresConfig, 'textItems' | 'hideTextsOnStage' | 'hideTextsByStage' | 'onStageChange' | 'onAnimationComplete' | 'onReset' | 'canvas' | 'container' | 'pixelRatio'>> & {
     textItems: OrbitingTextItem[];
     hideTextsOnStage?: AnimationStage;
     hideTextsByStage?: { [textIndex: number]: AnimationStage };
     onStageChange?: (stage: AnimationStage) => void;
     onAnimationComplete?: () => void;
     onReset?: () => void;
+    canvas?: HTMLCanvasElement;
+    container?: HTMLElement;
+    pixelRatio?: number;
   };
 
   // Animation state
@@ -88,24 +109,201 @@ export class OrbitingSpheres {
   private isTextFadingIn: boolean = false;
   private hasTextsFaded: boolean = false;
 
-  // Individual text animation states
-  private textOpacities: number[] = [];
-  private textScales: number[] = [];
-  private isTextFadingOutArray: boolean[] = [];
-  private isTextFadingInArray: boolean[] = [];
-  private hasTextsFadedArray: boolean[] = [];
-
-  // Text position states for movement animation
-  private textPositions: Vector3[] = [];
-  private originalTextPositions: Vector3[] = [];
-  
-  // Propriedades para suavização
-  private textPositionsSmooth: Vector3[] = [];
-  private textPositionsTarget: Vector3[] = [];
+  // Consolidated text state structure
+  private textStates: Array<{
+    opacity: number;
+    scale: number;
+    isFadingOut: boolean;
+    isFadingIn: boolean;
+    hasFaded: boolean;
+    position: Vector3;
+    originalPosition: Vector3;
+    smoothPosition: Vector3;
+    targetPosition: Vector3;
+  }> = [];
   private smoothingFactor: number = 0.15; // Ajuste conforme necessário
 
   // Timers for auto-loop
   private returnTimeout: number | null = null;
+
+  // Flag para controlar inicialização das posições dos textos
+  private isTextPositionInitialized: boolean = false;
+
+  // Helper methods for text state management
+  private initializeTextState(index: number): void {
+    this.textStates[index] = {
+      opacity: 0,
+      scale: 1,
+      isFadingOut: false,
+      isFadingIn: false,
+      hasFaded: false,
+      position: new Vector3(0, 0, 0),
+      originalPosition: new Vector3(0, 0, 0),
+      smoothPosition: new Vector3(0, 0, 0),
+      targetPosition: new Vector3(0, 0, 0)
+    };
+  }
+
+  private resetTextState(index: number): void {
+    if (this.textStates[index]) {
+      this.textStates[index].opacity = 1;
+      this.textStates[index].scale = 1;
+      this.textStates[index].isFadingOut = false;
+      this.textStates[index].isFadingIn = false;
+      this.textStates[index].hasFaded = false;
+      this.textStates[index].position = this.textStates[index].originalPosition.clone();
+      this.textStates[index].smoothPosition = this.textStates[index].originalPosition.clone();
+      this.textStates[index].targetPosition = this.textStates[index].originalPosition.clone();
+    }
+  }
+
+  private isValidScreenPosition(screenPosition: { x: number, y: number }): boolean {
+    return this.isTextPositionInitialized &&
+           !isNaN(screenPosition.x) && 
+           !isNaN(screenPosition.y) &&
+           !(screenPosition.x === 0 && screenPosition.y === 0) &&
+           screenPosition.x > 0 && 
+           screenPosition.y > 0;
+  }
+
+  private animateTextFade(textState: any, fadeSpeed: number, deltaTime: number, isFadingOut: boolean): boolean {
+    if (isFadingOut) {
+      textState.opacity = Math.max(0, textState.opacity - fadeSpeed * deltaTime);
+      textState.scale = Math.max(0, textState.scale - fadeSpeed * deltaTime);
+      return textState.opacity <= 0 && textState.scale <= 0;
+    } else {
+      textState.opacity = Math.min(1, textState.opacity + fadeSpeed * deltaTime);
+      textState.scale = Math.min(1, textState.scale + fadeSpeed * deltaTime);
+      return textState.opacity >= 1 && textState.scale >= 1;
+    }
+  }
+
+  private initializeCanvas(): void {
+    if (!this.canvas || !this.container) return;
+
+    const width = this.container.clientWidth;
+    const height = this.container.clientHeight;
+
+    // Create renderer
+    this.renderer = new WebGLRenderer({
+      canvas: this.canvas,
+      antialias: true,
+      alpha: true,
+    });
+    this.renderer.setSize(width, height);
+    this.renderer.setPixelRatio(this.config.pixelRatio || Math.min(window.devicePixelRatio, 2));
+    this.renderer.setClearColor(0x000000, 0);
+    this.renderer.toneMapping = THREE.NoToneMapping;
+    this.renderer.toneMappingExposure = 1.0;
+
+    // Create scene
+    this.scene = new Scene();
+
+    // Create camera
+    const referenceHeight = 604;
+    const referenceFOV = 50;
+    const vFOV = (2 * Math.atan(Math.tan((referenceFOV * Math.PI) / 360) * (referenceHeight / height)) * 180) / Math.PI;
+    const cameraZAdjustment = 8 * (height / referenceHeight);
+
+    this.camera = new PerspectiveCamera(vFOV, width / height, 0.1, 1000);
+    this.camera.position.set(0, 0, cameraZAdjustment);
+    this.camera.lookAt(0, 0, 0);
+
+    // Add group to scene
+    this.scene.add(this.group);
+  }
+
+  private initializeOptimizations(): void {
+    if (!this.container) return;
+
+    // 1. Intersection Observer API - Pausa renderização fora da viewport
+    this.setupIntersectionObserver();
+
+    // 2. Page Visibility API - Pausa quando aba fica inativa
+    this.setupPageVisibility();
+
+    // 3. RequestAnimationFrame com controle
+    this.startRenderLoop();
+  }
+
+  private setupIntersectionObserver(): void {
+    if (!this.container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        this.isInViewport = entry.isIntersecting;
+        
+        if (this.isInViewport) {
+          this.startRenderLoop();
+          console.log('🎯 Canvas entered viewport - resuming render');
+        } else {
+          this.stopRenderLoop();
+          console.log('⏸️ Canvas left viewport - pausing render');
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '50px'
+      }
+    );
+
+    observer.observe(this.container);
+  }
+
+  private setupPageVisibility(): void {
+    const handleVisibilityChange = () => {
+      this.isPageVisible = !document.hidden;
+      
+      if (this.isPageVisible && this.isInViewport) {
+        this.startRenderLoop();
+        console.log('👁️ Page became visible - resuming render');
+      } else {
+        this.stopRenderLoop();
+        console.log('🙈 Page became hidden - pausing render');
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+  }
+
+  private startRenderLoop(): void {
+    if (this.isRendering || !this.isInViewport || !this.isPageVisible) return;
+    
+    this.isRendering = true;
+    this.lastTime = performance.now();
+    this.renderLoop();
+  }
+
+  private stopRenderLoop(): void {
+    this.isRendering = false;
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+  }
+
+  private renderLoop = (): void => {
+    if (!this.isRendering || !this.isInViewport || !this.isPageVisible) {
+      this.isRendering = false;
+      return;
+    }
+
+    const currentTime = performance.now();
+    const deltaTime = (currentTime - this.lastTime) / 1000;
+    this.lastTime = currentTime;
+
+    // Update animation
+    this.update(deltaTime);
+
+    // Render frame
+    if (this.renderer && this.scene && this.camera) {
+      this.renderer.render(this.scene, this.camera);
+    }
+
+    // Continue loop
+    this.animationFrameId = requestAnimationFrame(this.renderLoop);
+  };
 
   constructor(config: OrbitingSpheresConfig = {}) {
     // Detect if mobile internally
@@ -146,6 +344,7 @@ export class OrbitingSpheres {
       textFadeInDuration: 0.2,
       textFadeOutDuration: 0.3,
       responsiveScale: 1.0,
+      pixelRatio: Math.min(window.devicePixelRatio, 2),
       ...config
     };
 
@@ -171,6 +370,15 @@ export class OrbitingSpheres {
     this.group = new Group();
     this.group.rotation.z = this.config.rotationOffset;
     this.textContainer = document.getElementById('orbit-texts-container');
+    
+    // Initialize canvas and rendering if provided
+    if (config.canvas && config.container) {
+      this.canvas = config.canvas;
+      this.container = config.container;
+      this.initializeCanvas();
+      this.initializeOptimizations();
+    }
+    
     this.initializeSpheres();
     this.initializeTextStates();
     this.initializeTextElements();
@@ -199,19 +407,17 @@ export class OrbitingSpheres {
   private initializeTextStates(): void {
     const textCount = this.config.textItems.length;
     if (textCount > 0) {
-      this.textOpacities = Array.from({ length: textCount }, () => 1);
-      this.textScales = Array.from({ length: textCount }, () => 1);
-      this.isTextFadingOutArray = Array.from({ length: textCount }, () => false);
-      this.isTextFadingInArray = Array.from({ length: textCount }, () => false);
-      this.hasTextsFadedArray = Array.from({ length: textCount }, () => false);
-      this.textPositions = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
-      this.originalTextPositions = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
-      
-      // Inicializar posições suavizadas
-      this.textPositionsSmooth = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
-      this.textPositionsTarget = Array.from({ length: textCount }, () => new Vector3(0, 0, 0));
-      
+      // Initialize consolidated text states
+      for (let i = 0; i < textCount; i++) {
+        this.initializeTextState(i);
+      }
+
       this.updateTextPositions();
+
+      // Copy calculated positions to smooth arrays to avoid initial animation from center
+      for (let i = 0; i < textCount; i++) {
+        this.textStates[i].smoothPosition = this.textStates[i].targetPosition.clone();
+      }
     }
   }
 
@@ -305,26 +511,24 @@ export class OrbitingSpheres {
   private updateTextElementsPosition(): void {
     if (!this.config.showTexts || this.textElements.length === 0) return;
 
-    for (let i = 0; i < this.textElements.length && i < this.textPositions.length; i++) {
+    for (let i = 0; i < this.textElements.length && i < this.textStates.length; i++) {
       const element = this.textElements[i];
-      const worldPosition = this.textPositions[i];
+      const textState = this.textStates[i];
+      const screenPosition = this.worldToScreen(textState.position);
 
-      // Convert 3D position to screen coordinates
-      const screenPosition = this.worldToScreen(worldPosition);
-
-      // Get container position to offset correctly
       const container = document.getElementById('orbit-system-container');
       if (!container) return;
 
-      // Arredondar coordenadas para evitar sub-pixel rendering
-      const roundedX = Math.round(screenPosition.x);
-      const roundedY = Math.round(screenPosition.y);
-
-      // Aplicar posição com arredondamento
-      element.style.left = `${roundedX}px`;
-      element.style.top = `${roundedY}px`;
-      element.style.transform = `translate(-50%, -50%) scale(${this.textScales[i]})`;
-      element.style.opacity = this.textOpacities[i].toString();
+      if (this.isValidScreenPosition(screenPosition)) {
+        const roundedX = Math.round(screenPosition.x);
+        const roundedY = Math.round(screenPosition.y);
+        element.style.left = `${roundedX}px`;
+        element.style.top = `${roundedY}px`;
+        element.style.transform = `translate(-50%, -50%) scale(${textState.scale})`;
+        element.style.opacity = textState.opacity.toString();
+      } else {
+        element.style.opacity = '0';
+      }
     }
   }
 
@@ -343,47 +547,39 @@ export class OrbitingSpheres {
     const textRadius = this.currentAnimatedRadius + this.config.textOffset;
 
     for (const [i] of this.config.textItems.entries()) {
-      // Calculate angle based on current group rotation to keep texts aligned with spheres
       const baseAngle = (i / this.config.textItems.length) * Math.PI * 2;
       const currentRotation = this.group.rotation.z;
       const angle = baseAngle + currentRotation;
 
       const x = Math.cos(angle) * textRadius;
       const y = Math.sin(angle) * textRadius;
-
       const newPosition = new Vector3(x, y, 0);
 
-      // Initialize smooth positions if not exists
-      if (!this.textPositionsSmooth[i]) {
-        this.textPositionsSmooth[i] = newPosition.clone();
-        this.textPositionsTarget[i] = newPosition.clone();
+      if (!this.textStates[i]) {
+        this.initializeTextState(i);
       }
 
-      // Update target position
-      this.textPositionsTarget[i] = newPosition;
+      this.textStates[i].targetPosition = newPosition;
 
-      // Update positions only for texts not currently animating or faded out
-      const isThisTextFading = this.isTextFadingOutArray[i] || this.isTextFadingInArray[i] || this.hasTextsFadedArray[i];
+      const isThisTextFading = this.textStates[i].isFadingOut || this.textStates[i].isFadingIn || this.textStates[i].hasFaded;
       if (!isThisTextFading) {
-        this.textPositions[i] = newPosition;
+        this.textStates[i].position = newPosition;
       }
 
-      // Only update original positions when text is not fading out or faded out
-      if (!this.isTextFadingOutArray[i] && !this.hasTextsFadedArray[i]) {
-        this.originalTextPositions[i] = newPosition.clone();
+      if (!this.textStates[i].isFadingOut && !this.textStates[i].hasFaded) {
+        this.textStates[i].originalPosition = newPosition.clone();
       }
     }
   }
 
-  // Adicione este método para suavizar as posições dos textos
   private smoothTextPositions(deltaTime: number): void {
     if (!this.config.showTexts || this.textElements.length === 0) return;
 
-    for (let i = 0; i < this.textPositionsSmooth.length; i++) {
-      if (this.textPositionsSmooth[i] && this.textPositionsTarget[i]) {
-        // Interpolação suave usando lerp
-        this.textPositionsSmooth[i].lerp(this.textPositionsTarget[i], this.smoothingFactor * deltaTime * 60);
-        this.textPositions[i] = this.textPositionsSmooth[i];
+    for (let i = 0; i < this.textStates.length; i++) {
+      const textState = this.textStates[i];
+      if (textState.smoothPosition && textState.targetPosition) {
+        textState.smoothPosition.lerp(textState.targetPosition, this.smoothingFactor * deltaTime * 60);
+        textState.position = textState.smoothPosition;
       }
     }
   }
@@ -409,10 +605,41 @@ export class OrbitingSpheres {
     }
   }
 
+  public fadeInTexts(duration: number = 0.2): void {
+    const textCount = this.config.textItems.length;
+    if (textCount > 0) {
+      for (let i = 0; i < textCount; i++) {
+        if (this.textStates[i]) {
+          this.textStates[i].isFadingIn = true;
+          this.textStates[i].hasFaded = false;
+        }
+      }
+
+      const originalDuration = this.config.textFadeInDuration;
+      this.config.textFadeInDuration = duration;
+
+      setTimeout(() => {
+        this.config.textFadeInDuration = originalDuration;
+      }, duration * 1000);
+    }
+  }
+
+  public resyncTextPositions(): void {
+    this.updateTextPositions();
+
+    for (let i = 0; i < this.textStates.length; i++) {
+      this.textStates[i].smoothPosition = this.textStates[i].targetPosition.clone();
+      this.textStates[i].position = this.textStates[i].targetPosition.clone();
+    }
+    
+    this.isTextPositionInitialized = true;
+  }
+
   private resetAnimation(): void {
     this.currentStage = 'idle';
     this.targetRadius = this.config.initialRadius;
     this.loopCount = 0;
+    this.isTextPositionInitialized = false;
 
     // Clear timeout if exists
     if (this.returnTimeout) {
@@ -428,20 +655,8 @@ export class OrbitingSpheres {
     this.textScale = 1;
 
     // Reset individual text states
-    const textCount = this.config.textItems.length;
-    if (textCount > 0) {
-      this.textOpacities = Array.from({ length: textCount }, () => 1);
-      this.textScales = Array.from({ length: textCount }, () => 1);
-      this.isTextFadingOutArray = Array.from({ length: textCount }, () => false);
-      this.isTextFadingInArray = Array.from({ length: textCount }, () => false);
-      this.hasTextsFadedArray = Array.from({ length: textCount }, () => false);
-
-      // Reset positions to original positions
-      if (this.originalTextPositions.length > 0) {
-        this.textPositions = this.originalTextPositions.map(pos => pos.clone());
-        this.textPositionsSmooth = this.originalTextPositions.map(pos => pos.clone());
-        this.textPositionsTarget = this.originalTextPositions.map(pos => pos.clone());
-      }
+    for (let i = 0; i < this.textStates.length; i++) {
+      this.resetTextState(i);
     }
 
     this.config.onReset?.();
@@ -502,59 +717,46 @@ export class OrbitingSpheres {
     if (this.config.hideTextsByStage && this.config.textItems.length > 0) {
       for (const [textIndexStr, stage] of Object.entries(this.config.hideTextsByStage)) {
         const textIndex = Number.parseInt(textIndexStr, 10);
-        if (textIndex >= 0 && textIndex < this.config.textItems.length) {
+        if (textIndex >= 0 && textIndex < this.config.textItems.length && this.textStates[textIndex]) {
+          const textState = this.textStates[textIndex];
+          
           // Handle fade OUT for this specific text
-          if (this.currentStage === stage && !this.hasTextsFadedArray[textIndex] && !this.isTextFadingOutArray[textIndex]) {
-            this.isTextFadingOutArray[textIndex] = true;
-            this.hasTextsFadedArray[textIndex] = true;
+          if (this.currentStage === stage && !textState.hasFaded && !textState.isFadingOut) {
+            textState.isFadingOut = true;
+            textState.hasFaded = true;
           }
 
           // Handle fade IN for this specific text when loop restarts
-          if (this.hasTextsFadedArray[textIndex] && this.currentStage === 'stage1' && this.config.isAnimating &&
-              !this.isTextFadingInArray[textIndex] && !this.isTextFadingOutArray[textIndex]) {
-
-            // Set position directly to original position
-            if (this.originalTextPositions[textIndex]) {
-              this.textPositions[textIndex] = this.originalTextPositions[textIndex].clone();
-            }
-
-            this.isTextFadingInArray[textIndex] = true;
-            this.hasTextsFadedArray[textIndex] = false;
+          if (textState.hasFaded && this.currentStage === 'stage1' && this.config.isAnimating &&
+              !textState.isFadingIn && !textState.isFadingOut) {
+            textState.position = textState.originalPosition.clone();
+            textState.isFadingIn = true;
+            textState.hasFaded = false;
           }
 
           // Animate individual text fade OUT
-          if (this.isTextFadingOutArray[textIndex]) {
+          if (textState.isFadingOut) {
             const fadeSpeed = 1 / (this.config.textFadeOutDuration || this.config.textFadeDuration);
-            this.textOpacities[textIndex] = Math.max(0, this.textOpacities[textIndex] - fadeSpeed * deltaTime);
-            this.textScales[textIndex] = Math.max(0, this.textScales[textIndex] - fadeSpeed * deltaTime);
-
+            const isComplete = this.animateTextFade(textState, fadeSpeed, deltaTime, true);
+            
             // Animate position towards center during fade out
-            if (this.originalTextPositions[textIndex]) {
-              const originalPos = this.originalTextPositions[textIndex];
-              const centerPos = new Vector3(0, 0, 0);
+            const originalPos = textState.originalPosition;
+            const centerPos = new Vector3(0, 0, 0);
+            const progress = 1 - textState.opacity;
+            textState.position = originalPos.clone().lerp(centerPos, progress);
 
-              // Calculate progress based on opacity (1 = original position, 0 = center)
-              const progress = 1 - this.textOpacities[textIndex];
-
-              // Interpolate between original position and center
-              this.textPositions[textIndex] = originalPos.clone().lerp(centerPos, progress);
-            }
-
-            // Stop fading out when reached 0
-            if (this.textOpacities[textIndex] <= 0 && this.textScales[textIndex] <= 0) {
-              this.isTextFadingOutArray[textIndex] = false;
+            if (isComplete) {
+              textState.isFadingOut = false;
             }
           }
 
           // Animate individual text fade IN
-          if (this.isTextFadingInArray[textIndex]) {
+          if (textState.isFadingIn) {
             const fadeSpeed = 1 / (this.config.textFadeInDuration || this.config.textFadeDuration);
-            this.textOpacities[textIndex] = Math.min(1, this.textOpacities[textIndex] + fadeSpeed * deltaTime);
-            this.textScales[textIndex] = Math.min(1, this.textScales[textIndex] + fadeSpeed * deltaTime);
-
-            // Stop fading in when reached 1
-            if (this.textOpacities[textIndex] >= 1 && this.textScales[textIndex] >= 1) {
-              this.isTextFadingInArray[textIndex] = false;
+            const isComplete = this.animateTextFade(textState, fadeSpeed, deltaTime, false);
+            
+            if (isComplete) {
+              textState.isFadingIn = false;
             }
           }
         }
@@ -575,6 +777,11 @@ export class OrbitingSpheres {
     
     // Adicione esta linha para suavizar as posições dos textos
     this.smoothTextPositions(deltaTime);
+    
+    // Marcar como inicializado após primeiro update
+    if (!this.isTextPositionInitialized && this.camera) {
+      this.isTextPositionInitialized = true;
+    }
     
     this.updateTextElementsPosition();
   }
@@ -614,6 +821,9 @@ export class OrbitingSpheres {
   }
 
   public dispose(): void {
+    // Stop rendering loop
+    this.stopRenderLoop();
+
     // Clear timeout if exists
     if (this.returnTimeout) {
       window.clearTimeout(this.returnTimeout);
@@ -622,6 +832,11 @@ export class OrbitingSpheres {
 
     // Clear text elements
     this.clearTextElements();
+
+    // Dispose renderer
+    if (this.renderer) {
+      this.renderer.dispose();
+    }
 
     // Dispose geometries and materials
     for (const sphere of this.spheres) {
@@ -635,15 +850,28 @@ export class OrbitingSpheres {
 
     // Clear arrays
     this.spheres = [];
-    this.textOpacities = [];
-    this.textScales = [];
-    this.isTextFadingOutArray = [];
-    this.isTextFadingInArray = [];
-    this.hasTextsFadedArray = [];
-    this.textPositions = [];
-    this.originalTextPositions = [];
-    this.textPositionsSmooth = [];
-    this.textPositionsTarget = [];
+    this.textStates = [];
+  }
+
+  // Public methods for render control
+  public startRendering(): void {
+    this.startRenderLoop();
+  }
+
+  public stopRendering(): void {
+    this.stopRenderLoop();
+  }
+
+  public isCurrentlyRendering(): boolean {
+    return this.isRendering;
+  }
+
+  public getRenderer(): WebGLRenderer | null {
+    return this.renderer;
+  }
+
+  public getScene(): Scene | null {
+    return this.scene;
   }
 
   private handleGlobalTiming(_globalElapsed: number, globalStage: AnimationStage): void {
