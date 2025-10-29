@@ -19,19 +19,22 @@
   </div>
   <div
     id="cloned-cards-container"
-    class="absolute left-1/2 -translate-x-1/2 md:left-1/6 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-16 opacity-0 transition-opacity duration-500 pointer-events-none z-10"
+    class="absolute left-1/2 -translate-x-1/2 md:left-1/6 top-1/2 -translate-y-1/2 md:flex flex-col gap-16  transition-opacity duration-500 pointer-events-none z-10"
   >
     <p
+      id="cloned-cards-text"
       class="text-sm text-[#4C43FC] font-normal leading-none max-w-[20ch]"
       aria-hidden="true"
+      style="opacity: 0; transform: translateY(20px);"
     >
       Substitua todas essas ferramentas de uma só vez
     </p>
 
     <div class="flex flex-col gap-3">
       <div
-        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-y-20 scale-75 transition-all duration-400 ease-out w-[173px] max-w-[300px]"
-        style="transition-delay: 0ms; transform-origin: left center;"
+        id="cloned-card-1"
+        class="bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)]    w-[173px] max-w-[300px]"
+        style="transform-origin: left center; opacity: 0; transform: translateY(20px);"
       >
         <div
           class="flex-shrink-0 size-9 flex items-center justify-center rounded-md"
@@ -71,8 +74,9 @@
       </div>
 
       <div
-        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-y-20 scale-75 transition-all duration-400 ease-out w-fit max-w-[300px]"
-        style="transition-delay: 100ms; transform-origin: left center;"
+        id="cloned-card-2"
+        class="bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)]    w-fit max-w-[300px]"
+        style="transform-origin: left center; opacity: 0; transform: translateY(20px);"
       >
         <div
           class="flex-shrink-0 size-9 flex items-center justify-center rounded-md"
@@ -108,8 +112,9 @@
       </div>
 
       <div
-        class="cloned-card bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)] opacity-0 translate-y-20 scale-75 transition-all duration-400 ease-out w-[200px] max-w-[300px]"
-        style="transition-delay: 200ms; transform-origin: left center;"
+        id="cloned-card-3"
+        class="bg-white rounded-xl p-4 pl-3 flex items-center gap-3 shadow-[0_0_12px_0_rgba(0,0,0,0.08)]    w-[200px] max-w-[300px]"
+        style="transform-origin: left center; opacity: 0; transform: translateY(20px);"
       >
         <div
           class="flex-shrink-0 size-9 flex items-center justify-center rounded-md"
@@ -154,6 +159,8 @@
 
 <script>
   import { OrbitSystemManager } from "./utils/orbit-system-manager";
+  import { animate, stagger } from "motion";
+  import type { AnimationStage } from "./utils/orbiting-spheres";
 
   const initOrbitSystem = () => {
     const container = document.getElementById(
@@ -167,6 +174,64 @@
     ) as HTMLCanvasElement;
 
     if (!container || !orbitCanvas || !blobCanvas) return;
+
+    const clonedCardsText = document.getElementById("cloned-cards-text") as HTMLElement;
+    const clonedCard1 = document.getElementById("cloned-card-1") as HTMLElement;
+    const clonedCard2 = document.getElementById("cloned-card-2") as HTMLElement;
+    const clonedCard3 = document.getElementById("cloned-card-3") as HTMLElement;
+
+    if (!clonedCardsText || !clonedCard1 || !clonedCard2 || !clonedCard3) return;
+
+    const clonedElements = [clonedCardsText, clonedCard1, clonedCard2, clonedCard3];
+
+    let currentCardsAnimation: any = null;
+    let lastStage: AnimationStage = "idle";
+
+    const animateCardsIn = () => {
+      if (currentCardsAnimation) {
+        currentCardsAnimation.stop();
+      }
+
+      currentCardsAnimation = animate(
+        clonedElements,
+        {
+          opacity: [0, 1],
+          y: [20, 0],
+        },
+        {
+          duration: 0.6,
+          delay: stagger(0.1),
+          ease: "easeOut",
+        }
+      );
+    };
+
+    const animateCardsOut = () => {
+      if (currentCardsAnimation) {
+        currentCardsAnimation.stop();
+      }
+
+      currentCardsAnimation = animate(
+        clonedElements,
+        {
+          opacity: [1, 0],
+        },
+        {
+          duration: 0.4,
+          ease: "easeOut",
+        }
+      );
+    };
+
+    const handleStageChange = (stage: AnimationStage) => {
+      if (stage === "stage4" && lastStage !== "stage4") {
+        animateCardsIn();
+      } else if (lastStage === "stage4" && stage !== "stage4") {
+        animateCardsOut();
+      }
+
+      lastStage = stage;
+    };
 
     // Responsive scale: reduce size on mobile devices
     const isMobile = window.innerWidth < 768;
@@ -195,7 +260,7 @@
         finalScale: 1.7,
         initialScale: 0.7,
       },
-      onStageChange: () => {},
+      onStageChange: handleStageChange,
     });
 
     // Start the system
@@ -203,6 +268,9 @@
 
     // Store cleanup function for potential use
     (window as any).orbitSystemCleanup = () => {
+      if (currentCardsAnimation) {
+        currentCardsAnimation.stop();
+      }
       orbitSystemManager.dispose();
     };
 

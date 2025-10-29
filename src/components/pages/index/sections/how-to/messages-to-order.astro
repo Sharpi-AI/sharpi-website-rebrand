@@ -1035,6 +1035,34 @@ import Laranja from "@/assets/how-to/laranja.webp";
       }
     };
 
+    // Controlar pausa/play dos vídeos baseado na visibilidade
+    function initVideoVisibilityControl() {
+      if (!container) return;
+
+      const backgroundVideo = container.querySelector('video:not([data-video-appear])') as HTMLVideoElement | null;
+
+      inView(
+        container,
+        () => {
+          // Entrou no viewport - play nos vídeos
+          if (backgroundVideo) {
+            backgroundVideo.play().catch(() => {
+              // Ignorar erros de autoplay
+            });
+          }
+     
+          // Retornar callback para quando sair do viewport
+          return () => {
+            // Saiu do viewport - pausar vídeos
+            if (backgroundVideo) {
+              backgroundVideo.pause();
+            }
+          };
+        },
+        { amount: 0.2 }
+      );
+    }
+
     // Detectar quando componente entra no viewport e iniciar loop
     inView(
       container,
@@ -1051,6 +1079,9 @@ import Laranja from "@/assets/how-to/laranja.webp";
       },
       { amount: 0.2 } // Inicia quando 20% do componente está visível
     );
+
+    // Inicializar controle de visibilidade dos vídeos
+    initVideoVisibilityControl();
 
     // Listener para mudanças de aba
     document.addEventListener("howToSelectorChanged", (e: Event) => {

@@ -3,6 +3,7 @@ import { OrbitingSpheres, type AnimationStage } from './orbiting-spheres';
 import { LensParticleSystem } from './lens-particle-system';
 import { DEFAULT_SETTINGS } from './config';
 
+
 export interface OrbitSystemConfig {
   // Canvas elements
   container: HTMLElement;
@@ -363,18 +364,16 @@ export class OrbitSystemManager {
           // Entrando na viewport - resetar animação completamente
           this.resetAnimation();
           this.startRenderLoop();
-          console.log('🎯 Canvas entered viewport - resuming render');
           
           // Fade in orbit texts after delay
           setTimeout(() => {
             this.orbit1.fadeInTexts(0.2);
             this.orbit2.fadeInTexts(0.2);
-            console.log('✨ Fading in orbit texts');
+            
           }, 300);
         } else if (wasInViewport && !this.isInViewport) {
           // Saindo da viewport
           this.stopRenderLoop();
-          console.log('⏸️ Canvas left viewport - pausing render');
         }
       },
       {
@@ -392,10 +391,10 @@ export class OrbitSystemManager {
       
       if (this.isPageVisible && this.isInViewport) {
         this.startRenderLoop();
-        console.log('👁️ Page became visible - resuming render');
+        
       } else {
         this.stopRenderLoop();
-        console.log('🙈 Page became hidden - pausing render');
+        
       }
     };
     
@@ -458,8 +457,6 @@ export class OrbitSystemManager {
     const globalElapsed = (Date.now() - this.globalAnimationStartTime) / 1000;
     const globalStage = this.getCurrentGlobalStage(globalElapsed);
     
-    // Update cloned cards visibility based on stage
-    this.updateClonedCardsVisibility(globalStage);
     
     // Update all systems with global timing
     this.animatedParticleSystem.update(deltaTime, globalElapsed, globalStage);
@@ -521,67 +518,7 @@ export class OrbitSystemManager {
     
     // Force immediate text position resync
     this.orbit1.resyncTextPositions();
-    this.orbit2.resyncTextPositions();
-    
-    console.log('🔄 Reset orbits - orbit1:', orbit1Rotation, 'orbit2:', orbit2Rotation);
-  }
-  
-  private updateClonedCardsVisibility(stage: AnimationStage): void {
-    const container = document.getElementById('cloned-cards-container');
-    if (!container) return;
-    
-    const cards = container.querySelectorAll('.cloned-card');
-    
-    if (stage === 'stage4') {
-      // Wait 500ms before showing cards after stage4 starts
-      this.showCardsTimeout = window.setTimeout(() => {
-        container.classList.remove('opacity-0');
-        container.classList.add('opacity-100');
-        
-        cards.forEach((card) => {
-          (card as HTMLElement).style.transitionDelay = '';
-          card.classList.remove('translate-y-20', 'scale-75', 'opacity-0');
-          card.classList.add('translate-y-0', 'scale-100', 'opacity-100');
-        });
-      }, 500);
-    } else if (this.lastStageForCards === 'stage4' && stage === 'returning') {
-      // Cancel pending show animation if any
-      if (this.showCardsTimeout !== null) {
-        window.clearTimeout(this.showCardsTimeout);
-        this.showCardsTimeout = null;
-      }
-      
-      // Hide cards when leaving stage4
-      cards.forEach((card, index) => {
-        const invertedDelay = (cards.length - 1 - index) * 100;
-        (card as HTMLElement).style.transitionDelay = `${invertedDelay}ms`;
-        card.classList.remove('translate-y-0', 'opacity-100');
-        card.classList.add('translate-y-20', 'opacity-0');
-      });
-      
-      setTimeout(() => {
-        container.classList.remove('opacity-100');
-        container.classList.add('opacity-0');
-      }, 400);
-    } else if (stage !== 'stage4' as AnimationStage) {
-      // Cancel pending show animation if any
-      if (this.showCardsTimeout !== null) {
-        window.clearTimeout(this.showCardsTimeout);
-        this.showCardsTimeout = null;
-      }
-      
-      // Ensure container is hidden when not in stage4
-      container.classList.remove('opacity-100');
-      container.classList.add('opacity-0');
-      cards.forEach((card, index) => {
-        const invertedDelay = (cards.length - 1 - index) * 100;
-        (card as HTMLElement).style.transitionDelay = `${invertedDelay}ms`;
-        card.classList.remove('translate-y-0', 'opacity-100');
-        card.classList.add('translate-y-20', 'opacity-0');
-      });
-    }
-    
-    this.lastStageForCards = stage;
+    this.orbit2.resyncTextPositions();    
   }
   
   public start(): void {

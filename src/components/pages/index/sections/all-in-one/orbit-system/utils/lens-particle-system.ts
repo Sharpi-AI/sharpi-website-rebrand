@@ -226,7 +226,6 @@ export class LensParticleSystem {
     // Add lens to main group
     this.group.add(this.lens.getMainScene().children[0]); // Add the lens mesh
 
-    console.log('Created AnimatedParticleSystem with options:', this.options);
   }
 
   public startAnimation(): void {
@@ -236,7 +235,6 @@ export class LensParticleSystem {
       this.stageStartTime = Date.now();
       this.targetScale = this.options.stage1Scale;
       this.options.onStageChange?.('stage1');
-      console.log('Animation started - Stage 1');
     }
   }
 
@@ -275,33 +273,27 @@ export class LensParticleSystem {
         case 'stage1':
           this.targetScale = this.options.stage1Scale;
           this.targetParticleScale = this.options.stage1Scale;
-          console.log('AnimatedParticleSystem - Global Stage 1');
           break;
         case 'stage2':
           this.targetScale = this.options.stage2Scale;
           this.targetParticleScale = this.options.stage2Scale;
-          console.log('AnimatedParticleSystem - Global Stage 2');
           break;
         case 'stage3':
           this.targetScale = this.options.stage3Scale;
           this.targetParticleScale = this.options.stage3Scale;
-          console.log('AnimatedParticleSystem - Global Stage 3');
           break;
         case 'stage4':
           this.targetScale = this.options.stage4Scale;
           this.targetParticleScale = this.options.stage4Scale;
-          console.log('AnimatedParticleSystem - Global Stage 4');
           break;
         case 'completed':
           this.targetScale = this.options.finalScale;
           this.targetParticleScale = this.options.finalScale;
           this.options.onAnimationComplete?.();
-          console.log('AnimatedParticleSystem - Global Completed');
           break;
         case 'returning':
           this.targetScale = this.options.initialScale;
           this.targetParticleScale = this.options.initialScale;
-          console.log('AnimatedParticleSystem - Global Returning');
           break;
         case 'idle':
           this.targetScale = this.options.initialScale;
@@ -381,7 +373,6 @@ export class LensParticleSystem {
           this.targetScale = this.options.stage2Scale;
           this.targetParticleScale = this.options.stage2Scale;
           this.options.onStageChange?.('stage2');
-          console.log('Animation - Stage 2');
         }
         break;
 
@@ -392,7 +383,6 @@ export class LensParticleSystem {
           this.targetScale = this.options.stage3Scale;
           this.targetParticleScale = this.options.stage3Scale;
           this.options.onStageChange?.('stage3');
-          console.log('Animation - Stage 3');
         }
         break;
 
@@ -403,7 +393,6 @@ export class LensParticleSystem {
           this.targetScale = this.options.stage4Scale;
           this.targetParticleScale = this.options.stage4Scale;
           this.options.onStageChange?.('stage4');
-          console.log('Animation - Stage 4');
         }
         break;
 
@@ -414,7 +403,6 @@ export class LensParticleSystem {
           this.targetParticleScale = this.options.finalScale;
           this.options.onStageChange?.('completed');
           this.options.onAnimationComplete?.();
-          console.log('Animation - Completed');
 
           if (this.options.autoLoop) {
             // Transition to returning stage after delay
@@ -425,7 +413,6 @@ export class LensParticleSystem {
                 this.targetScale = this.options.initialScale;
                 this.targetParticleScale = this.options.initialScale;
                 this.options.onStageChange?.('returning');
-                console.log('Animation - Returning');
               }
             }, this.options.returnDelay);
           }
@@ -441,7 +428,6 @@ export class LensParticleSystem {
           this.targetParticleScale = this.options.stage1Scale;
           this.loopCount += 1;
           this.options.onStageChange?.('stage1');
-          console.log('Animation - New Loop Started, Count:', this.loopCount);
         }
         break;
     }
@@ -488,7 +474,6 @@ export class LensParticleSystem {
     this.currentScale = this.options.initialScale;
     this.targetParticleScale = this.options.initialScale;
     this.currentParticleScale = this.options.initialScale;
-    console.log('AnimatedParticleSystem initialized for global timing');
   }
 
   public updateOptions(newOptions: Partial<LensParticleSystem>): void {

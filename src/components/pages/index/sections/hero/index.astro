@@ -79,7 +79,7 @@ import CalendarIcon from "@/components/icons/calendar.astro";
         <div
           class="absolute top-4 left-1/2 -translate-x-1/2 w-18 h-5 rounded-full bg-white flex items-center justify-center"
         >
-          <video src="/assets/medias/index/hero/sphere.mp4" autoplay loop muted playsinline class="size-4 object-contain" />
+          <video id="hero-sphere-video" src="/assets/medias/index/hero/sphere.mp4" autoplay loop muted playsinline class="size-4 object-contain" />
         </div>
 
         <div class="w-full relative">
@@ -136,7 +136,7 @@ import CalendarIcon from "@/components/icons/calendar.astro";
 </section>
 
 <script>
-  import { animate } from "motion";
+  import { animate, inView } from "motion";
 
   // Configurar atributos do vídeo para remover controles no iOS
   const heroVideo = document.getElementById("hero-video") as HTMLVideoElement;
@@ -259,6 +259,37 @@ import CalendarIcon from "@/components/icons/calendar.astro";
 
   updateHeroGradient();
 
+  // Controlar pausa/play do vídeo baseado na visibilidade
+  function initVideoVisibilityControl() {
+    const heroSection = document.getElementById("hero");
+    const sphereVideo = document.getElementById("hero-sphere-video") as HTMLVideoElement | null;
+    if (!heroSection || !heroVideo || !sphereVideo) return;
+
+    inView(heroSection, () => {
+      if (heroVideo) {
+        heroVideo.play().catch(() => {
+          // Ignorar erros de autoplay
+        });
+      }
+      if (sphereVideo) {
+        sphereVideo.play().catch(() => {
+          // Ignorar erros de autoplay
+        });
+      }
+      return () => {
+        if (heroVideo) {
+          heroVideo.pause();
+        }
+        if (sphereVideo) {
+          sphereVideo.pause();
+        }
+      };
+    });
+  }
+
   // Inicializar animações quando o DOM estiver pronto
-  document.addEventListener("DOMContentLoaded", initHeroAnimations);
+  document.addEventListener("DOMContentLoaded", () => {
+    initHeroAnimations();
+    initVideoVisibilityControl();
+  });
 </script>

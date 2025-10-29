@@ -302,6 +302,7 @@ const mosaicImages = [
 <script>
   import { Splide } from "@splidejs/splide";
   import "@splidejs/splide/css/core";
+  import { inView } from "motion";
 
   const initTestimonials = () => {
     const testimonialCards =
@@ -373,9 +374,42 @@ const mosaicImages = [
     testimonialsSplide.mount();
   };
 
+  // Controlar pausa/play dos vídeos baseado na visibilidade
+  function initVideoVisibilityControl() {
+    const section = document.getElementById("testimonials");
+    if (!section) return;
+
+    const videos = section.querySelectorAll('video') as NodeListOf<HTMLVideoElement>;
+
+    inView(
+      section,
+      () => {
+        // Entrou no viewport - play nos vídeos
+        videos.forEach((video) => {
+          video.play().catch(() => {
+            // Ignorar erros de autoplay
+          });
+        });
+
+        // Retornar callback para quando sair do viewport
+        return () => {
+          // Saiu do viewport - pausar vídeos
+          videos.forEach((video) => {
+            video.pause();
+          });
+        };
+      },
+      { amount: 0.2 }
+    );
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initTestimonials);
+    document.addEventListener("DOMContentLoaded", () => {
+      initTestimonials();
+      initVideoVisibilityControl();
+    });
   } else {
     initTestimonials();
+    initVideoVisibilityControl();
   }
 </script>

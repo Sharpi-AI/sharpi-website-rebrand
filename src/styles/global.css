@@ -64,9 +64,10 @@ video {
 }
 
 .orbit-text {
-  position: absolute;
+  position: relative;
   display: flex;
   align-items: center;
+  width: fit-content;
   gap: 8px;
   background-color: white;
   padding: 16px 16px 16px 12px;

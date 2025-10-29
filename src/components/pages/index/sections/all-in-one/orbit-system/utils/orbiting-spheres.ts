@@ -436,9 +436,21 @@ export class OrbitingSpheres {
   }
 
   private createTextElement(textItem: OrbitingTextItem, index: number): HTMLElement {
+    // Create wrapper container (1x1px with overflow visible for GPU-optimized positioning)
+    const wrapper = document.createElement('div');
+    wrapper.className = 'orbit-text-wrapper';
+    wrapper.setAttribute('data-text-index', index.toString());
+    wrapper.style.position = 'absolute';
+    wrapper.style.width = '1px';
+    wrapper.style.height = '1px';
+    wrapper.style.overflow = 'visible';
+    wrapper.style.left = '0';
+    wrapper.style.top = '0';
+    wrapper.style.willChange = 'transform';
+
+    // Create the actual card element
     const element = document.createElement('div');
     element.className = 'orbit-text';
-    element.setAttribute('data-text-index', index.toString());
 
     const icon = document.createElement('div');
     icon.className = 'icon';
@@ -462,7 +474,10 @@ export class OrbitingSpheres {
     element.appendChild(icon);
     element.appendChild(textContent);
 
-    return element;
+    // Append card to wrapper
+    wrapper.appendChild(element);
+
+    return wrapper;
   }
 
   private clearTextElements(): void {
@@ -502,8 +517,8 @@ export class OrbitingSpheres {
 
     // Convert from normalized device coordinates to screen coordinates
     // Arredondar para evitar sub-pixel rendering
-    const x = Math.round((vector.x * widthHalf) + widthHalf);
-    const y = Math.round(-(vector.y * heightHalf) + heightHalf);
+    const x = (vector.x * widthHalf) + widthHalf;
+    const y = -(vector.y * heightHalf) + heightHalf;
 
     return { x, y };
   }
@@ -512,7 +527,8 @@ export class OrbitingSpheres {
     if (!this.config.showTexts || this.textElements.length === 0) return;
 
     for (let i = 0; i < this.textElements.length && i < this.textStates.length; i++) {
-      const element = this.textElements[i];
+      const wrapper = this.textElements[i]; // This is now the wrapper
+      const card = wrapper.firstElementChild as HTMLElement; // Get the inner card
       const textState = this.textStates[i];
       const screenPosition = this.worldToScreen(textState.position);
 
@@ -520,14 +536,19 @@ export class OrbitingSpheres {
       if (!container) return;
 
       if (this.isValidScreenPosition(screenPosition)) {
-        const roundedX = Math.round(screenPosition.x);
-        const roundedY = Math.round(screenPosition.y);
-        element.style.left = `${roundedX}px`;
-        element.style.top = `${roundedY}px`;
-        element.style.transform = `translate(-50%, -50%) scale(${textState.scale})`;
-        element.style.opacity = textState.opacity.toString();
+        const roundedX = Math.round(screenPosition.x * 100) / 100;
+        const roundedY = Math.round(screenPosition.y * 100) / 100;
+        const roundedScale = Math.round(textState.scale * 100) / 100;
+
+
+        // Apply transform to wrapper (GPU-accelerated positioning)
+        wrapper.style.transform = `translate(${roundedX}px, ${roundedY}px)`;
+
+        // Apply scale and opacity to inner card
+        card.style.transform = `translate(-50%, -50%) scale(${roundedScale})`;
+        card.style.opacity = textState.opacity.toString();
       } else {
-        element.style.opacity = '0';
+        card.style.opacity = '0';
       }
     }
   }
