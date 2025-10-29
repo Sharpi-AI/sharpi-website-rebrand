@@ -8,45 +8,205 @@ const { id = "three-funnel-canvas" } = Astro.props;
 
 <canvas
   id={id}
-  class="absolute inset-0 w-full h-full block"
+  class="absolute inset-0 w-full h-full block "
   style="width: 100%; height: 100%; display: block;"
   data-funnel-id={id}></canvas>
 
 <script>
   import * as THREE from "three";
   import { createNoise2D } from "simplex-noise";
+  import { GUI } from "lil-gui";
 
   const noise = createNoise2D();
 
-  // Distances calculated dynamically based on viewport size
-  let X_DISTANCE = 8;
-  let Y_DISTANCE = 8;
-  const Y_OFFSET = -1.5; // Controla o deslocamento vertical de todos os objetos (positivo = para cima, negativo = para baixo)
+  // ============================================================================
+  // CONSTANTES GLOBAIS
+  // ============================================================================
 
   const MOBILE_BREAKPOINT = 768;
-  const MOBILE_Y_DISTANCE = 2.1; // Increased from 1 to 2.5 for better vertical range inside device
-  const MOBILE_Y_OFFSET = 0; // Changed from -2.5 to 0 to center inside device
-  const MOBILE_X_VARIANCE = 1.5; // Reduced from 3.5 to 1.5 to fit inside device width
-  const MOBILE_X_OFFSET = -0.3; // Horizontal offset for mobile funnel (positive = right, negative = left)
-  const MOBILE_TEXTURE_COUNT = 12;
-  const DESKTOP_OBJECTS_PER_TEXTURE = 2; // 17 texturas × 4 = 68 objetos totais
-  const DESKTOP_NUM_LANES = 5; // Número de faixas verticais (topo, meio-alto, centro, meio-baixo, baixo)
-  const DESKTOP_X_NUM_LANES = 5; // Número de faixas horizontais (profundidade)
-  const DESKTOP_X_LANE_VARIANCE = 1.0; // Variação total da posição X inicial (em unidades)
-
-  // Animation constants
+  const Y_OFFSET = -1.5;
   const Z_INDEX_SPACING = 0.01;
   const Z_OFFSET_RIGHT = 100;
   const OPACITY_CHANGE_THRESHOLD = 0.01;
-  const CURVATURE_FACTOR = 2.0;
   const MIN_SCALE = 0.2;
   const MIN_OPACITY = 0.01;
-  const DESKTOP_OPACITY_FADE_START = 3;
-  const MOBILE_OPACITY_FADE_START = 0.5; // Reduced from 0.75 to 0.5 for smoother fade
-  const MOBILE_MIN_OPACITY = 0.1;
-  const MOBILE_NOISE_SCALE = 0.01;
-  const DESKTOP_NOISE_SCALE = 0.0001;
-  const MOBILE_SCALE_MIN = 0.4; // Increased from 0.3 to 0.4 for slightly larger objects
+  const CURVATURE_FACTOR = 2.0;
+  const SEEDED_RANDOM_MULTIPLIER = 10000;
+
+  // Constantes compartilhadas entre desktop e mobile
+  const COMMON_LANE_VARIATION_FACTOR = 0.6;
+  
+
+  // ============================================================================
+  // CONSTANTES POR PLATAFORMA
+  // ============================================================================
+
+  // Default values for reset functionality
+  const DEFAULT_DESKTOP_CONFIG = {
+    initial: { x: 8, y: 8 },
+    objectsPerTexture: 2,
+    numLanes: {
+      y: 5,
+      x: 5,
+    },
+    xLaneVariance: 1.0,
+    xLaneIndexMultiplier: 2,
+    yLaneVariationFactor: 0.4,
+    xLaneVariationFactor: 0.4,
+    yLaneEdgeConcentration: 0.7,
+    opacityFadeStart: 3,
+    noiseScale: 0.0001,
+    loopDurationMs: 40000,
+    seeds: {
+      left: 456,
+      right: 987,
+      repetition: 1234,
+      yLane: 999,
+      yLaneRepetition: 555,
+      xLane: 777,
+      xLaneRepetition: 333,
+      uniformLeft: 123,
+      uniformRight: 789,
+    },
+    distributionY: {
+      gaussianU1: 1000,
+      gaussianU2: 2000,
+      gaussianFactor: 0.5,
+      layerVariation: 3000,
+      layerVariationFactor: 0.3,
+      spiralTurns: 2,
+    },
+  } as const;
+
+  // Mutable config for lil-gui manipulation
+  const DESKTOP_CONFIG = {
+    initial: { x: 8, y: 8.5 },
+    objectsPerTexture: 3,
+    numLanes: {
+      y: 4,
+      x: 5,
+    },
+    xLaneVariance: 1.0,
+    xLaneIndexMultiplier: 2,
+    yLaneVariationFactor: 1,
+    xLaneVariationFactor: 0.4,
+    yLaneEdgeConcentration: 0.5,
+    opacityFadeStart: 3,
+    noiseScale: 0.0001,
+    loopDurationMs: 80000,
+    seeds: {
+      left: 6234,
+      right: 7636,
+      repetition: 1234,
+      yLane: 627,
+      yLaneRepetition: 555,
+      xLane: 777,
+      xLaneRepetition: 333,
+      uniformLeft: 123,
+      uniformRight: 789,
+    },
+    distributionY: {
+      gaussianU1: 1000,
+      gaussianU2: 2000,
+      gaussianFactor: 0.5,
+      layerVariation: 3000,
+      layerVariationFactor: 0.3,
+      spiralTurns: 2,
+    },
+  };
+
+  const MOBILE_CONFIG = {
+    yDistance: 2.1,
+    yOffset: 0,
+    xVariance: 2,
+    xOffset: -0.3,
+    textureCount: 25,
+    numLanes: {
+      y: 5,
+      x: 3,
+    },
+    yLaneVariationFactor: COMMON_LANE_VARIATION_FACTOR,
+    xLaneVariationFactor: COMMON_LANE_VARIATION_FACTOR,
+    yStartRangeMultiplier: 1.5,
+    opacityFadeStart: 0.5,
+    minOpacity: 0.1,
+    noiseScale: 0.01,
+    scaleMin: 0.4,
+    fadeEaseExponent: 1.5,
+    loopDurationMs: 20000,
+    maxPixelRatio: 2,
+    seeds: {
+      xVariation: 345,
+      offset: 678,
+      yLane: 678,
+      yLaneOffset: 9999,
+    },
+    height: {
+      availablePercent: 0.4,
+      maxPx: 500,
+      toUnitsDivisor: 100,
+    },
+  } as const;
+
+  // ============================================================================
+  // CONSTANTES DE VIEWPORT
+  // ============================================================================
+
+  const VIEWPORT_CONFIG = {
+    base: { width: 1440, height: 900 },
+    distance: {
+      baseX: 10,
+      baseY: 8,
+      minX: 6,
+      maxX: 12,
+      minY: 2,
+      maxY: 10,
+    },
+  } as const;
+
+  // ============================================================================
+  // CONSTANTES DE CANVAS E RENDERER
+  // ============================================================================
+
+  const CANVAS_CONFIG = {
+    paddingOffset: 32,
+    minDimension: 1,
+    init: {
+      maxRetries: 10,
+      retryDelayMs: 100,
+    },
+  } as const;
+
+  const CAMERA_CONFIG = {
+    fov: 50,
+    near: 0.1,
+    far: 1000,
+    positionZ: 8,
+  } as const;
+
+  const RENDERER_CONFIG = {
+    clearColor: 0x000000,
+    clearAlpha: 0,
+  } as const;
+
+  // ============================================================================
+  // CONSTANTES DE OBSERVERS E TIMING
+  // ============================================================================
+
+  const OBSERVER_CONFIG = {
+    intersectionThreshold: 0.1,
+    resizeDebounceMs: 150,
+    orientationChangeDelayMs: 100,
+    distanceChangeThreshold: 0.1,
+  } as const;
+
+  // ============================================================================
+  // VARIÁVEIS DINÂMICAS
+  // ============================================================================
+
+  // Distâncias calculadas dinamicamente baseadas no tamanho da viewport
+  let X_DISTANCE = DESKTOP_CONFIG.initial.x;
+  let Y_DISTANCE = DESKTOP_CONFIG.initial.y;
 
   let isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
 
@@ -88,27 +248,21 @@ const { id = "three-funnel-canvas" } = Astro.props;
     xDistance: number;
     yDistance: number;
   } {
-    // Base distances (for reference viewport ~1920x1080)
-    const BASE_WIDTH = 1440;
-    const BASE_HEIGHT = 900;
-    const BASE_X_DISTANCE = 10;
-    const BASE_Y_DISTANCE = 7;
-
     // Calculate scaling factors
-    const widthScale = width / BASE_WIDTH;
-    const heightScale = height / BASE_HEIGHT;
+    const widthScale = width / VIEWPORT_CONFIG.base.width;
+    const heightScale = height / VIEWPORT_CONFIG.base.height;
 
     // Scale distances proportionally with limits
     const xDistance = THREE.MathUtils.clamp(
-      BASE_X_DISTANCE * Math.sqrt(widthScale),
-      6,  // min: telas pequenas
-      12  // max: telas muito grandes
+      VIEWPORT_CONFIG.distance.baseX * Math.sqrt(widthScale),
+      VIEWPORT_CONFIG.distance.minX,
+      VIEWPORT_CONFIG.distance.maxX
     );
 
     const yDistance = THREE.MathUtils.clamp(
-      BASE_Y_DISTANCE * Math.sqrt(heightScale),
-      2,  // min: telas pequenas
-      5   // max: telas muito grandes
+      VIEWPORT_CONFIG.distance.baseY * Math.sqrt(heightScale),
+      VIEWPORT_CONFIG.distance.minY,
+      VIEWPORT_CONFIG.distance.maxY
     );
 
     return { xDistance, yDistance };
@@ -117,13 +271,16 @@ const { id = "three-funnel-canvas" } = Astro.props;
   // Calculate adjusted mobile Y distance to avoid overlapping with notifications
   function getAdjustedMobileYDistance(): number {
     const viewportHeight = window.innerHeight;
-    const availableHeight = Math.min(viewportHeight * 0.4, 500); // Máximo 40% da altura da tela ou 300px
-    return Math.min(MOBILE_Y_DISTANCE, availableHeight / 100); // Converter para unidades do Three.js
+    const availableHeight = Math.min(
+      viewportHeight * MOBILE_CONFIG.height.availablePercent,
+      MOBILE_CONFIG.height.maxPx
+    );
+    return Math.min(MOBILE_CONFIG.yDistance, availableHeight / MOBILE_CONFIG.height.toUnitsDivisor);
   }
 
   // Seeded random function for deterministic positioning
   function seededRandom(seed: number): number {
-    const x = Math.sin(seed) * 10000;
+    const x = Math.sin(seed) * SEEDED_RANDOM_MULTIPLIER;
     return x - Math.floor(x);
   }
 
@@ -158,41 +315,37 @@ const { id = "three-funnel-canvas" } = Astro.props;
     totalObjects: number,
     distributionType: "uniform" | "gaussian" | "layered" | "spiral" = "layered"
   ): number {
-    const seed = index * (direction === "left-to-right" ? 123 : 789);
+    const seedMultiplier = direction === "left-to-right"
+      ? DESKTOP_CONFIG.seeds.uniformLeft
+      : DESKTOP_CONFIG.seeds.uniformRight;
+    const seed = index * seedMultiplier;
     const random = seededRandom(seed);
 
     switch (distributionType) {
       case "uniform":
-        // Distribuição uniforme simples (original)
         return THREE.MathUtils.mapLinear(random, 0, 1, -Y_DISTANCE, Y_DISTANCE);
 
       case "gaussian":
-        // Distribuição gaussiana (mais objetos no centro)
-        const u1 = seededRandom(seed + 1000);
-        const u2 = seededRandom(seed + 2000);
+        const u1 = seededRandom(seed + DESKTOP_CONFIG.distributionY.gaussianU1);
+        const u2 = seededRandom(seed + DESKTOP_CONFIG.distributionY.gaussianU2);
         const gaussian =
           Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
         return THREE.MathUtils.clamp(
-          gaussian * (Y_DISTANCE * 0.5),
+          gaussian * (Y_DISTANCE * DESKTOP_CONFIG.distributionY.gaussianFactor),
           -Y_DISTANCE,
           Y_DISTANCE
         );
 
       case "layered":
-        // Distribuição em camadas para melhor cobertura
-        const numLayers = Math.ceil(Math.sqrt(totalObjects / 2)); // Layers baseadas no número de objetos
+        const numLayers = Math.ceil(Math.sqrt(totalObjects / 2));
         const layerHeight = (Y_DISTANCE * 2) / numLayers;
         const layerIndex = Math.floor(random * numLayers);
         const layerCenter = -Y_DISTANCE + (layerIndex + 0.5) * layerHeight;
-
-        // Adicionar variação dentro da camada
-        const layerVariation = seededRandom(seed + 3000) * layerHeight * 0.3;
+        const layerVariation = seededRandom(seed + DESKTOP_CONFIG.distributionY.layerVariation) * layerHeight * DESKTOP_CONFIG.distributionY.layerVariationFactor;
         return layerCenter + layerVariation;
 
       case "spiral":
-        // Distribuição em espiral para criar padrão mais orgânico
-        const spiralTurns = 2; // Número de voltas da espiral
-        const angle = (index / totalObjects) * spiralTurns * Math.PI * 2;
+        const angle = (index / totalObjects) * DESKTOP_CONFIG.distributionY.spiralTurns * Math.PI * 2;
         const spiralRadius = (index / totalObjects) * Y_DISTANCE;
         return Math.sin(angle + random * Math.PI) * spiralRadius;
 
@@ -201,18 +354,53 @@ const { id = "three-funnel-canvas" } = Astro.props;
     }
   }
 
-  function getDesktopLaneDistribution(
+  function getDesktopYLaneDistribution(
     index: number,
     repetitionIndex: number,
     numLanes: number
   ): number {
-    const laneIndex = (index + repetitionIndex) % numLanes;
+    const seed = index * DESKTOP_CONFIG.seeds.yLane + repetitionIndex * DESKTOP_CONFIG.seeds.yLaneRepetition;
+    const random = seededRandom(seed);
+    
+    let laneIndex: number;
+    
+    if (DESKTOP_CONFIG.yLaneEdgeConcentration > 0) {
+      const concentration = DESKTOP_CONFIG.yLaneEdgeConcentration;
+      
+      let weightedPosition: number;
+      
+      const normalizedRandom = random;
+      
+      if (concentration < 0.5) {
+        const curvePower = 1 + concentration * 4;
+        weightedPosition = normalizedRandom < 0.5
+          ? Math.pow(normalizedRandom * 2, curvePower) / 2
+          : 1 - Math.pow((1 - normalizedRandom) * 2, curvePower) / 2;
+      } else {
+        const strongConcentration = (concentration - 0.5) * 2;
+        const distanceFromCenter = Math.abs(normalizedRandom - 0.5) * 2;
+        const edgePull = Math.pow(distanceFromCenter, 1 / (1 + strongConcentration * 3));
+        
+        if (normalizedRandom < 0.5) {
+          weightedPosition = 0.5 - edgePull * 0.5;
+        } else {
+          weightedPosition = 0.5 + edgePull * 0.5;
+        }
+      }
+      
+      weightedPosition = THREE.MathUtils.clamp(weightedPosition, 0, 1);
+      laneIndex = Math.floor(weightedPosition * numLanes);
+    } else {
+      laneIndex = Math.floor(random * numLanes);
+    }
+    
+    laneIndex = THREE.MathUtils.clamp(laneIndex, 0, numLanes - 1);
     
     const laneHeight = (Y_DISTANCE * 2) / numLanes;
     const laneCenter = -Y_DISTANCE + (laneIndex + 0.5) * laneHeight;
     
-    const seed = index * 999 + repetitionIndex * 555;
-    const laneVariation = (seededRandom(seed) - 0.5) * laneHeight * 0.6;
+    const variationSeed = seed + 10000;
+    const laneVariation = (seededRandom(variationSeed) - 0.5) * laneHeight * DESKTOP_CONFIG.yLaneVariationFactor;
     
     return laneCenter + laneVariation;
   }
@@ -223,15 +411,33 @@ const { id = "three-funnel-canvas" } = Astro.props;
     baseX: number,
     numLanes: number
   ): number {
-    const laneIndex = (index * 2 + repetitionIndex) % numLanes;
+    const laneIndex = (index * DESKTOP_CONFIG.xLaneIndexMultiplier + repetitionIndex) % numLanes;
     
-    const laneWidth = (DESKTOP_X_LANE_VARIANCE * 2) / numLanes;
-    const laneOffset = -DESKTOP_X_LANE_VARIANCE + (laneIndex + 0.5) * laneWidth;
+    const laneWidth = (DESKTOP_CONFIG.xLaneVariance * 2) / numLanes;
+    const laneOffset = -DESKTOP_CONFIG.xLaneVariance + (laneIndex + 0.5) * laneWidth;
     
-    const seed = index * 777 + repetitionIndex * 333;
-    const laneVariation = (seededRandom(seed) - 0.5) * laneWidth * 0.4;
+    const seed = index * DESKTOP_CONFIG.seeds.xLane + repetitionIndex * DESKTOP_CONFIG.seeds.xLaneRepetition;
+    const laneVariation = (seededRandom(seed) - 0.5) * laneWidth * DESKTOP_CONFIG.xLaneVariationFactor;
     
     return baseX + laneOffset + laneVariation;
+  }
+
+  function getMobileYLaneDistribution(
+    index: number,
+    totalObjects: number,
+    numLanes: number,
+    adjustedYDistance: number
+  ): number {
+    const laneIndex = Math.floor((index * numLanes) / totalObjects);
+    
+    const startRange = adjustedYDistance * MOBILE_CONFIG.yStartRangeMultiplier;
+    const laneHeight = startRange / numLanes;
+    const laneCenter = -adjustedYDistance - (laneIndex + 0.5) * laneHeight;
+    
+    const seed = index * MOBILE_CONFIG.seeds.yLane + MOBILE_CONFIG.seeds.yLaneOffset;
+    const laneVariation = (seededRandom(seed) - 0.5) * laneHeight * MOBILE_CONFIG.yLaneVariationFactor;
+    
+    return laneCenter + laneVariation;
   }
 
   // Create funnel object (desktop mode)
@@ -245,19 +451,24 @@ const { id = "three-funnel-canvas" } = Astro.props;
     repetitionIndex: number = 0
   ): FunnelObject {
     const baseX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
-    const x = getDesktopXLaneDistribution(index, repetitionIndex, baseX, DESKTOP_X_NUM_LANES);
+    const x = getDesktopXLaneDistribution(index, repetitionIndex, baseX, DESKTOP_CONFIG.numLanes.x);
     const adjustedIndex = index + (repetitionIndex * totalObjects);
-    const y = getDesktopLaneDistribution(index, repetitionIndex, DESKTOP_NUM_LANES);
+    const y = getDesktopYLaneDistribution(index, repetitionIndex, DESKTOP_CONFIG.numLanes.y);
     const z = direction === "left-to-right"
       ? Z_INDEX_SPACING * adjustedIndex
       : Z_INDEX_SPACING * (adjustedIndex + Z_OFFSET_RIGHT);
 
     const mesh = createBaseMesh(texture, geometry, { x, y: y + Y_OFFSET, z }, scene);
 
+    const seedMultiplier = direction === "left-to-right"
+      ? DESKTOP_CONFIG.seeds.left
+      : DESKTOP_CONFIG.seeds.right;
+    const offsetSeed = adjustedIndex * seedMultiplier + repetitionIndex * DESKTOP_CONFIG.seeds.repetition;
+
     return {
       mesh,
       startPosition: { x, y: y + Y_OFFSET, z },
-      offset: seededRandom(adjustedIndex * (direction === "left-to-right" ? 456 : 987) + repetitionIndex * 1234),
+      offset: seededRandom(offsetSeed),
       direction,
     };
   }
@@ -267,34 +478,30 @@ const { id = "three-funnel-canvas" } = Astro.props;
     texture: THREE.Texture,
     geometry: THREE.PlaneGeometry,
     index: number,
+    totalObjects: number,
     scene: THREE.Scene
   ): FunnelObject {
-    // Criar "faixas" de entrada para melhor distribuição
-    const numLanes = 3; // Número de faixas horizontais
-    const laneIndex = index % numLanes;
+    const laneIndex = index % MOBILE_CONFIG.numLanes.x;
 
-    // Posição X baseada na faixa com variação adicional
-    const laneWidth = (MOBILE_X_VARIANCE * 2) / numLanes;
-    const laneCenter = -MOBILE_X_VARIANCE + (laneIndex + 0.5) * laneWidth;
-    const xVariation = (seededRandom(index * 345) - 0.5) * laneWidth * 0.6;
+    const laneWidth = (MOBILE_CONFIG.xVariance * 2) / MOBILE_CONFIG.numLanes.x;
+    const laneCenter = -MOBILE_CONFIG.xVariance + (laneIndex + 0.5) * laneWidth;
+    const xVariation = (seededRandom(index * MOBILE_CONFIG.seeds.xVariation) - 0.5) * laneWidth * MOBILE_CONFIG.xLaneVariationFactor;
     const x = laneCenter + xVariation;
 
     // Usar altura ajustada para evitar sobreposição com notificações
     const adjustedYDistance = getAdjustedMobileYDistance();
 
-    // Criar "ondas" de entrada: cards começam em diferentes posições Y
-    // Isso evita que todos comecem juntos de baixo
-    const waveOffset = (index / MOBILE_TEXTURE_COUNT) * adjustedYDistance * 0.8;
-    const y = -adjustedYDistance - waveOffset;
+    // Distribuir partículas em faixas Y com quantidades iguais
+    const y = getMobileYLaneDistribution(index, totalObjects, MOBILE_CONFIG.numLanes.y, adjustedYDistance);
 
     const z = Z_INDEX_SPACING * index;
 
-    const mesh = createBaseMesh(texture, geometry, { x, y: y + MOBILE_Y_OFFSET, z }, scene);
+    const mesh = createBaseMesh(texture, geometry, { x, y: y + MOBILE_CONFIG.yOffset, z }, scene);
 
     return {
       mesh,
-      startPosition: { x, y: y + MOBILE_Y_OFFSET, z },
-      offset: seededRandom(index * 678),
+      startPosition: { x, y: y + MOBILE_CONFIG.yOffset, z },
+      offset: seededRandom(index * MOBILE_CONFIG.seeds.offset),
       direction: "bottom-to-top",
     };
   }
@@ -334,26 +541,32 @@ const { id = "three-funnel-canvas" } = Astro.props;
   }
 
   // Mobile-specific calculation functions
-  function calculateMobileYPosition(progress: number): number {
+  function calculateMobileYPosition(
+    progress: number,
+    startY: number
+  ): number {
     const adjustedYDistance = getAdjustedMobileYDistance();
     
     return THREE.MathUtils.mapLinear(
       progress,
       0,
       1,
-      -adjustedYDistance,
+      startY,
       adjustedYDistance
     );
   }
 
   function calculateMobileScale(y: number): number {
-    // Usar curva suave (ease-out) para melhor transição de escala
     const adjustedYDistance = getAdjustedMobileYDistance();
     
-    const normalizedY = THREE.MathUtils.mapLinear(
-      y,
-      -adjustedYDistance,
-      adjustedYDistance,
+    const normalizedY = THREE.MathUtils.clamp(
+      THREE.MathUtils.mapLinear(
+        y,
+        -adjustedYDistance,
+        adjustedYDistance,
+        0,
+        1
+      ),
       0,
       1
     );
@@ -363,7 +576,7 @@ const { id = "three-funnel-canvas" } = Astro.props;
       0,
       1,
       1,
-      MOBILE_SCALE_MIN
+      MOBILE_CONFIG.scaleMin
     );
   }
 
@@ -416,12 +629,12 @@ const { id = "three-funnel-canvas" } = Astro.props;
     const uniqueProgress = (progress + offset) % 1;
 
     const x = calculateXPosition(direction, uniqueProgress);
-    const yOffset = calculateNoiseOffset(uniqueProgress, index, DESKTOP_NOISE_SCALE);
+    const yOffset = calculateNoiseOffset(uniqueProgress, index, DESKTOP_CONFIG.noiseScale);
     const y = calculateYPosition(direction, x, startPosition.y, yOffset);
 
     const scale = calculateScale(direction, x);
     const opacity = THREE.MathUtils.clamp(
-      THREE.MathUtils.mapLinear(Math.abs(x), DESKTOP_OPACITY_FADE_START, 0, 1, MIN_OPACITY),
+      THREE.MathUtils.mapLinear(Math.abs(x), DESKTOP_CONFIG.opacityFadeStart, 0, 1, MIN_OPACITY),
       MIN_OPACITY,
       1
     );
@@ -442,15 +655,15 @@ const { id = "three-funnel-canvas" } = Astro.props;
     const { mesh, offset, startPosition } = object;
     const uniqueProgress = (progress + offset) % 1;
 
-    const y = calculateMobileYPosition(uniqueProgress);
-    const xOffset = calculateNoiseOffset(uniqueProgress, index, MOBILE_NOISE_SCALE);
+    const y = calculateMobileYPosition(uniqueProgress, startPosition.y);
+    const xOffset = calculateNoiseOffset(uniqueProgress, index, MOBILE_CONFIG.noiseScale);
     
     // Usar altura ajustada para consistência
     const adjustedYDistance = getAdjustedMobileYDistance();
     
     const x = THREE.MathUtils.mapLinear(
       y,
-      -adjustedYDistance,
+      startPosition.y,
       adjustedYDistance,
       startPosition.x,
       0
@@ -459,8 +672,12 @@ const { id = "three-funnel-canvas" } = Astro.props;
     const scale = calculateMobileScale(y);
 
     // Curva de opacidade melhorada com fade suave nas extremidades
-    const normalizedY = Math.abs(y) / adjustedYDistance;
-    const fadeStart = MOBILE_OPACITY_FADE_START;
+    const normalizedY = THREE.MathUtils.clamp(
+      Math.abs(y) / adjustedYDistance,
+      0,
+      1
+    );
+    const fadeStart = MOBILE_CONFIG.opacityFadeStart;
 
     let opacity: number;
     if (normalizedY < fadeStart) {
@@ -469,15 +686,15 @@ const { id = "three-funnel-canvas" } = Astro.props;
       // Usar ease-in para fade mais suave
       const fadeProgress = (normalizedY - fadeStart) / (1 - fadeStart);
       opacity = Math.max(
-        1 - Math.pow(fadeProgress, 1.5),
-        MOBILE_MIN_OPACITY
+        1 - Math.pow(fadeProgress, MOBILE_CONFIG.fadeEaseExponent),
+        MOBILE_CONFIG.minOpacity
       );
     }
 
     updateMeshOpacity(object, opacity);
 
-    mesh.position.x = x + MOBILE_X_OFFSET;
-    mesh.position.y = y + MOBILE_Y_OFFSET;
+    mesh.position.x = x + MOBILE_CONFIG.xOffset;
+    mesh.position.y = y + MOBILE_CONFIG.yOffset;
     mesh.scale.set(scale, scale, 1);
   }
 
@@ -493,15 +710,14 @@ const { id = "three-funnel-canvas" } = Astro.props;
       const parent = canvas.parentElement;
       if (parent) {
         const parentRect = parent.getBoundingClientRect();
-        const paddingOffset = 32;
-        width = Math.max(parentRect.width - paddingOffset, 1);
-        height = Math.max(parentRect.height - paddingOffset, 1);
+        width = Math.max(parentRect.width - CANVAS_CONFIG.paddingOffset, CANVAS_CONFIG.minDimension);
+        height = Math.max(parentRect.height - CANVAS_CONFIG.paddingOffset, CANVAS_CONFIG.minDimension);
       }
     }
 
     return {
-      width: width || 1,
-      height: height || 1,
+      width: width || CANVAS_CONFIG.minDimension,
+      height: height || CANVAS_CONFIG.minDimension,
     };
   }
 
@@ -511,14 +727,13 @@ const { id = "three-funnel-canvas" } = Astro.props;
     if (!canvas) return;
 
     let retries = 0;
-    const maxRetries = 10;
     let dimensions = getCanvasDimensions(canvas);
 
     while (
-      (dimensions.width <= 1 || dimensions.height <= 1) &&
-      retries < maxRetries
+      (dimensions.width <= CANVAS_CONFIG.minDimension || dimensions.height <= CANVAS_CONFIG.minDimension) &&
+      retries < CANVAS_CONFIG.init.maxRetries
     ) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, CANVAS_CONFIG.init.retryDelayMs));
       dimensions = getCanvasDimensions(canvas);
       retries++;
     }
@@ -541,19 +756,19 @@ const { id = "three-funnel-canvas" } = Astro.props;
     renderer.setSize(width, height);
     // Reduce pixel ratio on mobile for better performance
     renderer.setPixelRatio(
-      isMobile ? Math.min(window.devicePixelRatio, 2) : window.devicePixelRatio
+      isMobile ? Math.min(window.devicePixelRatio, MOBILE_CONFIG.maxPixelRatio) : window.devicePixelRatio
     );
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(RENDERER_CONFIG.clearColor, RENDERER_CONFIG.clearAlpha);
     renderer.sortObjects = true;
 
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 8);
+    const camera = new THREE.PerspectiveCamera(CAMERA_CONFIG.fov, width / height, CAMERA_CONFIG.near, CAMERA_CONFIG.far);
+    camera.position.set(0, 0, CAMERA_CONFIG.positionZ);
     camera.lookAt(0, 0, 0);
 
     const scene = new THREE.Scene();
 
     const textureLoader = new THREE.TextureLoader();
-    const LOOP_DURATION = isMobile ? 25000 : 40000; // Faster animation on mobile
+    const LOOP_DURATION = isMobile ? MOBILE_CONFIG.loopDurationMs : DESKTOP_CONFIG.loopDurationMs;
 
     interface LoadedTextureData {
       texture: THREE.Texture;
@@ -614,14 +829,14 @@ const { id = "three-funnel-canvas" } = Astro.props;
 
       const dataToUse =
         mode === "mobile"
-          ? validTextureData.slice(0, MOBILE_TEXTURE_COUNT)
+          ? validTextureData.slice(0, MOBILE_CONFIG.textureCount)
           : validTextureData;
 
       for (const { texture, width, height, index: i } of dataToUse) {
         const geometry = createGeometry(width, height);
 
         if (mode === "desktop") {
-          for (let repetition = 0; repetition < DESKTOP_OBJECTS_PER_TEXTURE; repetition++) {
+          for (let repetition = 0; repetition < DESKTOP_CONFIG.objectsPerTexture; repetition++) {
             const leftObject = createFunnelObject(
               texture,
               geometry,
@@ -649,6 +864,7 @@ const { id = "three-funnel-canvas" } = Astro.props;
             texture,
             geometry,
             i,
+            dataToUse.length,
             scene
           );
           objects.push(mobileObject);
@@ -700,6 +916,152 @@ const { id = "three-funnel-canvas" } = Astro.props;
       }
     }
 
+    // ============================================================================
+    // DEV GUI SETUP
+    // ============================================================================
+    if (import.meta.env.DEV && !isMobile) {
+      const gui = new GUI({ title: "Desktop Funnel Config", width: 320 });
+
+      // Helper function to update animation with new config
+      const updateAnimation = () => {
+        // Recalculate distances based on config
+        X_DISTANCE = DESKTOP_CONFIG.initial.x;
+        Y_DISTANCE = DESKTOP_CONFIG.initial.y;
+
+        // Recreate objects with new config
+        createObjectsForMode("desktop");
+
+        // Reset animation timing to see changes immediately
+        startTime = Date.now();
+        pausedTime = 0;
+      };
+
+      // Initial Position folder
+      const initialFolder = gui.addFolder("Initial Position");
+      initialFolder.add(DESKTOP_CONFIG.initial, "x", 4, 20, 0.5)
+        .name("X Distance")
+        .onChange(updateAnimation);
+      initialFolder.add(DESKTOP_CONFIG.initial, "y", 4, 20, 0.5)
+        .name("Y Distance")
+        .onChange(updateAnimation);
+
+      // Objects folder
+      const objectsFolder = gui.addFolder("Objects");
+      objectsFolder.add(DESKTOP_CONFIG, "objectsPerTexture", 1, 10, 1)
+        .name("Objects per Texture")
+        .onChange(updateAnimation);
+
+      // Lanes folder
+      const lanesFolder = gui.addFolder("Lanes");
+      lanesFolder.add(DESKTOP_CONFIG.numLanes, "x", 1, 10, 1)
+        .name("X Lanes")
+        .onChange(updateAnimation);
+      lanesFolder.add(DESKTOP_CONFIG.numLanes, "y", 1, 10, 1)
+        .name("Y Lanes")
+        .onChange(updateAnimation);
+      lanesFolder.add(DESKTOP_CONFIG, "xLaneVariance", 0, 3, 0.1)
+        .name("X Lane Variance")
+        .onChange(updateAnimation);
+      lanesFolder.add(DESKTOP_CONFIG, "xLaneIndexMultiplier", 1, 5, 1)
+        .name("X Lane Index Mult")
+        .onChange(updateAnimation);
+      lanesFolder.add(DESKTOP_CONFIG, "yLaneEdgeConcentration", 0, 1, 0.05)
+        .name("Y Lane Edge Concentration")
+        .onChange(updateAnimation);
+
+      // Variation folder
+      const variationFolder = gui.addFolder("Variation");
+      variationFolder.add(DESKTOP_CONFIG, "yLaneVariationFactor", 0, 2, 0.1)
+        .name("Y Lane Variation")
+        .onChange(updateAnimation);
+      variationFolder.add(DESKTOP_CONFIG, "xLaneVariationFactor", 0, 2, 0.1)
+        .name("X Lane Variation")
+        .onChange(updateAnimation);
+
+      // Animation folder
+      const animationFolder = gui.addFolder("Animation");
+      animationFolder.add(DESKTOP_CONFIG, "noiseScale", 0, 0.01, 0.0001)
+        .name("Noise Scale")
+        .onChange(updateAnimation);
+      animationFolder.add(DESKTOP_CONFIG, "loopDurationMs", 10000, 100000, 1000)
+        .name("Loop Duration (ms)")
+        .onChange(updateAnimation);
+      animationFolder.add(DESKTOP_CONFIG, "opacityFadeStart", 0, 10, 0.5)
+        .name("Opacity Fade Start")
+        .onChange(updateAnimation);
+
+      // Seeds folder
+      const seedsFolder = gui.addFolder("Seeds");
+      seedsFolder.add(DESKTOP_CONFIG.seeds, "left", 0, 10000, 1)
+        .name("Left")
+        .onChange(updateAnimation);
+      seedsFolder.add(DESKTOP_CONFIG.seeds, "right", 0, 10000, 1)
+        .name("Right")
+        .onChange(updateAnimation);
+      seedsFolder.add(DESKTOP_CONFIG.seeds, "repetition", 0, 10000, 1)
+        .name("Repetition")
+        .onChange(updateAnimation);
+      seedsFolder.add(DESKTOP_CONFIG.seeds, "yLane", 0, 10000, 1)
+        .name("Y Lane")
+        .onChange(updateAnimation);
+      seedsFolder.add(DESKTOP_CONFIG.seeds, "yLaneRepetition", 0, 10000, 1)
+        .name("Y Lane Repetition")
+        .onChange(updateAnimation);
+      seedsFolder.add(DESKTOP_CONFIG.seeds, "xLane", 0, 10000, 1)
+        .name("X Lane")
+        .onChange(updateAnimation);
+      seedsFolder.add(DESKTOP_CONFIG.seeds, "xLaneRepetition", 0, 10000, 1)
+        .name("X Lane Repetition")
+        .onChange(updateAnimation);
+      seedsFolder.add(DESKTOP_CONFIG.seeds, "uniformLeft", 0, 10000, 1)
+        .name("Uniform Left")
+        .onChange(updateAnimation);
+      seedsFolder.add(DESKTOP_CONFIG.seeds, "uniformRight", 0, 10000, 1)
+        .name("Uniform Right")
+        .onChange(updateAnimation);
+
+      // Distribution Y folder
+      const distributionFolder = gui.addFolder("Distribution Y");
+      distributionFolder.add(DESKTOP_CONFIG.distributionY, "gaussianU1", 0, 5000, 100)
+        .name("Gaussian U1")
+        .onChange(updateAnimation);
+      distributionFolder.add(DESKTOP_CONFIG.distributionY, "gaussianU2", 0, 5000, 100)
+        .name("Gaussian U2")
+        .onChange(updateAnimation);
+      distributionFolder.add(DESKTOP_CONFIG.distributionY, "gaussianFactor", 0, 2, 0.1)
+        .name("Gaussian Factor")
+        .onChange(updateAnimation);
+      distributionFolder.add(DESKTOP_CONFIG.distributionY, "layerVariation", 0, 10000, 100)
+        .name("Layer Variation")
+        .onChange(updateAnimation);
+      distributionFolder.add(DESKTOP_CONFIG.distributionY, "layerVariationFactor", 0, 1, 0.05)
+        .name("Layer Var Factor")
+        .onChange(updateAnimation);
+      distributionFolder.add(DESKTOP_CONFIG.distributionY, "spiralTurns", 0, 10, 0.5)
+        .name("Spiral Turns")
+        .onChange(updateAnimation);
+
+      // Close all folders by default for cleaner UI
+      initialFolder.close();
+      objectsFolder.close();
+      lanesFolder.close();
+      variationFolder.close();
+      animationFolder.close();
+      seedsFolder.close();
+      distributionFolder.close();
+
+      // Add reset button
+      gui.add({
+        reset: () => {
+          // Reset all values to defaults
+          Object.assign(DESKTOP_CONFIG, JSON.parse(JSON.stringify(DEFAULT_DESKTOP_CONFIG)));
+          gui.destroy();
+          // Reinitialize GUI with reset values
+          location.reload();
+        }
+      }, "reset").name("Reset to Defaults");
+    }
+
     // IntersectionObserver to pause/resume animation when canvas is not visible
     const intersectionObserver = new IntersectionObserver(
       (entries) => {
@@ -711,7 +1073,7 @@ const { id = "three-funnel-canvas" } = Astro.props;
           }
         });
       },
-      { threshold: 0.1 } // Start animation when at least 10% of canvas is visible
+      { threshold: OBSERVER_CONFIG.intersectionThreshold }
     );
 
     intersectionObserver.observe(canvas);
@@ -762,10 +1124,9 @@ const { id = "three-funnel-canvas" } = Astro.props;
       // Check distances change for desktop mode
       const distancesChanged = !isMobile && (() => {
         const newDistances = calculateDistances(clientWidth, clientHeight);
-        const DISTANCE_CHANGE_THRESHOLD = 0.1;
 
-        const xChanged = Math.abs(newDistances.xDistance - previousXDistance) / previousXDistance > DISTANCE_CHANGE_THRESHOLD;
-        const yChanged = Math.abs(newDistances.yDistance - previousYDistance) / previousYDistance > DISTANCE_CHANGE_THRESHOLD;
+        const xChanged = Math.abs(newDistances.xDistance - previousXDistance) / previousXDistance > OBSERVER_CONFIG.distanceChangeThreshold;
+        const yChanged = Math.abs(newDistances.yDistance - previousYDistance) / previousYDistance > OBSERVER_CONFIG.distanceChangeThreshold;
 
         if (xChanged || yChanged) {
           X_DISTANCE = newDistances.xDistance;
@@ -789,7 +1150,7 @@ const { id = "three-funnel-canvas" } = Astro.props;
       camera.updateProjectionMatrix();
       renderer.setSize(clientWidth, clientHeight);
       renderer.setPixelRatio(
-        isMobile ? Math.min(window.devicePixelRatio, 2) : window.devicePixelRatio
+        isMobile ? Math.min(window.devicePixelRatio, MOBILE_CONFIG.maxPixelRatio) : window.devicePixelRatio
       );
     }
 
@@ -802,7 +1163,7 @@ const { id = "three-funnel-canvas" } = Astro.props;
       resizeTimeout = window.setTimeout(() => {
         onWindowResize();
         resizeTimeout = null;
-      }, 150);
+      }, OBSERVER_CONFIG.resizeDebounceMs);
     }
 
     if (typeof ResizeObserver !== "undefined") {
@@ -815,8 +1176,7 @@ const { id = "three-funnel-canvas" } = Astro.props;
     window.addEventListener("resize", debouncedResize);
 
     window.addEventListener("orientationchange", () => {
-      // Use shorter timeout for orientation change since it's a major layout shift
-      setTimeout(onWindowResize, 100);
+      setTimeout(onWindowResize, OBSERVER_CONFIG.orientationChangeDelayMs);
     });
 
     return () => {

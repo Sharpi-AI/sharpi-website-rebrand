@@ -13,62 +13,51 @@ import ReactivationCard from "./reactivation.astro";
   </h2>
   <p class="text-sm text-center  tracking-[-0.02em] leading-snug text-[#3D3939] mb-10 md:hidden">A IA da Sharpi envia orçamentos 24/7, liberando seu time para focar em relacionamentos que impulsionam o crescimento.</p>
 
-  <div class="carousel-container max-w-7xl w-full">
-    <div class="carousel-track" id="benefits-carousel">
-      <div class="carousel-slide">
-        <div class="shining-border">
-          <RecommendationCard/>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <div class="shining-border">
-          <ReactivationCard/>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <div class="shining-border">
-          <NotificationsCard/>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <div class="shining-border">
-          <FollowUpCard/>
-        </div>
+  <div class="benefits-carousel-container max-w-7xl w-full">
+    <div class="splide" id="benefits-carousel">
+      <div class="splide__track">
+        <ul class="splide__list">
+          <li class="splide__slide">
+            <div class="shining-border">
+              <RecommendationCard/>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div class="shining-border">
+              <ReactivationCard/>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div class="shining-border">
+              <NotificationsCard/>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div class="shining-border">
+              <FollowUpCard/>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
 <style is:global>
-  .carousel-container {
+  .benefits-carousel-container {
     width: 100%;
     position: relative;
   }
 
-  .carousel-track {
+  #benefits-carousel .splide__track {
+    overflow: visible;
+  }
+
+  #benefits-carousel .splide__list {
     display: flex;
-    gap: 20px;
-    overflow-x: visible;
-    cursor: grab;
-    user-select: none;
-    will-change: transform;
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    
   }
 
-  .carousel-track.is-dragging {
-    cursor: grabbing;
-    transition: none;
-  }
-
-  .carousel-slide {
-    flex: 0 0 auto;
-  }
-
-  @media (max-width: 640px) {
-    .carousel-track {
-      gap: 16px;
-    }
-  }
 
   .shining-border {
     padding: 2px;
@@ -80,7 +69,7 @@ import ReactivationCard from "./reactivation.astro";
     contain: layout style paint;
   }
 
-  .carousel-slide.is-active .shining-border::before {
+  .splide__slide.is-active .shining-border::before {
     content: "";
     position: absolute;
     z-index: -2;
@@ -92,14 +81,14 @@ import ReactivationCard from "./reactivation.astro";
     background-repeat: no-repeat;
     background-size: 100% 100%, 50% 50%;
     background-position: 0 0, 100% 0, 100% 100%, 0 100%;
-    background-image:  linear-gradient(180deg, #3609FF 0%, #F1F1F1 23.56%, #CFD9FF 44.23%, #7EADFF 100%);
+    background-image: linear-gradient(180deg, #3609FF 0%, #F1F1F1 23.56%, #CFD9FF 44.23%, #7EADFF 100%);
     animation: bgRotate 4s linear infinite;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     will-change: transform;
   }
 
-  .carousel-slide.is-active .shining-border::after {
+  .splide__slide.is-active .shining-border::after {
     content: "";
     position: absolute;
     z-index: -1;
@@ -123,251 +112,115 @@ import ReactivationCard from "./reactivation.astro";
     }
   }
 
-  .carousel-slide.is-active #follow-up-text {
-  max-height: 2rem !important;
-  opacity: 1;
-}
+  .splide__slide.is-active #follow-up-text {
+    max-height: 2rem !important;
+    opacity: 1;
+  }
 
-.carousel-slide.is-active #follow-up-device {
-  transform: translateY(-20px);
-}
+  .splide__slide.is-active #follow-up-device {
+    transform: translateY(-20px);
+  }
 
-
-.carousel-slide.is-active #follow-up-card {
-  transform: translateY(-20px);
-}
+  .splide__slide.is-active #follow-up-card {
+    transform: translateY(-20px);
+  }
 </style>
 
 <script>
+  import { Splide } from "@splidejs/splide";
+  import "@splidejs/splide/css/core";
+
   const initCarousel = () => {
     const carousel = document.getElementById('benefits-carousel');
     if (!carousel) return;
 
-    const slides = carousel.querySelectorAll('.carousel-slide');
-    const container = carousel.parentElement;
-    if (!container) return;
+    const isMobile = window.innerWidth <= 768;
+    const gap = isMobile ? 16 : 20;
 
-    let currentX = 0;
-    let targetX = 0;
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let startTranslateX = 0;
-    let velocity = 0;
-    let lastX = 0;
-    let lastTime = Date.now();
-    let rafId = null;
-    let dragDirection: 'horizontal' | 'vertical' | null = null;
+    let rafId: number | null = null;
 
-    // Calculate bounds (desktop: show multiple cards, mobile: allow last slide to reach left edge)
-    const getBounds = () => {
-      if (slides.length === 0) return { min: 0, max: 0 };
-
-      const isDesktop = window.innerWidth > 768;
-      const containerRect = container.getBoundingClientRect();
-      const carouselRect = carousel.getBoundingClientRect();
-
-      if (isDesktop) {
-        // Desktop: limit scroll to when content width exceeds container width
-        const containerWidth = containerRect.width;
-        const carouselWidth = carousel.scrollWidth;
-        const maxScroll = carouselWidth - containerWidth;
-
-        // Only allow scroll if content is wider than container
-        if (maxScroll > 0) {
-          return {
-            min: -maxScroll,
-            max: 0
-          };
-        }
-
-        // Content fits in container, no scroll needed
-        return { min: 0, max: 0 };
-      }
-
-      // Mobile: allow last slide to reach left edge
-      const lastSlide = slides[slides.length - 1];
-      const lastSlideRect = lastSlide.getBoundingClientRect();
-      const lastSlideOffset = lastSlideRect.left - carouselRect.left;
-
-      return {
-        min: -Math.abs(lastSlideOffset),
-        max: 0
-      };
-    };
-
-    // Get closest slide index (based on left edge)
-    const getClosestSlideIndex = () => {
-      let closestIndex = 0;
-      let closestDistance = Number.POSITIVE_INFINITY;
-
-      for (let i = 0; i < slides.length; i++) {
-        const slide = slides[i];
-        const rect = slide.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const slideLeft = rect.left - containerRect.left;
-        const distance = Math.abs(slideLeft);
-
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = i;
-        }
-      }
-
-      return closestIndex;
-    };
-
-    // Update active slide
     const updateActiveSlide = () => {
-      const closestIndex = getClosestSlideIndex();
-      for (let i = 0; i < slides.length; i++) {
-        if (i === closestIndex) {
-          slides[i].classList.add('is-active');
-        } else {
-          slides[i].classList.remove('is-active');
-        }
-      }
-    };
-
-    // Apply transform
-    const applyTransform = (x) => {
-      const bounds = getBounds();
-      const clampedX = Math.max(bounds.min, Math.min(bounds.max, x));
-      carousel.style.transform = `translateX(${clampedX}px)`;
-      currentX = clampedX;
-      updateActiveSlide();
-    };
-
-    // Momentum animation
-    const animate = () => {
-      if (!isDragging && Math.abs(velocity) > 0.3) {
-        velocity *= 0.92; // Friction
-        targetX += velocity;
-        applyTransform(targetX);
-        rafId = requestAnimationFrame(animate);
-      } else if (!isDragging) {
-        velocity = 0;
-        if (rafId) {
-          cancelAnimationFrame(rafId);
-          rafId = null;
-        }
-      }
-    };
-
-    // Mouse/Touch drag handlers
-    const handleDragStart = (e: MouseEvent | TouchEvent) => {
-      const clientX = e.type.includes('mouse') ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX;
-      const clientY = e.type.includes('mouse') ? (e as MouseEvent).clientY : (e as TouchEvent).touches[0].clientY;
-
-      startX = clientX;
-      startY = clientY;
-      startTranslateX = currentX;
-      lastX = clientX;
-      lastTime = Date.now();
-      velocity = 0;
-      dragDirection = null; // Reset direction for new drag
-
-      // For mouse events, start dragging immediately
-      if (e.type.includes('mouse')) {
-        isDragging = true;
-        carousel.classList.add('is-dragging');
-      }
-
       if (rafId) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-    };
-
-    const handleDragMove = (e: MouseEvent | TouchEvent) => {
-      const clientX = e.type.includes('mouse') ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX;
-      const clientY = e.type.includes('mouse') ? (e as MouseEvent).clientY : (e as TouchEvent).touches[0].clientY;
-
-      // For touch events, determine direction first
-      if (e.type.includes('touch') && dragDirection === null) {
-        const deltaX = Math.abs(clientX - startX);
-        const deltaY = Math.abs(clientY - startY);
-        const threshold = 10; // Minimum movement to determine direction
-
-        if (deltaX > threshold || deltaY > threshold) {
-          // Determine direction based on which delta is larger
-          if (deltaX > deltaY) {
-            dragDirection = 'horizontal';
-            isDragging = true;
-            carousel.classList.add('is-dragging');
-          } else {
-            dragDirection = 'vertical';
-            // Don't start dragging, allow native scroll
-            return;
-          }
-        } else {
-          // Not enough movement yet
-          return;
-        }
-      }
-
-      // If determined to be vertical scroll, don't interfere
-      if (dragDirection === 'vertical') {
         return;
       }
 
-      // If not dragging yet (mouse hasn't moved enough), return
-      if (!isDragging) return;
+      rafId = requestAnimationFrame(() => {
+        const slides = carousel.querySelectorAll(".splide__slide");
+        const container = carousel.closest(".benefits-carousel-container");
+        if (!container) {
+          rafId = null;
+          return;
+        }
 
-      // Prevent default for horizontal dragging
-      e.preventDefault();
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
 
-      const deltaX = clientX - startX;
-      targetX = startTranslateX + deltaX;
+        let closestIndex = 0;
+        let closestDistance = Number.POSITIVE_INFINITY;
 
-      // Calculate velocity
-      const now = Date.now();
-      const deltaTime = now - lastTime;
-      if (deltaTime > 0) {
-        velocity = (clientX - lastX) / deltaTime * 16; // Normalize to 60fps
-      }
-      lastX = clientX;
-      lastTime = now;
+        slides.forEach((slide, i) => {
+          const rect = slide.getBoundingClientRect();
+          const slideCenter = rect.left + rect.width / 2;
+          const distance = Math.abs(containerCenter - slideCenter);
 
-      applyTransform(targetX);
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestIndex = i;
+          }
+        });
+
+        slides.forEach((slide, i) => {
+          if (i === closestIndex) {
+            slide.classList.add("is-active");
+          } else {
+            slide.classList.remove("is-active");
+          }
+        });
+
+        rafId = null;
+      });
     };
 
-    const handleDragEnd = () => {
-      if (!isDragging) return;
+    const benefitsSplide = new Splide("#benefits-carousel", {
+      type: "slide",
+      perMove: 1,
+      gap,
+      // padding: isMobile ? { left: peekAmount, right: peekAmount } : undefined,
+      autoWidth: true,
+      drag: "free",
+      snap: false,
+      freeScroll: true,
+      arrows: false,
+      pagination: false,
+      // wheel: true,
+      releaseWheel: true,
+      speed: 2000,
+      breakpoints: {
+        768: {
+          perPage: 1,
+          autoWidth: true,
+          snap: true,
+          // padding: { left: peekAmount, right: peekAmount },
+        },
+      },
+    });
 
-      isDragging = false;
-      carousel.classList.remove('is-dragging');
+    benefitsSplide.on("move", () => {
+      updateActiveSlide();
+    });
 
-      // Apply momentum
-      if (Math.abs(velocity) > 1.5) {
-        rafId = requestAnimationFrame(animate);
-      }
-    };
+    benefitsSplide.on("moved", () => {
+      updateActiveSlide();
+    });
 
-    // Mouse events
-    carousel.addEventListener('mousedown', handleDragStart);
-    document.addEventListener('mousemove', handleDragMove);
-    document.addEventListener('mouseup', handleDragEnd);
+    benefitsSplide.mount();
 
-    // Touch events - passive: false to allow conditional preventDefault
-    carousel.addEventListener('touchstart', handleDragStart, { passive: false });
-    carousel.addEventListener('touchmove', handleDragMove, { passive: false });
-    carousel.addEventListener('touchend', handleDragEnd);
+    const slides = carousel.querySelectorAll(".splide__slide");
+    if (slides.length > 0) {
+      slides[0].classList.add("is-active");
+    }
 
-    // Wheel event (horizontal scroll only)
-    carousel.addEventListener('wheel', (e) => {
-      // Only handle horizontal scroll, let vertical scroll pass through
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        e.preventDefault();
-
-        targetX -= e.deltaX;
-        applyTransform(targetX);
-      }
-    }, { passive: false });
-
-    // Initialize
-    applyTransform(0);
-    slides[0]?.classList.add('is-active');
+    updateActiveSlide();
   };
 
   if (document.readyState === 'loading') {
