@@ -1,13 +1,22 @@
-import { Group, Vector3 } from 'three';
-import { Particle } from './particle';
+import { Group, Vector3, SphereGeometry, MeshBasicMaterial, InstancedMesh, Object3D, Matrix4 } from 'three';
 import { generateParticlePositions, type ParticlePosition } from './math/geometry-positions';
 import type { ParticleSystemSettings, ArrangementType } from './config';
 
 export class ParticleSystem {
   private group: Group;
-  private particles: Particle[] = [];
   private settings: ParticleSystemSettings;
   private currentArrangementType: ArrangementType;
+
+  // InstancedMesh optimization (C.1) - MAXIMUM performance gain
+  // Replaces individual Particle objects with a single InstancedMesh
+  private instancedMesh: InstancedMesh | null = null;
+  private dummy = new Object3D(); // Helper for matrix transformations
+  private instanceCount: number = 0;
+  private particlePositions: Vector3[] = []; // Track current positions
+
+  // Performance optimization flags (C.3/C.4)
+  private lastUpdateTime: number = 0;
+  private updateThrottle: number = 16.67; // ~60fps minimum
 
   // Transition state management
   private isTransitioning: boolean = false;
@@ -24,8 +33,12 @@ export class ParticleSystem {
   }
 
   private initializeParticles(): void {
-    // Clear existing particles
-    this.clearParticles();
+    // Clear existing instanced mesh
+    if (this.instancedMesh) {
+      this.group.remove(this.instancedMesh);
+      this.instancedMesh.dispose();
+      this.instancedMesh = null;
+    }
 
     // Detect if mobile internally and apply responsiveScale only if mobile
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -33,7 +46,7 @@ export class ParticleSystem {
     const effectiveScale = isMobile ? responsiveScale : 1.0;
 
     // Generate particle positions with scale applied
-    const particlePositions = generateParticlePositions(this.settings.arrangementType, {
+    const generatedPositions = generateParticlePositions(this.settings.arrangementType, {
       particleCount: this.settings.particleCount,
       radius: this.settings.radius * effectiveScale,
       numLines: this.settings.numLines,
@@ -43,29 +56,56 @@ export class ParticleSystem {
       spiralTurns: this.settings.spiralTurns
     });
 
-    // Create particles
-    for (const particlePos of particlePositions) {
-      const particle = new Particle({
-        position: particlePos.position,
-        size: this.settings.particleSize,
-        index: particlePos.index,
-        color: this.settings.particleColor
-      });
+    // Higher quality for particles inside lens (visible through glass refraction)
+    // Both desktop and mobile use 24×24 for perfectly smooth spheres
+    // InstancedMesh makes this very efficient even with higher poly count
+    const segments = 24;
 
-      this.particles.push(particle);
-      this.group.add(particle.getMesh());
-    }
+    // Create geometry and material
+    const geometry = new SphereGeometry(this.settings.particleSize, segments, segments);
+    const material = new MeshBasicMaterial({
+      color: this.settings.particleColor,
+      transparent: true
+    });
+
+    // Create InstancedMesh (C.1 optimization)
+    this.instanceCount = generatedPositions.length;
+    this.instancedMesh = new InstancedMesh(geometry, material, this.instanceCount);
+    this.group.add(this.instancedMesh);
+
+    // Store positions and update instance matrices
+    this.particlePositions = generatedPositions.map(p => p.position.clone());
+    this.updateInstanceMatrices(true); // Force update on init
 
     // Store positions for potential transitions
-    this.previousPositions = [...particlePositions];
+    this.previousPositions = [...generatedPositions];
   }
 
-  private clearParticles(): void {
-    for (const particle of this.particles) {
-      this.group.remove(particle.getMesh());
-      particle.dispose();
+  private updateInstanceMatrices(force: boolean = false): void {
+    if (!this.instancedMesh) return;
+
+    // Throttle updates when not transitioning (C.3/C.4 optimization)
+    // This saves CPU/GPU cycles during stable rotation
+    const now = Date.now();
+    if (!force && !this.isTransitioning && (now - this.lastUpdateTime) < this.updateThrottle) {
+      return;
     }
-    this.particles = [];
+    this.lastUpdateTime = now;
+
+    // Update all instance positions using matrix transformations (C.1 optimization)
+    for (let i = 0; i < this.particlePositions.length; i++) {
+      const position = this.particlePositions[i];
+
+      // Use dummy object to calculate matrix
+      this.dummy.position.copy(position);
+      this.dummy.updateMatrix();
+
+      // Set matrix for this instance
+      this.instancedMesh.setMatrixAt(i, this.dummy.matrix);
+    }
+
+    // Mark instance matrix as needing update
+    this.instancedMesh.instanceMatrix.needsUpdate = true;
   }
 
   private lerp(a: number, b: number, t: number): number {
@@ -92,11 +132,11 @@ export class ParticleSystem {
     // Check if arrangement type changed and transitions are enabled
     if (this.settings.arrangementTransitionsEnabled &&
         oldArrangementType !== this.settings.arrangementType &&
-        this.particles.length > 0) {
+        this.particlePositions.length > 0) {
 
       // Store current positions as previous positions
-      this.previousPositions = this.particles.map((particle, index) => ({
-        position: particle.getMesh().position.clone(),
+      this.previousPositions = this.particlePositions.map((position, index) => ({
+        position: position.clone(),
         index: index
       }));
 
@@ -146,19 +186,20 @@ export class ParticleSystem {
         });
 
         // Interpolate positions
-        for (let i = 0; i < this.particles.length && i < targetPositions.length; i++) {
-          const particle = this.particles[i];
-          const previousPos = this.previousPositions[i]?.position || particle.getMesh().position;
+        for (let i = 0; i < this.particlePositions.length && i < targetPositions.length; i++) {
+          const previousPos = this.previousPositions[i]?.position || this.particlePositions[i];
           const targetPos = targetPositions[i].position;
 
-          const interpolatedPos = new Vector3(
+          // Update position with interpolation
+          this.particlePositions[i].set(
             this.lerp(previousPos.x, targetPos.x, easedProgress),
             this.lerp(previousPos.y, targetPos.y, easedProgress),
             this.lerp(previousPos.z, targetPos.z, easedProgress)
           );
-
-          particle.updatePosition(interpolatedPos);
         }
+
+        // Update instance matrices with new positions (force during transitions)
+        this.updateInstanceMatrices(true);
       }
     }
 
@@ -174,11 +215,6 @@ export class ParticleSystem {
       this.group.rotation.y = (this.settings.rotationY * Math.PI) / 180;
       this.group.rotation.z = (this.settings.rotationZ * Math.PI) / 180;
     }
-
-    // Update individual particles
-    for (const particle of this.particles) {
-      particle.update(deltaTime);
-    }
   }
 
   public getGroup(): Group {
@@ -186,10 +222,24 @@ export class ParticleSystem {
   }
 
   public getParticleCount(): number {
-    return this.particles.length;
+    return this.instanceCount;
   }
 
   public dispose(): void {
-    this.clearParticles();
+    // Dispose InstancedMesh (C.1 optimization)
+    if (this.instancedMesh) {
+      if (this.instancedMesh.geometry) {
+        this.instancedMesh.geometry.dispose();
+      }
+      if (this.instancedMesh.material && 'dispose' in this.instancedMesh.material) {
+        this.instancedMesh.material.dispose();
+      }
+      this.instancedMesh.dispose();
+      this.instancedMesh = null;
+    }
+
+    // Clear position arrays
+    this.particlePositions = [];
+    this.previousPositions = [];
   }
 }

@@ -14,8 +14,6 @@ import Footer from "@/layouts/footer.astro";
     canonical="https://sharpi.com.br"
   />
   <body class="relative">
-    
-
     <div class="relative z-10">
       <div id="page-content" class="relative bg-white">
         <slot />
@@ -70,6 +68,17 @@ import Footer from "@/layouts/footer.astro";
           }
         });
       });
+    </script>
+
+    <script>
+      import { setupVideoLazyLoading } from "@/utils/video-lazy-loader";
+
+      // Initialize video lazy loading when DOM is ready
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", setupVideoLazyLoading);
+      } else {
+        setupVideoLazyLoading();
+      }
     </script>
   </body>
 </html>

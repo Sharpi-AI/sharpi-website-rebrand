@@ -40,6 +40,12 @@ export class Lens {
     backsideResolution?: number;
   };
 
+  // Cached objects for performance optimization (B.3)
+  private _tempColor = new THREE.Color();
+
+  // Performance optimization (C.3/C.4)
+  private cachedResolution: number = 0;
+
   // State for rendering
   private oldBackground: THREE.Color | THREE.Texture | null = null;
   private oldToneMapping: THREE.ToneMapping = THREE.ACESFilmicToneMapping;
@@ -139,7 +145,11 @@ export class Lens {
   }
 
   private createLensMesh(): void {
-    const geometry = new THREE.SphereGeometry(1, 32, 32);
+    // Balanced quality for smooth lens appearance
+    // Desktop: 24×24 for better visual quality (central focal point)
+    // Mobile: 16×16 for performance
+    const segments = this.isMobile ? 16 : 24;
+    const geometry = new THREE.SphereGeometry(1, segments, segments);
     this.lensMesh = new THREE.Mesh(geometry, this.transmissionMaterial);
     this.lensMesh.scale.setScalar(this.options.size);
     this.lensMesh.position.set(0, 0, 0);
@@ -169,20 +179,24 @@ export class Lens {
 
   private updateBackgroundMeshScale(): void {
     if (!this.camera) return;
+    this.updateBackgroundMeshScaleForCamera(this.camera);
+  }
 
-    if (this.camera instanceof THREE.PerspectiveCamera) {
+  // Helper method for updating background mesh scale with a specific camera (B.4 optimization)
+  private updateBackgroundMeshScaleForCamera(camera: THREE.Camera): void {
+    if (camera instanceof THREE.PerspectiveCamera) {
       const distance = Math.abs(this.backgroundMesh.position.z);
-      const vFov = (this.camera.fov * Math.PI) / 180;
+      const vFov = (camera.fov * Math.PI) / 180;
       const height = 2 * Math.tan(vFov / 2) * distance;
-      const width = height * this.camera.aspect;
+      const width = height * camera.aspect;
       this.backgroundMesh.scale.set(
         width * this.options.backgroundScale,
         height * this.options.backgroundScale,
         1
       );
-    } else if (this.camera instanceof THREE.OrthographicCamera) {
-      const width = Math.abs(this.camera.right - this.camera.left);
-      const height = Math.abs(this.camera.top - this.camera.bottom);
+    } else if (camera instanceof THREE.OrthographicCamera) {
+      const width = Math.abs(camera.right - camera.left);
+      const height = Math.abs(camera.top - camera.bottom);
       this.backgroundMesh.scale.set(
         width * this.options.backgroundScale,
         height * this.options.backgroundScale,
@@ -217,10 +231,23 @@ export class Lens {
       return;
     }
 
+    // Dynamic resolution based on device (B.4 optimization)
+    // Mobile: 512x512 (-75% pixels), Desktop: 1024x1024
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const effectiveResolution = isMobile ? 512 : this.options.resolution;
+
+    // Recreate render target only if resolution actually changed (C.3/C.4 optimization)
+    // This avoids expensive resize operations when not needed
+    if (this.cachedResolution !== effectiveResolution) {
+      this.renderTargetMain.setSize(effectiveResolution, effectiveResolution);
+      this.cachedResolution = effectiveResolution;
+    }
+
     // Store original state
     this.oldBackground = mainScene.background;
     this.oldToneMapping = renderer.toneMapping;
-    const oldClearColor = renderer.getClearColor(new THREE.Color());
+    // REUSE temp color instead of allocating (B.3 optimization)
+    const oldClearColor = renderer.getClearColor(this._tempColor);
     const oldClearAlpha = renderer.getClearAlpha();
 
     // Set background if specified
@@ -232,6 +259,39 @@ export class Lens {
       mainScene.background = backgroundTexture;
     }
 
+    // Skip backside pass when not needed (B.4 optimization)
+    // This reduces from 4 passes to 2 passes
+    if (!this.options.backside) {
+      // Optimized path: only 2 render passes
+      if (backgroundTexture) {
+        renderer.setClearColor(backgroundTexture, 1);
+      }
+
+      renderer.setRenderTarget(this.renderTargetMain);
+      renderer.clear();
+      renderer.render(this.lensScene, camera);
+
+      this.transmissionMaterial.setBuffer(this.renderTargetMain.texture);
+      this.transmissionMaterial.side = THREE.FrontSide;
+      this.transmissionMaterial.uniforms.thickness.value = this.options.thickness;
+
+      renderer.setRenderTarget(null);
+      mainScene.background = this.oldBackground;
+      renderer.toneMapping = this.oldToneMapping;
+      renderer.setClearColor(oldClearColor, oldClearAlpha);
+
+      renderer.render(mainScene, camera);
+
+      // Render background mesh
+      renderer.autoClear = false;
+      this.updateBackgroundMeshScaleForCamera(camera);
+      renderer.render(this.backgroundScene, camera);
+      renderer.autoClear = true;
+
+      return;
+    }
+
+    // Full path with backside (4 passes)
     // Render backside if needed
     if (this.options.backside && this.renderTargetBack) {
       // Set clear color to background for render target
@@ -276,28 +336,7 @@ export class Lens {
 
     // Render background mesh with captured texture
     renderer.autoClear = false;
-
-    // Update background scale with current camera before rendering
-    if (camera instanceof THREE.PerspectiveCamera) {
-      const distance = Math.abs(this.backgroundMesh.position.z);
-      const vFov = (camera.fov * Math.PI) / 180;
-      const height = 2 * Math.tan(vFov / 2) * distance;
-      const width = height * camera.aspect;
-      this.backgroundMesh.scale.set(
-        width * this.options.backgroundScale,
-        height * this.options.backgroundScale,
-        1
-      );
-    } else if (camera instanceof THREE.OrthographicCamera) {
-      const width = Math.abs(camera.right - camera.left);
-      const height = Math.abs(camera.top - camera.bottom);
-      this.backgroundMesh.scale.set(
-        width * this.options.backgroundScale,
-        height * this.options.backgroundScale,
-        1
-      );
-    }
-
+    this.updateBackgroundMeshScaleForCamera(camera);
     renderer.render(this.backgroundScene, camera);
     renderer.autoClear = true;
   }

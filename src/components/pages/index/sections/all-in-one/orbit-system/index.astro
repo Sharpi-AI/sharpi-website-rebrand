@@ -153,9 +153,8 @@
 </div>
 
 <script>
-  import { OrbitSystemManager } from "./utils/orbit-system-manager";
-
-  const initOrbitSystem = () => {
+  // Lazy load orbit system only when visible in viewport
+  const initOrbitSystem = async () => {
     const container = document.getElementById(
       "orbit-system-container"
     ) as HTMLElement;
@@ -167,6 +166,9 @@
     ) as HTMLCanvasElement;
 
     if (!container || !orbitCanvas || !blobCanvas) return;
+
+    // Dynamic import - only load Three.js when needed
+    const { OrbitSystemManager } = await import("./utils/orbit-system-manager");
 
     // Responsive scale: reduce size on mobile devices
     const isMobile = window.innerWidth < 768;
@@ -206,13 +208,31 @@
       orbitSystemManager.dispose();
     };
 
-    console.log("🎯 Orbit System fully initialized with optimized rendering!");
+    if (import.meta.env.DEV) {
+      console.log("🎯 Orbit System fully initialized with optimized rendering!");
+    }
   };
 
-  // Initialize when DOM is ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initOrbitSystem);
-  } else {
-    initOrbitSystem();
+  // Use IntersectionObserver to lazy load only when visible
+  const container = document.getElementById("orbit-system-container");
+  if (container) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          // Element is visible, initialize orbit system
+          initOrbitSystem();
+          // Disconnect observer after initialization
+          observer.disconnect();
+        }
+      },
+      {
+        // Start loading when element is 10% visible
+        threshold: 0.1,
+        // Start loading 100px before element enters viewport
+        rootMargin: "100px",
+      }
+    );
+
+    observer.observe(container);
   }
 </script>

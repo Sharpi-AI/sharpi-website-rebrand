@@ -48,43 +48,53 @@ export class OrbitSystemManager {
   private container: HTMLElement;
   private orbitCanvas: HTMLCanvasElement;
   private blobCanvas: HTMLCanvasElement;
-  
+
   // Three.js components
   private orbitRenderer!: THREE.WebGLRenderer;
   private blobRenderer!: THREE.WebGLRenderer;
   private camera!: THREE.PerspectiveCamera;
   private orbitScene!: THREE.Scene;
   private blobScene!: THREE.Scene;
-  
+
   // Animation systems
   private animatedParticleSystem!: LensParticleSystem;
   private orbit1!: OrbitingSpheres;
   private orbit2!: OrbitingSpheres;
-  
+
   // Optimization state
   private animationFrameId: number | null = null;
   private isInViewport: boolean = false;
   private isPageVisible: boolean = true;
   private isRendering: boolean = false;
   private lastTime: number = 0;
-  
+
   // Global animation timing
   private globalAnimationStartTime: number = 0;
   private isGlobalAnimationRunning: boolean = false;
-  
+
   // Configuration
   private config: Required<OrbitSystemConfig> & {
     onStageChange: (stage: AnimationStage) => void;
     onAnimationComplete: () => void;
     onReset: () => void;
   };
-  
+
   // Cloned cards management
   private lastStageForCards: AnimationStage = 'idle';
   private showCardsTimeout: number | null = null;
-  
+
   // Resize handling
   private resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // Performance optimizations - cached values
+  private cachedClonedCardsContainer: HTMLElement | null = null;
+  private cachedClonedCards: NodeListOf<Element> | null = null;
+  private cachedIsMobile: boolean = false;
+  private cachedWindowWidth: number = 0;
+  private previousGlobalStage: AnimationStage = 'idle';
+
+  // Debug flag
+  private static DEBUG = false;
   
   constructor(config: OrbitSystemConfig) {
     this.config = {
@@ -114,21 +124,28 @@ export class OrbitSystemManager {
     this.container = config.container;
     this.orbitCanvas = config.orbitCanvas;
     this.blobCanvas = config.blobCanvas;
-    
+
+    // Cache window width and isMobile
+    this.cachedWindowWidth = window.innerWidth;
+    this.cachedIsMobile = this.cachedWindowWidth < 768;
+
     this.initializeThreeJS();
     this.initializeAnimationSystems();
     this.setupOptimizations();
+    this.cacheClonedCardsElements();
+  }
+
+  private cacheClonedCardsElements(): void {
+    this.cachedClonedCardsContainer = document.getElementById('cloned-cards-container');
+    if (this.cachedClonedCardsContainer) {
+      this.cachedClonedCards = this.cachedClonedCardsContainer.querySelectorAll('.cloned-card');
+    }
   }
   
   private initializeThreeJS(): void {
     const width = this.container.clientWidth;
     const height = this.container.clientHeight;
     const pixelRatio = Math.min(window.devicePixelRatio, 2);
-    
-    // Responsive scale detection
-    const isMobile = window.innerWidth < 768;
-    const responsiveScale = isMobile ? this.config.responsiveScale : 1.0;
-    const orbitsResponsiveScale = isMobile ? this.config.orbitsResponsiveScale : 1.0;
     
     // Orbit renderer (background layer)
     this.orbitRenderer = new THREE.WebGLRenderer({
@@ -170,9 +187,8 @@ export class OrbitSystemManager {
   }
   
   private initializeAnimationSystems(): void {
-    const isMobile = window.innerWidth < 768;
-    const responsiveScale = isMobile ? this.config.responsiveScale : 1.0;
-    const orbitsResponsiveScale = isMobile ? this.config.orbitsResponsiveScale : 1.0;
+    const responsiveScale = this.cachedIsMobile ? this.config.responsiveScale : 1.0;
+    const orbitsResponsiveScale = this.cachedIsMobile ? this.config.orbitsResponsiveScale : 1.0;
     
     // Lens particle system
     this.animatedParticleSystem = new LensParticleSystem({
@@ -358,23 +374,23 @@ export class OrbitSystemManager {
         const entry = entries[0];
         const wasInViewport = this.isInViewport;
         this.isInViewport = entry.isIntersecting;
-        
+
         if (!wasInViewport && this.isInViewport) {
           // Entrando na viewport - resetar animação completamente
           this.resetAnimation();
           this.startRenderLoop();
-          console.log('🎯 Canvas entered viewport - resuming render');
-          
+          if (OrbitSystemManager.DEBUG) console.log('🎯 Canvas entered viewport - resuming render');
+
           // Fade in orbit texts after delay
           setTimeout(() => {
             this.orbit1.fadeInTexts(0.2);
             this.orbit2.fadeInTexts(0.2);
-            console.log('✨ Fading in orbit texts');
+            if (OrbitSystemManager.DEBUG) console.log('✨ Fading in orbit texts');
           }, 300);
         } else if (wasInViewport && !this.isInViewport) {
           // Saindo da viewport
           this.stopRenderLoop();
-          console.log('⏸️ Canvas left viewport - pausing render');
+          if (OrbitSystemManager.DEBUG) console.log('⏸️ Canvas left viewport - pausing render');
         }
       },
       {
@@ -382,23 +398,23 @@ export class OrbitSystemManager {
         rootMargin: '50px'
       }
     );
-    
+
     observer.observe(this.container);
   }
   
   private setupPageVisibility(): void {
     const handleVisibilityChange = () => {
       this.isPageVisible = !document.hidden;
-      
+
       if (this.isPageVisible && this.isInViewport) {
         this.startRenderLoop();
-        console.log('👁️ Page became visible - resuming render');
+        if (OrbitSystemManager.DEBUG) console.log('👁️ Page became visible - resuming render');
       } else {
         this.stopRenderLoop();
-        console.log('🙈 Page became hidden - pausing render');
+        if (OrbitSystemManager.DEBUG) console.log('🙈 Page became hidden - pausing render');
       }
     };
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
   }
   
@@ -407,24 +423,28 @@ export class OrbitSystemManager {
       if (this.resizeTimeout) {
         clearTimeout(this.resizeTimeout);
       }
-      
+
       this.resizeTimeout = setTimeout(() => {
         const newWidth = this.container.clientWidth;
         const newHeight = this.container.clientHeight;
-        
+
+        // Update cached window width and isMobile
+        this.cachedWindowWidth = window.innerWidth;
+        this.cachedIsMobile = this.cachedWindowWidth < 768;
+
         this.camera.aspect = newWidth / newHeight;
         this.camera.updateProjectionMatrix();
-        
+
         this.orbitRenderer.setSize(newWidth, newHeight);
         this.orbitRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
+
         this.blobRenderer.setSize(newWidth, newHeight);
         this.blobRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
+
         this.resizeTimeout = null;
       }, 100);
     };
-    
+
     window.addEventListener('resize', handleResize);
   }
   
@@ -449,29 +469,32 @@ export class OrbitSystemManager {
       this.isRendering = false;
       return;
     }
-    
+
     const currentTime = performance.now();
     const deltaTime = (currentTime - this.lastTime) / 1000;
     this.lastTime = currentTime;
-    
-    // Calculate global elapsed time
-    const globalElapsed = (Date.now() - this.globalAnimationStartTime) / 1000;
+
+    // Calculate global elapsed time (convert start time to performance.now() reference)
+    const globalElapsed = (currentTime - this.globalAnimationStartTime) / 1000;
     const globalStage = this.getCurrentGlobalStage(globalElapsed);
-    
-    // Update cloned cards visibility based on stage
-    this.updateClonedCardsVisibility(globalStage);
-    
+
+    // Only update cloned cards visibility when stage changes
+    if (globalStage !== this.previousGlobalStage) {
+      this.updateClonedCardsVisibility(globalStage);
+      this.previousGlobalStage = globalStage;
+    }
+
     // Update all systems with global timing
     this.animatedParticleSystem.update(deltaTime, globalElapsed, globalStage);
     this.orbit1.update(deltaTime, globalElapsed, globalStage);
     this.orbit2.update(deltaTime, globalElapsed, globalStage);
-    
+
     // Render orbits (background layer)
     this.orbitRenderer.render(this.orbitScene, this.camera);
-    
+
     // Render blob with lens effects (foreground layer)
     this.animatedParticleSystem.render(this.blobRenderer, this.camera, this.blobScene);
-    
+
     // Continue loop
     this.animationFrameId = requestAnimationFrame(this.renderLoop);
   };
@@ -507,37 +530,38 @@ export class OrbitSystemManager {
   }
   
   private resetAnimation(): void {
-    this.globalAnimationStartTime = Date.now();
+    this.globalAnimationStartTime = performance.now();
     this.isGlobalAnimationRunning = true;
-    this.lastTime = 0;
-    
+    this.lastTime = performance.now();
+    this.previousGlobalStage = 'idle';
+
     // Reset orbit rotations to initial positions
-    const isMobile = window.innerWidth < 768;
-    const orbit1Rotation = isMobile ? 1.2 * Math.PI : 0.5 * Math.PI;
-    const orbit2Rotation = isMobile ? 0.2 * Math.PI : 0.4 * Math.PI;
-    
+    const orbit1Rotation = this.cachedIsMobile ? 1.2 * Math.PI : 0.5 * Math.PI;
+    const orbit2Rotation = this.cachedIsMobile ? 0.2 * Math.PI : 0.4 * Math.PI;
+
     this.orbit1.getGroup().rotation.z = orbit1Rotation;
     this.orbit2.getGroup().rotation.z = orbit2Rotation;
-    
+
     // Force immediate text position resync
     this.orbit1.resyncTextPositions();
     this.orbit2.resyncTextPositions();
-    
-    console.log('🔄 Reset orbits - orbit1:', orbit1Rotation, 'orbit2:', orbit2Rotation);
+
+    if (OrbitSystemManager.DEBUG) console.log('🔄 Reset orbits - orbit1:', orbit1Rotation, 'orbit2:', orbit2Rotation);
   }
   
   private updateClonedCardsVisibility(stage: AnimationStage): void {
-    const container = document.getElementById('cloned-cards-container');
-    if (!container) return;
-    
-    const cards = container.querySelectorAll('.cloned-card');
-    
+    // Use cached elements to avoid DOM queries
+    if (!this.cachedClonedCardsContainer || !this.cachedClonedCards) return;
+
+    const container = this.cachedClonedCardsContainer;
+    const cards = this.cachedClonedCards;
+
     if (stage === 'stage4') {
       // Wait 500ms before showing cards after stage4 starts
       this.showCardsTimeout = window.setTimeout(() => {
         container.classList.remove('opacity-0');
         container.classList.add('opacity-100');
-        
+
         cards.forEach((card) => {
           (card as HTMLElement).style.transitionDelay = '';
           card.classList.remove('translate-y-20', 'scale-75', 'opacity-0');
@@ -550,7 +574,7 @@ export class OrbitSystemManager {
         window.clearTimeout(this.showCardsTimeout);
         this.showCardsTimeout = null;
       }
-      
+
       // Hide cards when leaving stage4
       cards.forEach((card, index) => {
         const invertedDelay = (cards.length - 1 - index) * 100;
@@ -558,7 +582,7 @@ export class OrbitSystemManager {
         card.classList.remove('translate-y-0', 'opacity-100');
         card.classList.add('translate-y-20', 'opacity-0');
       });
-      
+
       setTimeout(() => {
         container.classList.remove('opacity-100');
         container.classList.add('opacity-0');
@@ -569,7 +593,7 @@ export class OrbitSystemManager {
         window.clearTimeout(this.showCardsTimeout);
         this.showCardsTimeout = null;
       }
-      
+
       // Ensure container is hidden when not in stage4
       container.classList.remove('opacity-100');
       container.classList.add('opacity-0');
@@ -580,52 +604,52 @@ export class OrbitSystemManager {
         card.classList.add('translate-y-20', 'opacity-0');
       });
     }
-    
+
     this.lastStageForCards = stage;
   }
   
   public start(): void {
     this.resetAnimation();
-    console.log('🚀 Orbit system started');
+    if (OrbitSystemManager.DEBUG) console.log('🚀 Orbit system started');
   }
-  
+
   public pause(): void {
     this.stopRenderLoop();
-    console.log('⏸️ Orbit system paused');
+    if (OrbitSystemManager.DEBUG) console.log('⏸️ Orbit system paused');
   }
-  
+
   public resume(): void {
     if (this.isInViewport && this.isPageVisible) {
       this.startRenderLoop();
-      console.log('▶️ Orbit system resumed');
+      if (OrbitSystemManager.DEBUG) console.log('▶️ Orbit system resumed');
     }
   }
-  
+
   public dispose(): void {
     // Stop render loop
     this.stopRenderLoop();
-    
+
     // Clear timeout if exists
     if (this.showCardsTimeout !== null) {
       window.clearTimeout(this.showCardsTimeout);
       this.showCardsTimeout = null;
     }
-    
+
     // Clear resize timeout
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
-    
+
     // Dispose Three.js objects
     this.animatedParticleSystem.dispose();
     this.orbit1.dispose();
     this.orbit2.dispose();
-    
+
     // Dispose renderers
     this.orbitRenderer.dispose();
     this.blobRenderer.dispose();
-    
-    console.log('🧹 Orbit system cleaned up');
+
+    if (OrbitSystemManager.DEBUG) console.log('🧹 Orbit system cleaned up');
   }
   
   // Public getters for external access
