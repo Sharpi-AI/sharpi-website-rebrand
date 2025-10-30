@@ -2,15 +2,16 @@
   "name": "",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "bun@1.3.1",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "preview-deploy": "bun run build && wrangler pages deploy dist --branch=preview",
+    "deploy": "bun run build && wrangler pages deploy dist"
   },
   "dependencies": {
-    "@astrojs/netlify": "^6.6.0",
-    "@astrojs/vercel": "^8.2.7",
     "@splidejs/splide": "^4.1.4",
     "@tailwindcss/vite": "^4.1.13",
     "astro": "^5.13.7",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.2",
     "@types/three": "^0.180.0",
-    "ultracite": "5.3.3"
+    "ultracite": "5.3.3",
+    "wrangler": "^4.45.3"
   }
 }
