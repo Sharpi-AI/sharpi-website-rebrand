@@ -8,162 +8,22 @@ interface Props {
 const { bigNumber, bigNumberTitle, description } = Astro.props;
 ---
 
-<article data-mobile-card class="bg-[#f0f0f0] hover:bg-[#e7ebff] [&.active]:bg-[#e7ebff] flex flex-col items-start justify-between p-6 rounded-xl size-full min-h-[200px] aspect-[418/395] transition-all duration-300 ease-in-out group cursor-pointer">
+<article class="bg-[#f0f0f0] hover:bg-[#e7ebff] flex flex-col items-start justify-between p-4 pb-3 md:p-6 md:pb-5 rounded-xl size-full min-h-[200px] aspect-[183/177] md:aspect-[418/395] transition-all duration-300 ease-in-out group cursor-pointer">
   <div class="flex flex-col gap-4 items-start w-full text-[#3a3939]">
     <div class="flex flex-col justify-center w-full">
-      <h3 class="text-[20px] leading-8 tracking-[-0.4px] font-normal group-hover:font-medium group-[.active]:font-medium transition-all duration-300">{bigNumberTitle}</h3>
+      <h3 class="text-[17px] md:text-[20px] leading-[1.1] tracking-[-0.4px] font-normal group-hover:font-medium transition-all duration-300">{bigNumberTitle}</h3>
     </div>
 
-    <div class="flex flex-col justify-center w-full opacity-0 translate-y-5 group-hover:translate-y-0 group-hover:opacity-100 group-[.active]:translate-y-0 group-[.active]:opacity-100 transition-all ease-in-out duration-300">
+    <div class="flex flex-col justify-center w-full opacity-0 translate-y-5 group-hover:translate-y-0 group-hover:opacity-100 transition-all ease-in-out duration-300">
       <p class="text-[16px] leading-[1.4] tracking-[-0.32px] font-normal text-[#3a3939]">{description}</p>
     </div>
   </div>
 
-  <div class="flex flex-col justify-center w-full text-[#3d3939] group-hover:text-[#573dff] group-[.active]:text-[#573dff] transition-all duration-300">
-    <p class="big-number text-[76px] group-hover:text-[80px] group-[.active]:text-[80px] leading-[76px] tracking-[-1.2px] group-hover:tracking-[-1.6px] group-[.active]:tracking-[-1.6px] font-medium transition-all duration-300">{bigNumber}</p>
+  <div class="flex flex-col justify-center w-full text-[#3d3939] group-hover:text-[#573dff] transition-all duration-300">
+    <p class="big-number text-[40px] md:text-[76px] group-hover:text-[80px] leading-none tracking-[-1.2px] group-hover:tracking-[-1.6px] font-medium transition-all duration-300">{bigNumber}</p>
   </div>
 </article>
 
-<style>
-  /* Mobile optimization: use transform scale instead of font-size change to prevent layout shift */
-  @media (max-width: 768px) {
-    .big-number {
-      transform-origin: left center;
-      transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
-    }
+ 
 
-    /* Remove font-size and tracking transitions on mobile */
-    article.group:hover .big-number,
-    article.group.active .big-number {
-      font-size: 76px !important;
-      letter-spacing: -1.2px !important;
-    }
-
-    /* Apply scale transform instead */
-    article.group:hover .big-number,
-    article.group.active .big-number {
-      transform: scale(1.053);
-    }
-  }
-</style>
-
-<script>
-  // Mobile detection and intersection observer for auto-active state
-  function initMobileCardObserver() {
-    // Only run on mobile devices
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    if (!isMobile) return;
-
-    const cards = document.querySelectorAll('[data-mobile-card]');
-    const visibleCards = new Map(); // Track visible cards
-
-    // Scroll state management
-    let isScrolling = false;
-    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
-    let pendingChanges = new Map(); // Store changes to apply after scroll ends
-
-    // Detect active scrolling
-    function handleScrollStart() {
-      isScrolling = true;
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-    }
-
-    function handleScrollEnd() {
-      scrollTimeout = setTimeout(() => {
-        isScrolling = false;
-        // Apply any pending changes after scroll ends
-        applyPendingChanges();
-      }, 400);
-    }
-
-    // Apply changes that were deferred during scrolling
-    function applyPendingChanges() {
-      if (pendingChanges.size > 0) {
-        updateActiveCard();
-      }
-      pendingChanges.clear();
-    }
-
-    // Determine which card is most centered in viewport
-    function getMostCenteredCard(): Element | null {
-      const viewportHeight = window.innerHeight;
-      const viewportCenter = viewportHeight / 2;
-
-      let mostCenteredCard: Element | null = null;
-      let minDistance = Infinity;
-
-      visibleCards.forEach((entry: IntersectionObserverEntry, card: Element) => {
-        if (!entry.isIntersecting) return;
-
-        const rect = card.getBoundingClientRect();
-        const cardCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(cardCenter - viewportCenter);
-
-        if (distance < minDistance) {
-          minDistance = distance;
-          mostCenteredCard = card;
-        }
-      });
-
-      return mostCenteredCard;
-    }
-
-    // Update which card should be active (only one)
-    function updateActiveCard() {
-      const mostCentered = getMostCenteredCard();
-
-      cards.forEach(card => {
-        if (mostCentered === card) {
-          card.classList.add('active');
-        } else {
-          card.classList.remove('active');
-        }
-      });
-    }
-
-    // Add scroll event listeners
-    window.addEventListener('touchmove', handleScrollStart, { passive: true });
-    window.addEventListener('wheel', handleScrollStart, { passive: true });
-    window.addEventListener('touchend', handleScrollEnd, { passive: true });
-    window.addEventListener('touchcancel', handleScrollEnd, { passive: true });
-    window.addEventListener('wheel', handleScrollEnd, { passive: true });
-
-    // Handle state changes - track visible cards
-    function handleStateChange(entries: IntersectionObserverEntry[]) {
-      entries.forEach((entry: IntersectionObserverEntry) => {
-        visibleCards.set(entry.target, entry);
-      });
-
-      // If scrolling, defer the change
-      if (isScrolling) {
-        pendingChanges.set(true, null);
-        return;
-      }
-
-      // Update active card with debounce
-      setTimeout(() => {
-        if (!isScrolling) {
-          updateActiveCard();
-        }
-      }, 200);
-    }
-
-    // Intersection Observer
-    const observer = new IntersectionObserver(handleStateChange, {
-      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-      rootMargin: '-100px 0px'
-    });
-
-    // Observe all cards
-    cards.forEach(card => observer.observe(card));
-  }
-
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMobileCardObserver);
-  } else {
-    initMobileCardObserver();
-  }
-</script>
+ 

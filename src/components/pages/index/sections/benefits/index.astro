@@ -5,18 +5,19 @@ import NotificationsCard from "./notifications.astro";
 import ReactivationCard from "./reactivation.astro";
 ---
 
-<section id="benefits" class="py-28 px-2.5 w-full flex flex-col items-center justify-center overflow-hidden">
+<section id="benefits" aria-labelledby="benefits-title" class=" px-2.5 w-full flex flex-col items-center justify-center overflow-hidden">
   <h2
-    class="text-[37px] md:text-[58px] max-w-[18ch] text-center font-normal leading-none text-[#383838] mb-5 md:mb-14 tracking-tight"
+    id="benefits-title"
+    class="pt-28 md:pt-28 text-[37px] md:text-[58px] max-w-[18ch] text-center font-normal leading-none text-[#383838] mb-5 md:mb-14 tracking-tight"
   >
     Nossa IA vende com você e para você.
   </h2>
   <p class="text-sm text-center  tracking-[-0.02em] leading-snug text-[#3D3939] mb-10 md:hidden">A IA da Sharpi envia orçamentos 24/7, liberando seu time para focar em relacionamentos que impulsionam o crescimento.</p>
 
-  <div class="benefits-carousel-container max-w-7xl w-full">
-    <div class="splide" id="benefits-carousel">
+  <div class="benefits-carousel-container max-w-7xl w-full" role="region" aria-label="Benefícios da IA Sharpi">
+    <div class="splide" id="benefits-carousel" aria-roledescription="carrossel">
       <div class="splide__track">
-        <ul class="splide__list">
+        <ul class="splide__list" role="list">
           <li class="splide__slide">
             <div class="shining-border">
               <RecommendationCard/>
@@ -55,7 +56,6 @@ import ReactivationCard from "./reactivation.astro";
 
   #benefits-carousel .splide__list {
     display: flex;
-    
   }
 
 
@@ -130,12 +130,19 @@ import ReactivationCard from "./reactivation.astro";
   import { Splide } from "@splidejs/splide";
   import "@splidejs/splide/css/core";
 
-  const initCarousel = () => {
+  // Configuration constants
+  const MOBILE_BREAKPOINT = 768;
+  const MOBILE_GAP = 16;
+  const DESKTOP_GAP = 20;
+  const CAROUSEL_SPEED = 2000;
+  const WHEEL_THRESHOLD = 40;
+
+  const initCarousel = (): void => {
     const carousel = document.getElementById('benefits-carousel');
     if (!carousel) return;
 
-    const isMobile = window.innerWidth <= 768;
-    const gap = isMobile ? 16 : 20;
+    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+    const gap = isMobile ? MOBILE_GAP : DESKTOP_GAP;
 
     let rafId: number | null = null;
 
@@ -185,22 +192,18 @@ import ReactivationCard from "./reactivation.astro";
       type: "slide",
       perMove: 1,
       gap,
-      // padding: isMobile ? { left: peekAmount, right: peekAmount } : undefined,
       autoWidth: true,
       drag: "free",
       snap: false,
       freeScroll: true,
       arrows: false,
       pagination: false,
-      // wheel: true,
-      releaseWheel: true,
-      speed: 2000,
+      speed: CAROUSEL_SPEED,
       breakpoints: {
-        768: {
+        [MOBILE_BREAKPOINT]: {
           perPage: 1,
           autoWidth: true,
           snap: true,
-          // padding: { left: peekAmount, right: peekAmount },
         },
       },
     });
@@ -214,6 +217,45 @@ import ReactivationCard from "./reactivation.astro";
     });
 
     benefitsSplide.mount();
+
+    let wheelDeltaBucket: number = 0;
+
+    const containerEl = carousel.closest('.benefits-carousel-container') as HTMLElement | null;
+
+    const onWheel = (e: WheelEvent) => {
+      if (window.innerWidth <= MOBILE_BREAKPOINT) return;
+      if (!containerEl) return;
+
+      if (!containerEl.matches(':hover')) return;
+
+      e.preventDefault();
+
+      if (e.ctrlKey) return;
+      const { deltaX } = e;
+            
+      wheelDeltaBucket += deltaX;
+      if (Math.abs(wheelDeltaBucket) < WHEEL_THRESHOLD ) return;
+      
+      if (wheelDeltaBucket > 0) {
+        benefitsSplide.go('>');
+      } else {
+        benefitsSplide.go('<');
+      }
+      wheelDeltaBucket = 0;
+    };
+
+    if (containerEl) {
+      const abortController = new AbortController();
+      const { signal } = abortController;
+
+      containerEl.addEventListener('wheel', onWheel, { passive: false, signal });
+
+      const cleanup = () => {
+        abortController.abort();
+      };
+      window.addEventListener('pagehide', cleanup, { signal });
+      window.addEventListener('beforeunload', cleanup, { signal });
+    }
 
     const slides = carousel.querySelectorAll(".splide__slide");
     if (slides.length > 0) {

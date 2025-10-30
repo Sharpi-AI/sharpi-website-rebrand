@@ -258,7 +258,7 @@ export class OrbitSystemManager {
       sphereSize: 0.01,
       rotationSpeed: 0.03,
       rotationOffset: 0.5 * Math.PI,
-      rotationOffsetMobile: 1.2 * Math.PI,
+      rotationOffsetMobile: 0.35 * Math.PI,
       color: DEFAULT_SETTINGS.particleColor,
       enabled: true,
       isAnimating: true,
@@ -510,8 +510,8 @@ export class OrbitSystemManager {
     
     // Reset orbit rotations to initial positions
     const isMobile = window.innerWidth < 768;
-    const orbit1Rotation = isMobile ? 1.2 * Math.PI : 0.5 * Math.PI;
-    const orbit2Rotation = isMobile ? 0.2 * Math.PI : 0.4 * Math.PI;
+    const orbit1Rotation = isMobile ? 0.35 * Math.PI : 0.5 * Math.PI;
+    const orbit2Rotation = isMobile ? 0.1 * Math.PI : 0.4 * Math.PI;
     
     this.orbit1.getGroup().rotation.z = orbit1Rotation;
     this.orbit2.getGroup().rotation.z = orbit2Rotation;

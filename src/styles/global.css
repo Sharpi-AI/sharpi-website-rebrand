@@ -98,10 +98,10 @@ video {
 @media (max-width: 767px) {
   .orbit-text {
     gap: 6px;
-    padding: 12px 12px 12px 10px;
+    padding: 10px 10px 10px 8px;
     border-radius: 12px;
-    height: 56px;
-    max-height: 56px;
+    height: 48px;
+    /* max-height: 56px; */
     box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.06);
   }
 }
@@ -131,6 +131,13 @@ video {
     height: 28px;
     border-radius: 5px;
     font-size: 14px;
+  }
+
+  .orbit-text .icon svg {
+    width: 20px;
+    height: 20px;
+    
+    
   }
 }
 
@@ -167,12 +174,10 @@ video {
 /* Mobile breakpoint para textos */
 @media (max-width: 767px) {
   .orbit-text .text1 {
-    font-size: 13px;
-    
+    font-size: 12px;
   }
   
   .orbit-text .text2 {
-    font-size: 13px;
-    
+    font-size: 12px;
   }
 }
