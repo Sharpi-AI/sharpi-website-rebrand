@@ -6,32 +6,6 @@ import NotificationStack from "./notification-stack.astro";
 import CalendarIcon from "@/components/icons/calendar.astro";
 ---
 
-<style is:global>
-  video {
-    -webkit-playsinline: true;
-    -webkit-media-controls-start-playback-button {
-      display: none !important;
-    }
-  }
-  
-  /* Para iOS específicamente */
-  video::-webkit-media-controls-play-button,
-  video::-webkit-media-controls-start-playback-button {
-    display: none !important;
-    -webkit-appearance: none !important;
-  }
-  
-  /* Garantir que não apareça em fullscreen */
-  video::-webkit-media-controls-fullscreen-button {
-    display: none !important;
-  }
-  
-  /* Para alguns casos de overlay */
-  video::-webkit-media-controls-overlay-play-button {
-    display: none !important;
-  }
-</style>
-
 
 <section id="hero" class="relative z-0 w-full h-screen max-h-[1048px] flex overflow-hidden">
   <div
@@ -108,11 +82,10 @@ import CalendarIcon from "@/components/icons/calendar.astro";
         playsinline
         preload="auto"
         controls={false}
-        poster="/assets/medias/index/hero/hero-thumbnail.png"
+        poster="/assets/medias/index/hero/hero-thumbnail.webp"
       >
         <source src="/assets/medias/index/hero/hero-bg.webm" type="video/webm">
         <source src="/assets/medias/index/hero/hero-bg.mp4" type="video/mp4">
-        <source src="/assets/medias/index/hero/hero-bg.mov" type="video/quicktime">
       </video>
     </div>
   </div>

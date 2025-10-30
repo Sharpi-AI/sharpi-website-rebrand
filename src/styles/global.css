@@ -43,6 +43,30 @@ video {
   -webkit-touch-callout: none;
 }
 
+video {
+  -webkit-playsinline: true;
+  -webkit-media-controls-start-playback-button {
+    display: none !important;
+  }
+}
+
+/* Para iOS específicamente */
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* Garantir que não apareça em fullscreen */
+video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+}
+
+/* Para alguns casos de overlay */
+video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+}
+
 
 @theme {
   --font-suisse-intl: 'suisse-intl';
