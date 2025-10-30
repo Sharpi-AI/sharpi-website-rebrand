@@ -5,22 +5,20 @@ interface Props {
   description: string;
 }
 
-const { bigNumber, bigNumberTitle, description } = Astro.props;
+const { bigNumber, bigNumberTitle } = Astro.props;
 ---
 
 <article class="bg-[#f0f0f0] hover:bg-[#e7ebff] flex flex-col items-start justify-between p-4 pb-3 md:p-6 md:pb-5 rounded-xl size-full min-h-[200px] aspect-[183/177] md:aspect-[418/395] transition-all duration-300 ease-in-out group cursor-pointer">
   <div class="flex flex-col gap-4 items-start w-full text-[#3a3939]">
     <div class="flex flex-col justify-center w-full">
-      <h3 class="text-[17px] md:text-[20px] leading-[1.1] tracking-[-0.4px] font-normal group-hover:font-medium transition-all duration-300">{bigNumberTitle}</h3>
+      <h3 class="text-[17px] md:text-[20px] leading-[1.1] tracking-[-0.4px] font-normal transition-all duration-300">{bigNumberTitle}</h3>
     </div>
 
-    <div class="flex flex-col justify-center w-full opacity-0 translate-y-5 group-hover:translate-y-0 group-hover:opacity-100 transition-all ease-in-out duration-300">
-      <p class="text-[16px] leading-[1.4] tracking-[-0.32px] font-normal text-[#3a3939]">{description}</p>
-    </div>
+ 
   </div>
 
   <div class="flex flex-col justify-center w-full text-[#3d3939] group-hover:text-[#573dff] transition-all duration-300">
-    <p class="big-number text-[40px] md:text-[76px] group-hover:text-[80px] leading-none tracking-[-1.2px] group-hover:tracking-[-1.6px] font-medium transition-all duration-300">{bigNumber}</p>
+    <p class="text-[40px] md:text-[76px] group-hover:md:scale-110 origin-bottom-left leading-none tracking-[-1.2px]  font-medium transition-all duration-300">{bigNumber}</p>
   </div>
 </article>
 
