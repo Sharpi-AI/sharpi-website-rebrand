@@ -42,12 +42,12 @@ import CalendarIcon from "@/components/icons/calendar.astro";
       class="relative z-0 h-full w-[calc(100%-4rem)] md:w-96 rounded-t-[60px] bg-gradient-to-b from-[#ffffff38] to-[#ffffff] overflow-hidden backdrop-blur-sm opacity-0 translate-y-[30px]"
     >
       <!-- Mobile funnel (behind notifications) -->
-      <!-- <div
+      <div
         id="hero-funnel-mobile"
         class="md:hidden absolute inset-0 z-0 opacity-0 pointer-events-none"
       >
         <DataSourceFunnel id="three-funnel-canvas-mobile" />
-      </div> -->
+      </div>
 
       <div class="absolute inset-0 p-6 flex z-10">
         <div
@@ -83,18 +83,20 @@ import CalendarIcon from "@/components/icons/calendar.astro";
         preload="auto"
         controls={false}
         poster="/assets/medias/index/hero/hero-thumbnail.webp"
-        src="/assets/medias/index/hero/hero-bg.mp4" 
-      />
-     
+        
+      >
+        <source src="/assets/medias/index/hero/hero-bg.webm" type="video/webm">
+        <source src="/assets/medias/index/hero/hero-bg.mp4" type="video/mp4">
+      </video>
     </div>
   </div>
 
-  <!-- <div
+  <div
     id="hero-funnel"
     class="hidden md:block absolute z-5 inset-0 p-4 opacity-0 pointer-events-none"
   >
     <DataSourceFunnel id="three-funnel-canvas-desktop" />
-  </div> -->
+  </div>
 
   <div
     class="absolute z-10 bottom-0 left-0 right-0 bg-gradient-to-b from-transparent to-white h-1/4"
