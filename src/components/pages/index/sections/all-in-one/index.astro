@@ -31,7 +31,7 @@ import OrbitSystem from "./orbit-system/index.astro";
     const pageContent = document.getElementById("page-content");
     const allInOneSection = document.getElementById("all-in-one");
 
-    if (!pageContent || !allInOneSection || !window.lenis) {
+    if (!pageContent || !allInOneSection) {
       setTimeout(initColorTransition, 100);
       return;
     }
@@ -54,10 +54,10 @@ import OrbitSystem from "./orbit-system/index.astro";
       const elementTop = rect.top;
       const elementHeight = rect.height;
 
-      const enterStart = windowHeight * 0.6; // 60% da altura da janela
-      const enterEnd = windowHeight * 0.4; // 40% da altura da janela
-      const leaveStart = -elementHeight * 0.4; // -40% da altura do elemento
-      const leaveEnd = -elementHeight * 0.6; // -60% da altura do elemento
+      const enterStart = windowHeight * 0.6;
+      const enterEnd = windowHeight * 0.4;
+      const leaveStart = -elementHeight * 0.4;
+      const leaveEnd = -elementHeight * 0.6;
 
       if (elementTop > enterStart) {
         return -1;
@@ -79,7 +79,9 @@ import OrbitSystem from "./orbit-system/index.astro";
     };
 
     const whiteColor: [number, number, number] = [255, 255, 255];
-    const babyBlueColor: [number, number, number] = [204, 228, 243]; // #CCE4F3
+    const babyBlueColor: [number, number, number] = [204, 228, 243];
+
+    let ticking = false;
 
     const updateColor = () => {
       const progress = calculateProgress(allInOneSection);
@@ -97,12 +99,18 @@ import OrbitSystem from "./orbit-system/index.astro";
       }
 
       pageContent.style.backgroundColor = newColor;
+      ticking = false;
     };
 
-    // Update color on scroll
-    window.lenis.on("scroll", updateColor);
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateColor);
+        ticking = true;
+      }
+    };
 
-    // Update color on page load
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     updateColor();
   };
 
