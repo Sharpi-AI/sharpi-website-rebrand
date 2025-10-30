@@ -228,10 +228,16 @@ import ReactivationCard from "./reactivation.astro";
 
       if (!containerEl.matches(':hover')) return;
 
-      e.preventDefault();
-
       if (e.ctrlKey) return;
-      const { deltaX } = e;
+      const { deltaX, deltaY } = e;
+
+      const isHorizontalScroll = Math.abs(deltaX) > Math.abs(deltaY);
+      
+      if (!isHorizontalScroll) {
+        return;
+      }
+
+      e.preventDefault();
             
       wheelDeltaBucket += deltaX;
       if (Math.abs(wheelDeltaBucket) < WHEEL_THRESHOLD ) return;
