@@ -1,0 +1,764 @@
+---
+interface Props {
+  id?: string;
+}
+
+const { id = "funnel-container" } = Astro.props;
+---
+
+<div
+  id={id}
+  class="absolute inset-0 w-full h-full"
+  data-funnel-id={id}
+></div>
+
+<script>
+  import { createNoise2D } from "simplex-noise";
+
+  const noise = createNoise2D();
+
+  // ============================================================================
+  // CONSTANTS
+  // ============================================================================
+
+  const MOBILE_BREAKPOINT = 768;
+  const Y_OFFSET = -1.5;
+  const MIN_SCALE = 0.2;
+  const MIN_OPACITY = 0.01;
+  const CURVATURE_FACTOR = 2.0;
+  const SEEDED_RANDOM_MULTIPLIER = 10000;
+
+  const DESKTOP_CONFIG = {
+    initial: { x: 8, y: 8 },
+    objectsPerTexture: 2,
+    numLanes: { y: 4, x: 5 },
+    xLaneVariance: 1.0,
+    xLaneIndexMultiplier: 2,
+    yLaneVariationFactor: 0.4,
+    xLaneVariationFactor: 0.4,
+    yLaneEdgeConcentration: 0.7,
+    opacityFadeStart: 3,
+    noiseScale: 0.0001,
+    loopDurationMs: 40000,
+    seeds: {
+      left: 6234,
+      right: 7636,
+      repetition: 1234,
+      yLane: 627,
+      yLaneRepetition: 555,
+      xLane: 777,
+      xLaneRepetition: 333,
+    },
+  };
+
+  const MOBILE_CONFIG = {
+    yDistance: 2.1,
+    yOffset: 0,
+    xVariance: 2,
+    xOffset: -0.3,
+    textureCount: 25,
+    numLanes: { y: 5, x: 3 },
+    yLaneVariationFactor: 0.6,
+    xLaneVariationFactor: 0.6,
+    yStartRangeMultiplier: 1.5,
+    opacityFadeStart: 0.5,
+    minOpacity: 0.1,
+    noiseScale: 0.01,
+    scaleMin: 0.4,
+    fadeEaseExponent: 1.5,
+    loopDurationMs: 20000,
+    seeds: {
+      xVariation: 345,
+      offset: 678,
+      yLane: 678,
+      yLaneOffset: 9999,
+    },
+    height: {
+      availablePercent: 0.4,
+      maxPx: 500,
+      toUnitsDivisor: 100,
+    },
+  } as const;
+
+  const VIEWPORT_CONFIG = {
+    base: { width: 1440, height: 900 },
+    distance: {
+      baseX: 10,
+      baseY: 8,
+      minX: 6,
+      maxX: 12,
+      minY: 2,
+      maxY: 10,
+    },
+  } as const;
+
+  const textureDefinitions = [
+    { path: "/assets/medias/index/hero/image-01.webp", width: 1.0 },
+    { path: "/assets/medias/index/hero/image-02.webp", width: 0.8 },
+    { path: "/assets/medias/index/hero/image-03.webp", width: 1.2 },
+    { path: "/assets/medias/index/hero/image-04.webp", width: 0.9 },
+    { path: "/assets/medias/index/hero/image-05.webp", width: 1.1 },
+    { path: "/assets/medias/index/hero/image-06.webp", width: 0.7 },
+    { path: "/assets/medias/index/hero/image-07.webp", width: 1.3 },
+    { path: "/assets/medias/index/hero/image-08.webp", width: 0.8 },
+    { path: "/assets/medias/index/hero/image-09.webp", width: 1.0 },
+    { path: "/assets/medias/index/hero/image-10.webp", width: 0.9 },
+    { path: "/assets/medias/index/hero/image-11.webp", width: 1.1 },
+    { path: "/assets/medias/index/hero/image-12.webp", width: 0.6 },
+    { path: "/assets/medias/index/hero/image-13.webp", width: 1.2 },
+    { path: "/assets/medias/index/hero/image-14.webp", width: 0.8 },
+    { path: "/assets/medias/index/hero/image-15.webp", width: 1.0 },
+    { path: "/assets/medias/index/hero/image-16.webp", width: 0.9 },
+    { path: "/assets/medias/index/hero/image-17.webp", width: 1.1 },
+  ];
+
+  // ============================================================================
+  // HELPER FUNCTIONS
+  // ============================================================================
+
+  let X_DISTANCE = DESKTOP_CONFIG.initial.x;
+  let Y_DISTANCE = DESKTOP_CONFIG.initial.y;
+  let isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+
+  // Seeded random for deterministic positioning
+  function seededRandom(seed: number): number {
+    const x = Math.sin(seed) * SEEDED_RANDOM_MULTIPLIER;
+    return x - Math.floor(x);
+  }
+
+  // Clamp value between min and max
+  function clamp(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  // Linear interpolation
+  function mapLinear(
+    value: number,
+    inMin: number,
+    inMax: number,
+    outMin: number,
+    outMax: number
+  ): number {
+    return outMin + ((value - inMin) * (outMax - outMin)) / (inMax - inMin);
+  }
+
+  // Calculate distances based on viewport
+  function calculateDistances(width: number, height: number) {
+    const widthScale = width / VIEWPORT_CONFIG.base.width;
+    const heightScale = height / VIEWPORT_CONFIG.base.height;
+
+    const xDistance = clamp(
+      VIEWPORT_CONFIG.distance.baseX * Math.sqrt(widthScale),
+      VIEWPORT_CONFIG.distance.minX,
+      VIEWPORT_CONFIG.distance.maxX
+    );
+
+    const yDistance = clamp(
+      VIEWPORT_CONFIG.distance.baseY * Math.sqrt(heightScale),
+      VIEWPORT_CONFIG.distance.minY,
+      VIEWPORT_CONFIG.distance.maxY
+    );
+
+    return { xDistance, yDistance };
+  }
+
+  // Get adjusted mobile Y distance
+  function getAdjustedMobileYDistance(): number {
+    const viewportHeight = window.innerHeight;
+    const availableHeight = Math.min(
+      viewportHeight * MOBILE_CONFIG.height.availablePercent,
+      MOBILE_CONFIG.height.maxPx
+    );
+    return Math.min(
+      MOBILE_CONFIG.yDistance,
+      availableHeight / MOBILE_CONFIG.height.toUnitsDivisor
+    );
+  }
+
+  // Y lane distribution for desktop
+  function getDesktopYLaneDistribution(
+    index: number,
+    repetitionIndex: number,
+    numLanes: number
+  ): number {
+    const seed =
+      index * DESKTOP_CONFIG.seeds.yLane +
+      repetitionIndex * DESKTOP_CONFIG.seeds.yLaneRepetition;
+    const random = seededRandom(seed);
+
+    // Simplified edge concentration: push values toward 0 or 1
+    const concentration = DESKTOP_CONFIG.yLaneEdgeConcentration;
+    const distanceFromCenter = Math.abs(random - 0.5) * 2;
+    const edgePull = Math.pow(distanceFromCenter, 1 / (1 + concentration * 3));
+    const weightedPosition = random < 0.5
+      ? 0.5 - edgePull * 0.5
+      : 0.5 + edgePull * 0.5;
+
+    const laneIndex = clamp(Math.floor(weightedPosition * numLanes), 0, numLanes - 1);
+    const laneHeight = (Y_DISTANCE * 2) / numLanes;
+    const laneCenter = -Y_DISTANCE + (laneIndex + 0.5) * laneHeight;
+
+    const variationSeed = seed + 10000;
+    const laneVariation =
+      (seededRandom(variationSeed) - 0.5) *
+      laneHeight *
+      DESKTOP_CONFIG.yLaneVariationFactor;
+
+    return laneCenter + laneVariation;
+  }
+
+  // X lane distribution for desktop
+  function getDesktopXLaneDistribution(
+    index: number,
+    repetitionIndex: number,
+    baseX: number,
+    numLanes: number
+  ): number {
+    const laneIndex =
+      (index * DESKTOP_CONFIG.xLaneIndexMultiplier + repetitionIndex) %
+      numLanes;
+
+    const laneWidth = (DESKTOP_CONFIG.xLaneVariance * 2) / numLanes;
+    const laneOffset =
+      -DESKTOP_CONFIG.xLaneVariance + (laneIndex + 0.5) * laneWidth;
+
+    const seed =
+      index * DESKTOP_CONFIG.seeds.xLane +
+      repetitionIndex * DESKTOP_CONFIG.seeds.xLaneRepetition;
+    const laneVariation =
+      (seededRandom(seed) - 0.5) *
+      laneWidth *
+      DESKTOP_CONFIG.xLaneVariationFactor;
+
+    return baseX + laneOffset + laneVariation;
+  }
+
+  // Y lane distribution for mobile
+  function getMobileYLaneDistribution(
+    index: number,
+    totalObjects: number,
+    numLanes: number,
+    adjustedYDistance: number
+  ): number {
+    const laneIndex = Math.floor((index * numLanes) / totalObjects);
+
+    const startRange = adjustedYDistance * MOBILE_CONFIG.yStartRangeMultiplier;
+    const laneHeight = startRange / numLanes;
+    const laneCenter = -adjustedYDistance - (laneIndex + 0.5) * laneHeight;
+
+    const seed =
+      index * MOBILE_CONFIG.seeds.yLane + MOBILE_CONFIG.seeds.yLaneOffset;
+    const laneVariation =
+      (seededRandom(seed) - 0.5) *
+      laneHeight *
+      MOBILE_CONFIG.yLaneVariationFactor;
+
+    return laneCenter + laneVariation;
+  }
+
+  // ============================================================================
+  // ANIMATION CALCULATIONS
+  // ============================================================================
+
+  // Calculate X position (desktop)
+  function calculateXPosition(
+    direction: "left-to-right" | "right-to-left",
+    progress: number
+  ): number {
+    const startX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
+    return mapLinear(progress, 0, 1, startX, 0);
+  }
+
+  // Calculate Y position with convergence (desktop)
+  function calculateYPosition(
+    direction: "left-to-right" | "right-to-left",
+    x: number,
+    startY: number,
+    noiseOffset: number
+  ): number {
+    const startX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
+    const normalizedX = mapLinear(x, startX, 0, 0, 1);
+
+    // Parabolic curve for convergence
+    const curveY = startY * Math.pow(1 - normalizedX, CURVATURE_FACTOR);
+
+    return curveY + noiseOffset;
+  }
+
+  // Calculate scale (desktop)
+  function calculateScale(
+    direction: "left-to-right" | "right-to-left",
+    x: number
+  ): number {
+    const startX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
+    return mapLinear(x, startX, 0, 1, MIN_SCALE);
+  }
+
+  // Calculate noise offset
+  function calculateNoiseOffset(
+    progress: number,
+    index: number,
+    scale: number
+  ): number {
+    const noiseInput = progress * Math.PI * 2;
+    return (
+      noise(Math.cos(noiseInput) + index, Math.sin(noiseInput)) * scale
+    );
+  }
+
+  // Calculate mobile Y position
+  function calculateMobileYPosition(progress: number, startY: number): number {
+    const adjustedYDistance = getAdjustedMobileYDistance();
+    return mapLinear(progress, 0, 1, startY, adjustedYDistance);
+  }
+
+  // Calculate mobile scale
+  function calculateMobileScale(y: number): number {
+    const adjustedYDistance = getAdjustedMobileYDistance();
+
+    const normalizedY = clamp(
+      mapLinear(y, -adjustedYDistance, adjustedYDistance, 0, 1),
+      0,
+      1
+    );
+    const easedProgress = 1 - Math.pow(1 - normalizedY, 2);
+    return mapLinear(easedProgress, 0, 1, 1, MOBILE_CONFIG.scaleMin);
+  }
+
+  // ============================================================================
+  // MAIN FUNNEL CLASS
+  // ============================================================================
+
+  interface FunnelObject {
+    element: HTMLImageElement;
+    startPosition: { x: number; y: number };
+    offset: number;
+    direction: "left-to-right" | "right-to-left" | "bottom-to-top";
+    width: number;
+  }
+
+  class SimpleFunnel {
+    private container: HTMLElement;
+    private objects: FunnelObject[] = [];
+    private animationFrameId: number | null = null;
+    private isAnimating = false;
+    private startTime = Date.now();
+    private pausedTime = 0;
+    private mode: "desktop" | "mobile";
+
+    // Conversion factor from Three.js units to pixels
+    private readonly UNIT_TO_PX = 50; // Adjust this to match visual scale
+
+    constructor(containerId: string) {
+      const container = document.getElementById(containerId);
+      if (!container) throw new Error(`Container ${containerId} not found`);
+
+      this.container = container;
+      this.mode = isMobile ? "mobile" : "desktop";
+
+      this.init();
+    }
+
+    private async init() {
+      // Calculate initial distances
+      const { xDistance, yDistance } = calculateDistances(
+        window.innerWidth,
+        window.innerHeight
+      );
+      X_DISTANCE = xDistance;
+      Y_DISTANCE = yDistance;
+
+      await this.loadImages();
+      this.createObjects();
+      this.setupObservers();
+      this.resume();
+    }
+
+    private async loadImages(): Promise<void> {
+      const dataToUse =
+        this.mode === "mobile"
+          ? textureDefinitions.slice(0, MOBILE_CONFIG.textureCount)
+          : textureDefinitions;
+
+      const promises = dataToUse.map((def) => {
+        return new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = def.path;
+        });
+      });
+
+      await Promise.all(promises);
+    }
+
+    private createObjects() {
+      // Clear existing objects
+      this.objects.forEach((obj) => obj.element.remove());
+      this.objects = [];
+
+      const dataToUse =
+        this.mode === "mobile"
+          ? textureDefinitions.slice(0, MOBILE_CONFIG.textureCount)
+          : textureDefinitions;
+
+      for (let i = 0; i < dataToUse.length; i++) {
+        const textureDef = dataToUse[i];
+
+        if (this.mode === "desktop") {
+          for (
+            let repetition = 0;
+            repetition < DESKTOP_CONFIG.objectsPerTexture;
+            repetition++
+          ) {
+            this.createDesktopObject(
+              textureDef,
+              i,
+              dataToUse.length,
+              "left-to-right",
+              repetition
+            );
+            this.createDesktopObject(
+              textureDef,
+              i,
+              dataToUse.length,
+              "right-to-left",
+              repetition
+            );
+          }
+        } else {
+          this.createMobileObject(textureDef, i, dataToUse.length);
+        }
+      }
+    }
+
+    private createDesktopObject(
+      textureDef: { path: string; width: number },
+      index: number,
+      totalObjects: number,
+      direction: "left-to-right" | "right-to-left",
+      repetitionIndex: number
+    ) {
+      const img = document.createElement("img");
+      img.src = textureDef.path;
+      img.loading = "eager";
+      img.decoding = "async";
+      img.fetchPriority = "high";
+      img.style.position = "absolute";
+      img.style.pointerEvents = "none";
+      img.style.willChange = "transform, opacity";
+      img.style.backfaceVisibility = "hidden";
+
+      // Set image dimensions based on texture width
+      const widthPx = textureDef.width * this.UNIT_TO_PX;
+      img.style.width = `${widthPx}px`;
+      img.style.height = "auto";
+
+      const baseX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
+      const x = getDesktopXLaneDistribution(
+        index,
+        repetitionIndex,
+        baseX,
+        DESKTOP_CONFIG.numLanes.x
+      );
+      const y = getDesktopYLaneDistribution(
+        index,
+        repetitionIndex,
+        DESKTOP_CONFIG.numLanes.y
+      );
+
+      // Add z-index for depth layering (like Three.js z-position)
+      const adjustedIndex = index + repetitionIndex * totalObjects;
+      const zOffset = direction === "left-to-right" ? 0 : 100;
+      img.style.zIndex = String(adjustedIndex + zOffset);
+      const seedMultiplier =
+        direction === "left-to-right"
+          ? DESKTOP_CONFIG.seeds.left
+          : DESKTOP_CONFIG.seeds.right;
+      const offsetSeed =
+        adjustedIndex * seedMultiplier +
+        repetitionIndex * DESKTOP_CONFIG.seeds.repetition;
+
+      this.container.appendChild(img);
+
+      this.objects.push({
+        element: img,
+        startPosition: { x, y: y + Y_OFFSET },
+        offset: seededRandom(offsetSeed),
+        direction,
+        width: textureDef.width,
+      });
+    }
+
+    private createMobileObject(
+      textureDef: { path: string; width: number },
+      index: number,
+      totalObjects: number
+    ) {
+      const img = document.createElement("img");
+      img.src = textureDef.path;
+      img.loading = "eager";
+      img.decoding = "async";
+      img.fetchPriority = "high";
+      img.style.position = "absolute";
+      img.style.pointerEvents = "none";
+      img.style.willChange = "transform, opacity";
+      img.style.backfaceVisibility = "hidden";
+
+      // Set image dimensions
+      const widthPx = textureDef.width * this.UNIT_TO_PX;
+      img.style.width = `${widthPx}px`;
+      img.style.height = "auto";
+
+      // Add z-index for depth layering
+      img.style.zIndex = String(index);
+
+      const laneIndex = index % MOBILE_CONFIG.numLanes.x;
+      const laneWidth = (MOBILE_CONFIG.xVariance * 2) / MOBILE_CONFIG.numLanes.x;
+      const laneCenter =
+        -MOBILE_CONFIG.xVariance + (laneIndex + 0.5) * laneWidth;
+      const xVariation =
+        (seededRandom(index * MOBILE_CONFIG.seeds.xVariation) - 0.5) *
+        laneWidth *
+        MOBILE_CONFIG.xLaneVariationFactor;
+      const x = laneCenter + xVariation;
+
+      const adjustedYDistance = getAdjustedMobileYDistance();
+      const y = getMobileYLaneDistribution(
+        index,
+        totalObjects,
+        MOBILE_CONFIG.numLanes.y,
+        adjustedYDistance
+      );
+
+      this.container.appendChild(img);
+
+      this.objects.push({
+        element: img,
+        startPosition: { x, y: y + MOBILE_CONFIG.yOffset },
+        offset: seededRandom(index * MOBILE_CONFIG.seeds.offset),
+        direction: "bottom-to-top",
+        width: textureDef.width,
+      });
+    }
+
+    private updateObject(object: FunnelObject, index: number, progress: number) {
+      const uniqueProgress = (progress + object.offset) % 1;
+
+      if (object.direction === "bottom-to-top") {
+        this.updateMobileObject(object, index, uniqueProgress);
+      } else {
+        this.updateDesktopObject(object, index, uniqueProgress);
+      }
+    }
+
+    private updateDesktopObject(
+      object: FunnelObject,
+      index: number,
+      progress: number
+    ) {
+      const x = calculateXPosition(object.direction as "left-to-right" | "right-to-left", progress);
+
+      // Skip calculations for invisible objects (performance optimization)
+      const opacity = clamp(
+        mapLinear(Math.abs(x), DESKTOP_CONFIG.opacityFadeStart, 0, 1, MIN_OPACITY),
+        MIN_OPACITY,
+        1
+      );
+
+      if (opacity <= MIN_OPACITY) {
+        object.element.style.opacity = "0";
+        return;
+      }
+
+      const yOffset = calculateNoiseOffset(progress, index, DESKTOP_CONFIG.noiseScale);
+      const y = calculateYPosition(
+        object.direction as "left-to-right" | "right-to-left",
+        x,
+        object.startPosition.y,
+        yOffset
+      );
+
+      const scale = calculateScale(object.direction as "left-to-right" | "right-to-left", x);
+
+      // Convert from Three.js coordinate system to CSS
+      const xPx = this.convertXToPixels(x);
+      const yPx = this.convertYToPixels(y + Y_OFFSET);
+
+      object.element.style.transform = `translate3d(${xPx}px, ${yPx}px, 0) scale(${scale})`;
+      object.element.style.opacity = opacity.toString();
+    }
+
+    private updateMobileObject(
+      object: FunnelObject,
+      index: number,
+      progress: number
+    ) {
+      const y = calculateMobileYPosition(progress, object.startPosition.y);
+      const xOffset = calculateNoiseOffset(progress, index, MOBILE_CONFIG.noiseScale);
+
+      const adjustedYDistance = getAdjustedMobileYDistance();
+
+      const x =
+        mapLinear(
+          y,
+          object.startPosition.y,
+          adjustedYDistance,
+          object.startPosition.x,
+          0
+        ) + xOffset;
+
+      const scale = calculateMobileScale(y);
+
+      const normalizedY = clamp(Math.abs(y) / adjustedYDistance, 0, 1);
+      const fadeStart = MOBILE_CONFIG.opacityFadeStart;
+
+      let opacity: number;
+      if (normalizedY < fadeStart) {
+        opacity = 1;
+      } else {
+        const fadeProgress = (normalizedY - fadeStart) / (1 - fadeStart);
+        opacity = Math.max(
+          1 - Math.pow(fadeProgress, MOBILE_CONFIG.fadeEaseExponent),
+          MOBILE_CONFIG.minOpacity
+        );
+      }
+
+      // Convert from Three.js coordinate system to CSS
+      const xPx = this.convertXToPixels(x + MOBILE_CONFIG.xOffset);
+      const yPx = this.convertYToPixels(y + MOBILE_CONFIG.yOffset);
+
+      object.element.style.transform = `translate3d(${xPx}px, ${yPx}px, 0) scale(${scale})`;
+      object.element.style.opacity = opacity.toString();
+    }
+
+    // Convert Three.js coordinates to pixel coordinates
+    private convertXToPixels(x: number): number {
+      const centerX = this.container.clientWidth / 2;
+      return centerX + x * this.UNIT_TO_PX;
+    }
+
+    private convertYToPixels(y: number): number {
+      const centerY = this.container.clientHeight / 2;
+      return centerY - y * this.UNIT_TO_PX; // Invert Y axis
+    }
+
+    private animate = () => {
+      if (!this.isAnimating) return;
+
+      const currentTime = Date.now();
+      const elapsed = currentTime - this.startTime - this.pausedTime;
+      const loopDuration =
+        this.mode === "mobile"
+          ? MOBILE_CONFIG.loopDurationMs
+          : DESKTOP_CONFIG.loopDurationMs;
+      const progress = (elapsed / loopDuration) % 1;
+
+      this.objects.forEach((object, index) => {
+        this.updateObject(object, index, progress);
+      });
+
+      this.animationFrameId = requestAnimationFrame(this.animate);
+    };
+
+    private pause() {
+      if (this.isAnimating && this.animationFrameId !== null) {
+        this.isAnimating = false;
+        cancelAnimationFrame(this.animationFrameId);
+        this.animationFrameId = null;
+        this.pausedTime = Date.now() - this.startTime - this.pausedTime;
+      }
+    }
+
+    private resume() {
+      if (!this.isAnimating) {
+        this.isAnimating = true;
+        this.startTime = Date.now() - this.pausedTime;
+        this.animate();
+      }
+    }
+
+    private setupObservers() {
+      // Intersection observer for pause/resume
+      const intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.resume();
+            } else {
+              this.pause();
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+
+      intersectionObserver.observe(this.container);
+
+      // Visibility change listener
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          this.pause();
+        } else {
+          const rect = this.container.getBoundingClientRect();
+          const isInViewport =
+            rect.top < window.innerHeight && rect.bottom > 0;
+          if (isInViewport) {
+            this.resume();
+          }
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      // Resize handler with debounce
+      let resizeTimeout: number | null = null;
+      const handleResize = () => {
+        if (resizeTimeout !== null) clearTimeout(resizeTimeout);
+        resizeTimeout = window.setTimeout(() => {
+          const newIsMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+          const modeChanged = newIsMobile !== isMobile;
+
+          if (modeChanged) {
+            isMobile = newIsMobile;
+            this.mode = isMobile ? "mobile" : "desktop";
+            this.createObjects();
+          }
+
+          // Recalculate distances
+          const { xDistance, yDistance } = calculateDistances(
+            window.innerWidth,
+            window.innerHeight
+          );
+          X_DISTANCE = xDistance;
+          Y_DISTANCE = yDistance;
+        }, 150);
+      };
+
+      window.addEventListener("resize", handleResize);
+    }
+  }
+
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+
+  function initAllFunnels() {
+    const containers = document.querySelectorAll("[data-funnel-id]");
+    containers.forEach((container) => {
+      const isVisible = (container as HTMLElement).offsetParent !== null;
+      if (isVisible) {
+        const containerId = container.getAttribute("data-funnel-id");
+        if (containerId) {
+          new SimpleFunnel(containerId);
+        }
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAllFunnels);
+  } else {
+    initAllFunnels();
+  }
+</script>
