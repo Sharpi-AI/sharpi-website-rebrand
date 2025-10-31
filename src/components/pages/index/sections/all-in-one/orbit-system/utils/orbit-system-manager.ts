@@ -3,7 +3,6 @@ import { OrbitingSpheres, type AnimationStage } from './orbiting-spheres';
 import { LensParticleSystem } from './lens-particle-system';
 import { DEFAULT_SETTINGS } from './config';
 
-
 export interface OrbitSystemConfig {
   // Canvas elements
   container: HTMLElement;
@@ -511,7 +510,7 @@ export class OrbitSystemManager {
     // Reset orbit rotations to initial positions
     const isMobile = window.innerWidth < 768;
     const orbit1Rotation = isMobile ? 0.35 * Math.PI : 0.5 * Math.PI;
-    const orbit2Rotation = isMobile ? 0.1 * Math.PI : 0.4 * Math.PI;
+    const orbit2Rotation = isMobile ? 0.2 * Math.PI : 0.4 * Math.PI;
     
     this.orbit1.getGroup().rotation.z = orbit1Rotation;
     this.orbit2.getGroup().rotation.z = orbit2Rotation;

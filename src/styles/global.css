@@ -88,7 +88,7 @@ video::-webkit-media-controls-overlay-play-button {
 }
 
 .orbit-text {
-  position: relative;
+  position: absolute;
   display: flex;
   align-items: center;
   width: fit-content;
@@ -104,6 +104,7 @@ video::-webkit-media-controls-overlay-play-button {
   transform-origin: center;
   transition: opacity 0.3s ease;
   white-space: nowrap;
+  z-index: 10;
   
   /* Otimizações para reduzir tremor */
   will-change: transform, opacity;
