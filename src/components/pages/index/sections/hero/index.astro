@@ -216,11 +216,7 @@ import CalendarIcon from "@/components/icons/calendar.astro";
     );
   }
 
-  if (window.lenis) {
-    window.lenis.on("scroll", updateHeroGradient);
-  } else {
-    window.addEventListener("scroll", updateHeroGradient);
-  }
+  window.addEventListener("scroll", updateHeroGradient);
 
   // Tratar resize com debounce
   let resizeTimeout: number;

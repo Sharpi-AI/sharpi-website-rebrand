@@ -283,12 +283,7 @@ import Button from "@/components/ui/button/index.astro";
   const initAnimations = () => {
     initPageOverlay();
     updateHeaderColors();
-
-    if (window.lenis) {
-      window.lenis.on("scroll", updateHeaderColors);
-    } else {
-      window.addEventListener("scroll", updateHeaderColors);
-    }
+    window.addEventListener("scroll", updateHeaderColors);
   };
 
   if (document.readyState === "loading") {

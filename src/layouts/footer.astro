@@ -80,15 +80,17 @@ import Logo from "@/components/shared/logo/index.astro";
 
 <script>
   import { animate, stagger } from "motion";
-  import { scrollTo } from "@/utils/lenis";
 
   function initBackToTopButton() {
     const backToTopBtn = document.getElementById("back-to-top-btn");
 
     if (backToTopBtn) {
       backToTopBtn.addEventListener("click", () => {
-        // Scroll suave até a seção hero usando Lenis
-        scrollTo("#hero", { duration: 1.5 });
+        // Scroll suave nativo - mais simples e confiável
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
       });
     }
   }
