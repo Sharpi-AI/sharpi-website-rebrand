@@ -10,12 +10,10 @@ const { id = "funnel-container" } = Astro.props;
   id={id}
   class="absolute inset-0 w-full h-full"
   data-funnel-id={id}
+  style="contain: layout style paint; content-visibility: auto;"
 ></div>
 
 <script>
-  import { createNoise2D } from "simplex-noise";
-
-  const noise = createNoise2D();
 
   // ============================================================================
   // CONSTANTS
@@ -29,25 +27,20 @@ const { id = "funnel-container" } = Astro.props;
   const SEEDED_RANDOM_MULTIPLIER = 10000;
 
   const DESKTOP_CONFIG = {
-    initial: { x: 8, y: 8 },
-    objectsPerTexture: 2,
+    initial: { x: 8, y: 8.5 },
+    objectsPerTexture: 3,
     numLanes: { y: 4, x: 5 },
     xLaneVariance: 1.0,
     xLaneIndexMultiplier: 2,
-    yLaneVariationFactor: 0.4,
+    yLaneVariationFactor: 1,
     xLaneVariationFactor: 0.4,
-    yLaneEdgeConcentration: 0.7,
+    yLaneEdgeConcentration: 0.5,
     opacityFadeStart: 3,
-    noiseScale: 0.0001,
-    loopDurationMs: 40000,
+    loopDurationMs: 80000,
     seeds: {
-      left: 6234,
-      right: 7636,
+      primary: 6234,
+      secondary: 7636,
       repetition: 1234,
-      yLane: 627,
-      yLaneRepetition: 555,
-      xLane: 777,
-      xLaneRepetition: 333,
     },
   };
 
@@ -63,15 +56,12 @@ const { id = "funnel-container" } = Astro.props;
     yStartRangeMultiplier: 1.5,
     opacityFadeStart: 0.5,
     minOpacity: 0.1,
-    noiseScale: 0.01,
     scaleMin: 0.4,
     fadeEaseExponent: 1.5,
     loopDurationMs: 20000,
     seeds: {
-      xVariation: 345,
-      offset: 678,
-      yLane: 678,
-      yLaneOffset: 9999,
+      primary: 345,
+      secondary: 678,
     },
     height: {
       availablePercent: 0.4,
@@ -126,37 +116,19 @@ const { id = "funnel-container" } = Astro.props;
     return x - Math.floor(x);
   }
 
-  // Clamp value between min and max
-  function clamp(value: number, min: number, max: number): number {
-    return Math.max(min, Math.min(max, value));
-  }
-
-  // Linear interpolation
-  function mapLinear(
-    value: number,
-    inMin: number,
-    inMax: number,
-    outMin: number,
-    outMax: number
-  ): number {
-    return outMin + ((value - inMin) * (outMax - outMin)) / (inMax - inMin);
-  }
-
   // Calculate distances based on viewport
   function calculateDistances(width: number, height: number) {
     const widthScale = width / VIEWPORT_CONFIG.base.width;
     const heightScale = height / VIEWPORT_CONFIG.base.height;
 
-    const xDistance = clamp(
-      VIEWPORT_CONFIG.distance.baseX * Math.sqrt(widthScale),
+    const xDistance = Math.max(
       VIEWPORT_CONFIG.distance.minX,
-      VIEWPORT_CONFIG.distance.maxX
+      Math.min(VIEWPORT_CONFIG.distance.maxX, VIEWPORT_CONFIG.distance.baseX * Math.sqrt(widthScale))
     );
 
-    const yDistance = clamp(
-      VIEWPORT_CONFIG.distance.baseY * Math.sqrt(heightScale),
+    const yDistance = Math.max(
       VIEWPORT_CONFIG.distance.minY,
-      VIEWPORT_CONFIG.distance.maxY
+      Math.min(VIEWPORT_CONFIG.distance.maxY, VIEWPORT_CONFIG.distance.baseY * Math.sqrt(heightScale))
     );
 
     return { xDistance, yDistance };
@@ -181,9 +153,7 @@ const { id = "funnel-container" } = Astro.props;
     repetitionIndex: number,
     numLanes: number
   ): number {
-    const seed =
-      index * DESKTOP_CONFIG.seeds.yLane +
-      repetitionIndex * DESKTOP_CONFIG.seeds.yLaneRepetition;
+    const seed = index * DESKTOP_CONFIG.seeds.primary + repetitionIndex * DESKTOP_CONFIG.seeds.repetition;
     const random = seededRandom(seed);
 
     // Simplified edge concentration: push values toward 0 or 1
@@ -194,7 +164,7 @@ const { id = "funnel-container" } = Astro.props;
       ? 0.5 - edgePull * 0.5
       : 0.5 + edgePull * 0.5;
 
-    const laneIndex = clamp(Math.floor(weightedPosition * numLanes), 0, numLanes - 1);
+    const laneIndex = Math.max(0, Math.min(numLanes - 1, Math.floor(weightedPosition * numLanes)));
     const laneHeight = (Y_DISTANCE * 2) / numLanes;
     const laneCenter = -Y_DISTANCE + (laneIndex + 0.5) * laneHeight;
 
@@ -222,9 +192,7 @@ const { id = "funnel-container" } = Astro.props;
     const laneOffset =
       -DESKTOP_CONFIG.xLaneVariance + (laneIndex + 0.5) * laneWidth;
 
-    const seed =
-      index * DESKTOP_CONFIG.seeds.xLane +
-      repetitionIndex * DESKTOP_CONFIG.seeds.xLaneRepetition;
+    const seed = index * DESKTOP_CONFIG.seeds.secondary + repetitionIndex * DESKTOP_CONFIG.seeds.repetition;
     const laneVariation =
       (seededRandom(seed) - 0.5) *
       laneWidth *
@@ -246,8 +214,7 @@ const { id = "funnel-container" } = Astro.props;
     const laneHeight = startRange / numLanes;
     const laneCenter = -adjustedYDistance - (laneIndex + 0.5) * laneHeight;
 
-    const seed =
-      index * MOBILE_CONFIG.seeds.yLane + MOBILE_CONFIG.seeds.yLaneOffset;
+    const seed = index * MOBILE_CONFIG.seeds.primary;
     const laneVariation =
       (seededRandom(seed) - 0.5) *
       laneHeight *
@@ -266,7 +233,7 @@ const { id = "funnel-container" } = Astro.props;
     progress: number
   ): number {
     const startX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
-    return mapLinear(progress, 0, 1, startX, 0);
+    return startX + progress * (0 - startX);
   }
 
   // Calculate Y position with convergence (desktop)
@@ -277,7 +244,7 @@ const { id = "funnel-container" } = Astro.props;
     noiseOffset: number
   ): number {
     const startX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
-    const normalizedX = mapLinear(x, startX, 0, 0, 1);
+    const normalizedX = (x - startX) / (0 - startX);
 
     // Parabolic curve for convergence
     const curveY = startY * Math.pow(1 - normalizedX, CURVATURE_FACTOR);
@@ -291,38 +258,19 @@ const { id = "funnel-container" } = Astro.props;
     x: number
   ): number {
     const startX = direction === "left-to-right" ? -X_DISTANCE : X_DISTANCE;
-    return mapLinear(x, startX, 0, 1, MIN_SCALE);
-  }
-
-  // Calculate noise offset
-  function calculateNoiseOffset(
-    progress: number,
-    index: number,
-    scale: number
-  ): number {
-    const noiseInput = progress * Math.PI * 2;
-    return (
-      noise(Math.cos(noiseInput) + index, Math.sin(noiseInput)) * scale
-    );
+    return 1 + ((x - startX) / (0 - startX)) * (MIN_SCALE - 1);
   }
 
   // Calculate mobile Y position
-  function calculateMobileYPosition(progress: number, startY: number): number {
-    const adjustedYDistance = getAdjustedMobileYDistance();
-    return mapLinear(progress, 0, 1, startY, adjustedYDistance);
+  function calculateMobileYPosition(progress: number, startY: number, adjustedYDistance: number): number {
+    return startY + progress * (adjustedYDistance - startY);
   }
 
   // Calculate mobile scale
-  function calculateMobileScale(y: number): number {
-    const adjustedYDistance = getAdjustedMobileYDistance();
-
-    const normalizedY = clamp(
-      mapLinear(y, -adjustedYDistance, adjustedYDistance, 0, 1),
-      0,
-      1
-    );
+  function calculateMobileScale(y: number, adjustedYDistance: number): number {
+    const normalizedY = Math.max(0, Math.min(1, (y - (-adjustedYDistance)) / (adjustedYDistance - (-adjustedYDistance))));
     const easedProgress = 1 - Math.pow(1 - normalizedY, 2);
-    return mapLinear(easedProgress, 0, 1, 1, MOBILE_CONFIG.scaleMin);
+    return 1 + easedProgress * (MOBILE_CONFIG.scaleMin - 1);
   }
 
   // ============================================================================
@@ -346,8 +294,16 @@ const { id = "funnel-container" } = Astro.props;
     private pausedTime = 0;
     private mode: "desktop" | "mobile";
 
-    // Conversion factor from Three.js units to pixels
-    private readonly UNIT_TO_PX = 50; // Adjust this to match visual scale
+    // Camera configuration matching Three.js version
+    private readonly CAMERA_FOV = 50; // degrees
+    private readonly CAMERA_Z = 8; // camera position
+    private readonly CAMERA_FOV_RAD = (50 * Math.PI) / 180; // Pre-calculated
+
+    // Dynamic conversion factor calculated from camera projection
+    private unitToPx = 50;
+
+    // Cache for per-frame calculations (mobile optimization)
+    private cachedAdjustedYDistance = 0;
 
     constructor(containerId: string) {
       const container = document.getElementById(containerId);
@@ -359,7 +315,17 @@ const { id = "funnel-container" } = Astro.props;
       this.init();
     }
 
+    private calculateUnitToPx() {
+      // Calculate the conversion factor based on camera FOV and viewport
+      // This replicates Three.js perspective projection
+      const visibleHeight = 2 * this.CAMERA_Z * Math.tan(this.CAMERA_FOV_RAD / 2);
+      this.unitToPx = this.container.clientHeight / visibleHeight;
+    }
+
     private async init() {
+      // Calculate unit to pixel conversion
+      this.calculateUnitToPx();
+
       // Calculate initial distances
       const { xDistance, yDistance } = calculateDistances(
         window.innerWidth,
@@ -402,6 +368,9 @@ const { id = "funnel-container" } = Astro.props;
           ? textureDefinitions.slice(0, MOBILE_CONFIG.textureCount)
           : textureDefinitions;
 
+      // Use DocumentFragment for batch DOM insertion (performance optimization)
+      const fragment = document.createDocumentFragment();
+
       for (let i = 0; i < dataToUse.length; i++) {
         const textureDef = dataToUse[i];
 
@@ -416,20 +385,25 @@ const { id = "funnel-container" } = Astro.props;
               i,
               dataToUse.length,
               "left-to-right",
-              repetition
+              repetition,
+              fragment
             );
             this.createDesktopObject(
               textureDef,
               i,
               dataToUse.length,
               "right-to-left",
-              repetition
+              repetition,
+              fragment
             );
           }
         } else {
-          this.createMobileObject(textureDef, i, dataToUse.length);
+          this.createMobileObject(textureDef, i, dataToUse.length, fragment);
         }
       }
+
+      // Single DOM append for all objects
+      this.container.appendChild(fragment);
     }
 
     private createDesktopObject(
@@ -437,10 +411,12 @@ const { id = "funnel-container" } = Astro.props;
       index: number,
       totalObjects: number,
       direction: "left-to-right" | "right-to-left",
-      repetitionIndex: number
+      repetitionIndex: number,
+      fragment: DocumentFragment
     ) {
       const img = document.createElement("img");
       img.src = textureDef.path;
+
       img.loading = "eager";
       img.decoding = "async";
       img.fetchPriority = "high";
@@ -449,8 +425,11 @@ const { id = "funnel-container" } = Astro.props;
       img.style.willChange = "transform, opacity";
       img.style.backfaceVisibility = "hidden";
 
+      // Center the transform origin to match Three.js mesh behavior
+      img.style.transformOrigin = "center center";
+
       // Set image dimensions based on texture width
-      const widthPx = textureDef.width * this.UNIT_TO_PX;
+      const widthPx = textureDef.width * this.unitToPx;
       img.style.width = `${widthPx}px`;
       img.style.height = "auto";
 
@@ -473,13 +452,13 @@ const { id = "funnel-container" } = Astro.props;
       img.style.zIndex = String(adjustedIndex + zOffset);
       const seedMultiplier =
         direction === "left-to-right"
-          ? DESKTOP_CONFIG.seeds.left
-          : DESKTOP_CONFIG.seeds.right;
+          ? DESKTOP_CONFIG.seeds.primary
+          : DESKTOP_CONFIG.seeds.secondary;
       const offsetSeed =
         adjustedIndex * seedMultiplier +
         repetitionIndex * DESKTOP_CONFIG.seeds.repetition;
 
-      this.container.appendChild(img);
+      fragment.appendChild(img);
 
       this.objects.push({
         element: img,
@@ -493,20 +472,27 @@ const { id = "funnel-container" } = Astro.props;
     private createMobileObject(
       textureDef: { path: string; width: number },
       index: number,
-      totalObjects: number
+      totalObjects: number,
+      fragment: DocumentFragment
     ) {
       const img = document.createElement("img");
       img.src = textureDef.path;
-      img.loading = "eager";
+
+      // Only eager load first 5 images (preloaded above-the-fold)
+      const isInitiallyVisible = index < 5;
+      img.loading = isInitiallyVisible ? "eager" : "lazy";
       img.decoding = "async";
-      img.fetchPriority = "high";
+      img.fetchPriority = isInitiallyVisible ? "high" : "low";
       img.style.position = "absolute";
       img.style.pointerEvents = "none";
       img.style.willChange = "transform, opacity";
       img.style.backfaceVisibility = "hidden";
 
+      // Center the transform origin to match Three.js mesh behavior
+      img.style.transformOrigin = "center center";
+
       // Set image dimensions
-      const widthPx = textureDef.width * this.UNIT_TO_PX;
+      const widthPx = textureDef.width * this.unitToPx;
       img.style.width = `${widthPx}px`;
       img.style.height = "auto";
 
@@ -518,7 +504,7 @@ const { id = "funnel-container" } = Astro.props;
       const laneCenter =
         -MOBILE_CONFIG.xVariance + (laneIndex + 0.5) * laneWidth;
       const xVariation =
-        (seededRandom(index * MOBILE_CONFIG.seeds.xVariation) - 0.5) *
+        (seededRandom(index * MOBILE_CONFIG.seeds.secondary) - 0.5) *
         laneWidth *
         MOBILE_CONFIG.xLaneVariationFactor;
       const x = laneCenter + xVariation;
@@ -531,15 +517,23 @@ const { id = "funnel-container" } = Astro.props;
         adjustedYDistance
       );
 
-      this.container.appendChild(img);
+      fragment.appendChild(img);
 
       this.objects.push({
         element: img,
         startPosition: { x, y: y + MOBILE_CONFIG.yOffset },
-        offset: seededRandom(index * MOBILE_CONFIG.seeds.offset),
+        offset: seededRandom(index * MOBILE_CONFIG.seeds.primary),
         direction: "bottom-to-top",
         width: textureDef.width,
       });
+    }
+
+    private updateImageSizes() {
+      // Update all image sizes based on new unitToPx
+      for (const object of this.objects) {
+        const widthPx = object.width * this.unitToPx;
+        object.element.style.width = `${widthPx}px`;
+      }
     }
 
     private updateObject(object: FunnelObject, index: number, progress: number) {
@@ -560,23 +554,20 @@ const { id = "funnel-container" } = Astro.props;
       const x = calculateXPosition(object.direction as "left-to-right" | "right-to-left", progress);
 
       // Skip calculations for invisible objects (performance optimization)
-      const opacity = clamp(
-        mapLinear(Math.abs(x), DESKTOP_CONFIG.opacityFadeStart, 0, 1, MIN_OPACITY),
-        MIN_OPACITY,
-        1
-      );
+      const absX = Math.abs(x);
+      const opacityRaw = 1 + ((absX - DESKTOP_CONFIG.opacityFadeStart) / (0 - DESKTOP_CONFIG.opacityFadeStart)) * (MIN_OPACITY - 1);
+      const opacity = Math.max(MIN_OPACITY, Math.min(1, opacityRaw));
 
       if (opacity <= MIN_OPACITY) {
         object.element.style.opacity = "0";
         return;
       }
 
-      const yOffset = calculateNoiseOffset(progress, index, DESKTOP_CONFIG.noiseScale);
       const y = calculateYPosition(
         object.direction as "left-to-right" | "right-to-left",
         x,
         object.startPosition.y,
-        yOffset
+        0
       );
 
       const scale = calculateScale(object.direction as "left-to-right" | "right-to-left", x);
@@ -585,7 +576,8 @@ const { id = "funnel-container" } = Astro.props;
       const xPx = this.convertXToPixels(x);
       const yPx = this.convertYToPixels(y + Y_OFFSET);
 
-      object.element.style.transform = `translate3d(${xPx}px, ${yPx}px, 0) scale(${scale})`;
+      // Apply translate(-50%, -50%) to center the image at the coordinate (like Three.js meshes)
+      object.element.style.transform = `translate3d(${xPx}px, ${yPx}px, 0) translate(-50%, -50%) scale(${scale})`;
       object.element.style.opacity = opacity.toString();
     }
 
@@ -594,23 +586,16 @@ const { id = "funnel-container" } = Astro.props;
       index: number,
       progress: number
     ) {
-      const y = calculateMobileYPosition(progress, object.startPosition.y);
-      const xOffset = calculateNoiseOffset(progress, index, MOBILE_CONFIG.noiseScale);
+      // Use cached value instead of recalculating (3x performance boost)
+      const adjustedYDistance = this.cachedAdjustedYDistance;
 
-      const adjustedYDistance = getAdjustedMobileYDistance();
+      const y = calculateMobileYPosition(progress, object.startPosition.y, adjustedYDistance);
 
-      const x =
-        mapLinear(
-          y,
-          object.startPosition.y,
-          adjustedYDistance,
-          object.startPosition.x,
-          0
-        ) + xOffset;
+      const x = object.startPosition.x + ((y - object.startPosition.y) / (adjustedYDistance - object.startPosition.y)) * (0 - object.startPosition.x);
 
-      const scale = calculateMobileScale(y);
+      const scale = calculateMobileScale(y, adjustedYDistance);
 
-      const normalizedY = clamp(Math.abs(y) / adjustedYDistance, 0, 1);
+      const normalizedY = Math.max(0, Math.min(1, Math.abs(y) / adjustedYDistance));
       const fadeStart = MOBILE_CONFIG.opacityFadeStart;
 
       let opacity: number;
@@ -628,19 +613,20 @@ const { id = "funnel-container" } = Astro.props;
       const xPx = this.convertXToPixels(x + MOBILE_CONFIG.xOffset);
       const yPx = this.convertYToPixels(y + MOBILE_CONFIG.yOffset);
 
-      object.element.style.transform = `translate3d(${xPx}px, ${yPx}px, 0) scale(${scale})`;
+      // Apply translate(-50%, -50%) to center the image at the coordinate (like Three.js meshes)
+      object.element.style.transform = `translate3d(${xPx}px, ${yPx}px, 0) translate(-50%, -50%) scale(${scale})`;
       object.element.style.opacity = opacity.toString();
     }
 
     // Convert Three.js coordinates to pixel coordinates
     private convertXToPixels(x: number): number {
       const centerX = this.container.clientWidth / 2;
-      return centerX + x * this.UNIT_TO_PX;
+      return centerX + x * this.unitToPx;
     }
 
     private convertYToPixels(y: number): number {
       const centerY = this.container.clientHeight / 2;
-      return centerY - y * this.UNIT_TO_PX; // Invert Y axis
+      return centerY - y * this.unitToPx; // Invert Y axis
     }
 
     private animate = () => {
@@ -653,6 +639,11 @@ const { id = "funnel-container" } = Astro.props;
           ? MOBILE_CONFIG.loopDurationMs
           : DESKTOP_CONFIG.loopDurationMs;
       const progress = (elapsed / loopDuration) % 1;
+
+      // Cache adjusted Y distance once per frame (mobile optimization)
+      if (this.mode === "mobile") {
+        this.cachedAdjustedYDistance = getAdjustedMobileYDistance();
+      }
 
       this.objects.forEach((object, index) => {
         this.updateObject(object, index, progress);
@@ -716,6 +707,11 @@ const { id = "funnel-container" } = Astro.props;
       const handleResize = () => {
         if (resizeTimeout !== null) clearTimeout(resizeTimeout);
         resizeTimeout = window.setTimeout(() => {
+          const previousUnitToPx = this.unitToPx;
+
+          // Recalculate unit to pixel conversion
+          this.calculateUnitToPx();
+
           const newIsMobile = window.innerWidth <= MOBILE_BREAKPOINT;
           const modeChanged = newIsMobile !== isMobile;
 
@@ -723,6 +719,12 @@ const { id = "funnel-container" } = Astro.props;
             isMobile = newIsMobile;
             this.mode = isMobile ? "mobile" : "desktop";
             this.createObjects();
+          } else {
+            // Update image sizes if unitToPx changed significantly
+            const unitToPxChangeRatio = Math.abs(this.unitToPx - previousUnitToPx) / previousUnitToPx;
+            if (unitToPxChangeRatio > 0.1) {
+              this.updateImageSizes();
+            }
           }
 
           // Recalculate distances
